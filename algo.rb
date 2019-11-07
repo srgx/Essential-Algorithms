@@ -46,10 +46,10 @@ stepsPerYear = stepsPerDay * 365
 # second: 19, minute: 25, hour: 31, day: 36, week: 39, year: 44
 
 # n^2
-# second: 1000, minute: 7745, hour: 60000, week: 777688, year: 5615692
+# second: 1000, minute: 7745, hour: 60000, day: 293938, week: 777688, year: 5615692
 
 # n
-# second: 1000.000, minute: 60.000.000, hour: 3600.000.000,
+# second: 1000.000, minute: 60.000.000, hour: 3600.000.000, day: 86400.000.000
 # week: 604800.000.000, year: 31536.000.000.000
 
 
