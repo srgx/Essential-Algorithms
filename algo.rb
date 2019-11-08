@@ -32,12 +32,12 @@ if !containsDuplicates2(dups) then raise err end
 # Runtime is O(N^2)
 
 # Exercise 2
-stepsPerSecond = 1000000
-stepsPerMinute = stepsPerSecond * 60
-stepsPerHour = stepsPerMinute * 60
-stepsPerDay = stepsPerHour * 24
-stepsPerWeek = stepsPerDay * 7
-stepsPerYear = stepsPerDay * 365
+STEPS_PER_SECOND = 1000000
+STEPS_PER_MINUTE = STEPS_PER_SECOND * 60
+STEPS_PER_HOUR = STEPS_PER_MINUTE * 60
+STEPS_PER_DAY = STEPS_PER_HOUR * 24
+STEPS_PER_WEEK = STEPS_PER_DAY * 7
+STEPS_PER_YEAR = STEPS_PER_DAY * 365
 
 # n!
 # second: 9, minute: 11, hour: 12, day: 13, week: 14, year: 16
@@ -58,8 +58,8 @@ stepsPerYear = stepsPerDay * 365
 # year: 994519296.000.000.000.000.000.000
 
 # log 2 n
-# second: 2**stepsPerSecond, minute: 2**stepsPerMinute, hour: 2**stepsPerHour, day: 2**stepsPerDay,
-# week: 2**stepsPerWeek, year: 2**stepsPerYear
+# second: 2**STEPS_PER_SECOND, minute: 2**STEPS_PER_MINUTE, hour: 2**STEPS_PER_HOUR,
+# day: 2**STEPS_PER_DAY, week: 2**STEPS_PER_WEEK, year: 2**STEPS_PER_YEAR
 
 # Exercise 3
 # For n>50 1500*n is better than 30*(n**2), for n==50 they are equal
@@ -104,7 +104,7 @@ end
 # Exercise 5
 # Runtime is O(N^2)
 
-letters = ["A","B","C","D"]
+LETTERS = ["A","B","C","D"]
 def pairs(le)
   res = []
   0.upto(le.size-1) do |i|
@@ -115,13 +115,53 @@ def pairs(le)
   return res
 end
 
-letterPairs = [["A", "B"], ["A", "C"], ["A", "D"], ["B", "C"], ["B", "D"], ["C", "D"]]
+LETTER_PAIRS = [["A", "B"], ["A", "C"], ["A", "D"], ["B", "C"], ["B", "D"], ["C", "D"]]
 
-if pairs(letters)!=letterPairs then raise err end
+if pairs(LETTERS)!=LETTER_PAIRS then raise err end
 
 
 # Exercise 6
-# Runtime is O(N^2)
+# Runtime is 6*n**2, O(N^2)
 
+# Exercise 7
+# Number of cubes is 12*n-(2*8), 12 edges minus 2 times corners(counted 3 times)
+# Runtime is O(N)
+
+def cubes(n)
+  return 12*n-2*8
+end
+
+# Exercise 11
+# Fibonacci function is better than 2**x/10 but worse than x**2/5
+
+def fibonacci(n)
+  arr = Array.new(n+1)
+  arr[0] = 1
+  arr[1] = 1
+  2.upto(n) do |i|
+    arr[i] = arr[i-1] + arr[i-2]
+  end
+  return arr[n]
+end
+
+def fibonacci2(n)
+  return (n==0||n==1) ? 1 : fibonacci2(n-1) + fibonacci2(n-2)
+end
+
+def fibonacci3(n)
+  w = (1+Math.sqrt(5))/2
+  res = w**n/Math.sqrt(5)
+  return res.round
+end
+
+
+X = 30
+FIBORES = 1346269
+if fibonacci(X)!=FIBORES then raise err end
+if fibonacci2(X)!=FIBORES then raise err end
+if fibonacci3(X+1)!=FIBORES then raise err end
+
+# Exercise 10
+# ...
 
 
