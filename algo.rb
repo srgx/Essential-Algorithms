@@ -1,21 +1,21 @@
 def containsDuplicates(array)
-	0.upto(array.size-1) do |i|
-		0.upto(array.size-1) do |j|
-			if(i!=j)
-				if(array[i] == array[j]) then return true end
-			end
-		end
-	end
-	return false
+  0.upto(array.size-1) do |i|
+    0.upto(array.size-1) do |j|
+      if(i!=j)
+        if(array[i] == array[j]) then return true end
+      end
+    end
+  end
+  return false
 end
 
 def containsDuplicates2(array)
-	0.upto(array.size-2) do |i|
-		(i+1).upto(array.size-1) do |j|
-			if(array[i] == array[j]) then return true end
-		end
-	end
-	return false
+  0.upto(array.size-2) do |i|
+    (i+1).upto(array.size-1) do |j|
+      if(array[i] == array[j]) then return true end
+    end
+  end
+  return false
 end
 
 err = "ERROR"
