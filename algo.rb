@@ -61,4 +61,38 @@ stepsPerYear = stepsPerDay * 365
 # second: 2**stepsPerSecond, minute: 2**stepsPerMinute, hour: 2**stepsPerHour, day: 2**stepsPerDay,
 # week: 2**stepsPerWeek, year: 2**stepsPerYear
 
+# Exercise 3
+# For n>50 1500*n is better than 30*(n**2), for n==50 they are equal
+
+1.upto(60) do |n|
+  f = 1500*n
+  s = 30*n**2
+  puts n
+  if(f<s)
+    puts "1500*n better"
+  elsif(f==s)
+    puts "Equal"
+  else
+    puts "30*(n**2) better"
+  end
+end
+
+# Exercise 4
+# Algorithm n/2+8 is better for all values except n(6-15)(worse) and n(4,5,16)(equal)
+
+1.upto(30) do |n|
+  f = n**3/75-n**2/4+n+10
+  s = n/2+8
+  puts n
+  if(f>s)
+    puts "n/2+8 better"
+  elsif(f==s)
+    puts "Equal"
+  else
+    puts "n**3/75-n**2/4+n+10 better"
+  end
+end
+
+# Exercise 5
+# ...
 
