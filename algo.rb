@@ -71,9 +71,9 @@ stepsPerYear = stepsPerDay * 365
   if(f<s)
     puts "1500*n better"
   elsif(f==s)
-    puts "Equal"
+    puts "equal"
   else
-    puts "30*(n**2) better"
+    puts "30*n**2 better"
   end
 end
 
@@ -87,7 +87,7 @@ end
   if(f>s)
     puts "n/2+8 better"
   elsif(f==s)
-    puts "Equal"
+    puts "equal"
   else
     puts "n**3/75-n**2/4+n+10 better"
   end
