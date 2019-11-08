@@ -64,35 +64,64 @@ stepsPerYear = stepsPerDay * 365
 # Exercise 3
 # For n>50 1500*n is better than 30*(n**2), for n==50 they are equal
 
-1.upto(60) do |n|
-  f = 1500*n
-  s = 30*n**2
-  puts n
-  if(f<s)
-    puts "1500*n better"
-  elsif(f==s)
-    puts "equal"
-  else
-    puts "30*n**2 better"
+def ex3
+  1.upto(60) do |n|
+    f = 1500*n
+    s = 30*n**2
+    puts n
+    if(f<s)
+      puts "1500*n better"
+    elsif(f==s)
+      puts "equal"
+    else
+      puts "30*n**2 better"
+    end
   end
 end
+
+# ex3
 
 # Exercise 4
 # Algorithm n/2+8 is better for all values except n(6-15)(worse) and n(4,5,16)(equal)
 
-1.upto(30) do |n|
-  f = n**3/75-n**2/4+n+10
-  s = n/2+8
-  puts n
-  if(f>s)
-    puts "n/2+8 better"
-  elsif(f==s)
-    puts "equal"
-  else
-    puts "n**3/75-n**2/4+n+10 better"
+def ex4
+  1.upto(30) do |n|
+    f = n**3/75-n**2/4+n+10
+    s = n/2+8
+    puts n
+    if(f>s)
+      puts "n/2+8 better"
+    elsif(f==s)
+      puts "equal"
+    else
+      puts "n**3/75-n**2/4+n+10 better"
+    end
   end
 end
 
+# ex4
+
 # Exercise 5
-# ...
+# Runtime is O(N^2)
+
+letters = ["A","B","C","D"]
+def pairs(le)
+  res = []
+  0.upto(le.size-1) do |i|
+    (i+1).upto(le.size-1) do |j|
+      res << [le[i],le[j]]
+    end
+  end
+  return res
+end
+
+letterPairs = [["A", "B"], ["A", "C"], ["A", "D"], ["B", "C"], ["B", "D"], ["C", "D"]]
+
+if pairs(letters)!=letterPairs then raise err end
+
+
+# Exercise 6
+# Runtime is O(N^2)
+
+
 
