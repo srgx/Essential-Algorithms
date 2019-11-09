@@ -79,7 +79,6 @@ def ex3
   end
 end
 
-# ex3
 
 # Exercise 4
 # Algorithm n/2+8 is better for all values except n(6-15)(worse) and n(4,5,16)(equal)
@@ -99,7 +98,6 @@ def ex4
   end
 end
 
-# ex4
 
 # Exercise 5
 # Runtime is O(N^2)
@@ -131,6 +129,25 @@ def cubes(n)
   return 12*n-2*8
 end
 
+# Exercise 8
+# Runtime is O(N^3)
+
+def cubes2(n)
+  if(n==1)
+    return 1
+  else
+    h=0
+    1.upto(n) { |i| h+=i }
+    return h+cubes2(n-1)
+  end
+end
+
+# Exercise 9
+# Algorithms and Data Structures are inseparable
+
+# Exercise 10
+# First algorithm uses n steps, second n + log n steps. Both are O(N)
+
 # Exercise 11
 # Fibonacci function is better than 2**x/10 but worse than x**2/5
 
@@ -160,8 +177,5 @@ FIBORES = 1346269
 if fibonacci(X)!=FIBORES then raise err end
 if fibonacci2(X)!=FIBORES then raise err end
 if fibonacci3(X+1)!=FIBORES then raise err end
-
-# Exercise 10
-# ...
 
 
