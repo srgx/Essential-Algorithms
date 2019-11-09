@@ -136,11 +136,16 @@ def cubes2(n)
   if(n==1)
     return 1
   else
-    h=0
-    1.upto(n) { |i| h+=i }
-    return h+cubes2(n-1)
+    return n*(n+1)/2+cubes2(n-1)
   end
 end
+
+def cubes3(n)
+  s=0
+  1.upto(n) { |i| s+=i*(i+1)/2 }
+  return s
+end
+
 
 # Exercise 9
 # Algorithms and Data Structures are inseparable
