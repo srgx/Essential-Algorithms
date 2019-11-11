@@ -48,9 +48,7 @@ def pick(arr,m)
     j = rand(i..max_i)
     arr[i],arr[j] = arr[j],arr[i]
   end
-  result = Array.new(m)
-  0.upto(m-1) { |i| result[i] = arr[i] }
-  return result
+  return arr[0..m-1]
 end
 
 
