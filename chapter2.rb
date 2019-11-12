@@ -53,5 +53,36 @@ end
 
 
 # Exercise 6
+# Order doesnt matter
+
+def randomize(arr)
+  max_i = arr.size-1
+  0.upto(max_i) do |i|
+    j = rand(i..max_i)
+    arr[i],arr[j] = arr[j],arr[i]
+  end
+  return arr
+end
+
+
+def dealCards(players)
+  cards = []
+  1.upto(52) { |i| cards << i }
+  randomize(cards)
+  result = []
+  i = 0
+  players.times do
+    p = []
+    5.times do
+      p << cards[i]
+      i+=1
+    end
+    result << p
+  end
+  return result
+end
+
+# Exercise 7
 # ...
+
 
