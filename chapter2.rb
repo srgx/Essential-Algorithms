@@ -116,11 +116,7 @@ end
 # Exercise 10
 
 def exponentiation(a,p)
-  if(p==0)
-    return 1
-  elsif(p==1)
-    return a
-  end
+  if([0,1].include?(p)) then return [1,a][p] end
   n=1
   arr=[]
   while(n<p)
@@ -151,6 +147,7 @@ T = 200
     if exponentiation(i,j)!=i**j then raise "Error for values #{i},#{j}" end
   end
 end
+
 
 # Exercise 9
 # ...
