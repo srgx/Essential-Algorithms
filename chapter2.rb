@@ -150,6 +150,43 @@ end
 
 
 # Exercise 14
+# [561, 1105, 1729, 2465, 2821, 6601, 8911]
+
+def sieve(n)
+  is_composite = Array.new(n+1,false)
+  (4..n).step(2) do |i|
+    is_composite[i] = true
+  end
+  
+  current_prime = 3
+  stop_at = Integer.sqrt(n)
+  
+  while(current_prime <= stop_at)
+    (current_prime*2..n).step(current_prime) { |i| is_composite[i] = true }
+    
+    #current_prime+=2
+    #while((current_prime<=n)&&(is_composite[current_prime]))
+    #  current_prime+=2
+    #end
+    
+    loop do
+      current_prime+=2
+      break if(!((current_prime<=n)&&(is_composite[current_prime])))
+    end
+    
+  end
+  
+  primes = []
+  2.upto(n) do |i|
+    if(!is_composite[i]) then primes << i end
+  end
+  
+  return primes
+end
+
+PRIMES=[2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47]
+
+if(sieve(50)!=PRIMES) then raise "Error" end
 
 def isPrime(n)
   if(n==1) then return false end
@@ -164,32 +201,31 @@ def isPrime(n)
 end
 
 
+# For composite numbers
 def isCarmichael(n)
-  if(isPrime(n))
-    return false
-  else
-    r=true
-    (n-1).downto(2) do |a|
-      if((euclid(a,n)==1)&&((a**(n-1)-1)%n!=0))
-        r=false
-        break
-      end
+  r=true
+  (n-1).downto(2) do |a|
+    if((euclid(a,n)==1)&&((a**(n-1)-1)%n!=0))
+      r=false
+      break
     end
-    return r
   end
+  return r
 end
 
 
-if(isPrime(1)) then raise "1 is not prime" end
-if(!isPrime(2)) then raise "2 is prime" end
-if(isCarmichael(562))then raise "562 is not carmichael number" end
-if(!isCarmichael(561))then raise "561 is carmichael number" end
-if(isCarmichael(560))then raise "560 is not carmichael number" end
+def generateCarmichael(limit)
+  numbers,primes = [],sieve(limit)
+  2.upto(limit) do |i|
+    if((!primes.include?(i))&&(isCarmichael(i))) then numbers << i end
+  end
+  return numbers
+end
+
+if(generateCarmichael(3000)!=[561, 1105, 1729, 2465, 2821]) then raise "Error" end
 
 
 # Exercise 9
 # ...
-
-
 
 
