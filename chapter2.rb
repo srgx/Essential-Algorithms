@@ -149,7 +149,47 @@ T = 200
 end
 
 
+# Exercise 14
+
+def isPrime(n)
+  if(n==1) then return false end
+  r=true
+  (n-1).downto(2) do |i|
+    if(n%i==0)
+      r=false
+      break
+    end
+  end
+  return r
+end
+
+
+def isCarmichael(n)
+  if(isPrime(n))
+    return false
+  else
+    r=true
+    (n-1).downto(2) do |a|
+      if((euclid(a,n)==1)&&((a**(n-1)-1)%n!=0))
+        r=false
+        break
+      end
+    end
+    return r
+  end
+end
+
+
+if(isPrime(1)) then raise "1 is not prime" end
+if(!isPrime(2)) then raise "2 is prime" end
+if(isCarmichael(562))then raise "562 is not carmichael number" end
+if(!isCarmichael(561))then raise "561 is carmichael number" end
+if(isCarmichael(560))then raise "560 is not carmichael number" end
+
+
 # Exercise 9
 # ...
+
+
 
 
