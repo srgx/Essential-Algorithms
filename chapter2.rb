@@ -282,7 +282,7 @@ if(rectangleRule2(:poly,0,200,25)!=2665600) then raise "Error" end
 
 
 # Exercise 12
-# Number of steps grows very slow
+# Number of steps grows very slowly
 
 def gcdSteps(m,n)
   steps=0
