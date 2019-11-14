@@ -320,4 +320,53 @@ def stepsAv(n)
   return result
 end
 
+def findFactors(number)
+  factors = []
+  i=2
+  while(i<number)
+    while(number%i==0)
+      factors << i
+      number/=i
+    end
+    i+=1
+  end
+  if(number>1) then factors << number end
+  return factors
+end
+
+# improved version
+def findFactors2(number)
+  factors = []
+  while(number%2==0)
+    factors << 2
+    number/=2
+  end
+  i=3
+  max_factor=Integer.sqrt(number)
+  while(i<=max_factor)
+    while(number%i==0)
+      factors << i
+      number/=i
+      max_factor=Integer.sqrt(number)
+    end
+    i+=2
+  end
+  if(number>1) then factors << number end
+  return factors
+end
+
+NUM_1=127
+NUM_2=500
+NUM_3=1020
+FACTORS_1=[127]
+FACTORS_2=[2,2,5,5,5]
+FACTORS_3=[2,2,3,5,17]
+
+if(findFactors(NUM_1)!=FACTORS_1) then raise "Error" end
+if(findFactors2(NUM_1)!=FACTORS_1) then raise "Error" end
+if(findFactors(NUM_2)!=FACTORS_2) then raise "Error" end
+if(findFactors2(NUM_2)!=FACTORS_2) then raise "Error" end
+if(findFactors(NUM_3)!=FACTORS_3) then raise "Error" end
+if(findFactors2(NUM_3)!=FACTORS_3) then raise "Error" end
+
 
