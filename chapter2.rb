@@ -162,7 +162,7 @@ def sieve(n)
   stop_at = Integer.sqrt(n)
   
   while(current_prime <= stop_at)
-    (current_prime*2..n).step(current_prime) { |i| is_composite[i] = true }
+    (current_prime**2..n).step(current_prime) { |i| is_composite[i] = true }
     
     #current_prime+=2
     #while((current_prime<=n)&&(is_composite[current_prime]))
@@ -369,5 +369,8 @@ if(findFactors(NUM_2)!=FACTORS_2) then raise ERR end
 if(findFactors2(NUM_2)!=FACTORS_2) then raise ERR end
 if(findFactors(NUM_3)!=FACTORS_3) then raise ERR end
 if(findFactors2(NUM_3)!=FACTORS_3) then raise ERR end
+
+# Exercise 13
+# Start loop with current_prime**2, all smaller multiplies have already been marked
 
 
