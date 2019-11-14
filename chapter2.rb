@@ -226,6 +226,62 @@ if(generateCarmichael(3000)!=[561, 1105, 1729, 2465, 2821]) then raise "Error" e
 
 
 # Exercise 9
+# Least common multiple
+# g=GCD(a,b), A=g*m, B=g*n,
+# A*B/GCD(a,b) = g*m*g*n/g = g*m*n
+def lcd(a,b)
+  return a*b/euclid(a,b)
+end
+
+# Exercise 14
+# Root of function f(x)-g(x) is where functions intersect
+
+
+# Exercise 15
+# Middle rectangle can reduce error for increasing and decreasing curves
+
+def poly(x)
+  return x**2
+end
+
+def linear(x)
+  return x*2
+end
+
+def constant(x)
+  return 10
+end
+
+# Left
+def rectangleRule(func,xmin,xmax,intervals)
+  dx=(xmax-xmin)/intervals
+  total_area=0
+  x=xmin
+  intervals.times do
+    total_area = total_area + dx*send(func,x)
+    x+=dx
+  end
+  return total_area
+end
+
+# Middle
+def rectangleRule2(func,xmin,xmax,intervals)
+  dx=(xmax-xmin)/intervals
+  total_area=0
+  x=xmin+dx/2
+  intervals.times do
+    total_area = total_area + dx*send(func,x)
+    x+=dx
+  end
+  return total_area
+end
+
+
+if(rectangleRule(:poly,0,200,25)!=2508800) then raise "Error" end
+if(rectangleRule2(:poly,0,200,25)!=2665600) then raise "Error" end
+
+
+# Exercise 12
 # ...
 
 
