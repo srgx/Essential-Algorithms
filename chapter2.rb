@@ -361,12 +361,13 @@ NUM_3=1020
 FACTORS_1=[127]
 FACTORS_2=[2,2,5,5,5]
 FACTORS_3=[2,2,3,5,17]
+ERR="wrong prime factors"
 
-if(findFactors(NUM_1)!=FACTORS_1) then raise "Error" end
-if(findFactors2(NUM_1)!=FACTORS_1) then raise "Error" end
-if(findFactors(NUM_2)!=FACTORS_2) then raise "Error" end
-if(findFactors2(NUM_2)!=FACTORS_2) then raise "Error" end
-if(findFactors(NUM_3)!=FACTORS_3) then raise "Error" end
-if(findFactors2(NUM_3)!=FACTORS_3) then raise "Error" end
+if(findFactors(NUM_1)!=FACTORS_1) then raise ERR end
+if(findFactors2(NUM_1)!=FACTORS_1) then raise ERR end
+if(findFactors(NUM_2)!=FACTORS_2) then raise ERR end
+if(findFactors2(NUM_2)!=FACTORS_2) then raise ERR end
+if(findFactors(NUM_3)!=FACTORS_3) then raise ERR end
+if(findFactors2(NUM_3)!=FACTORS_3) then raise ERR end
 
 
