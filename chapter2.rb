@@ -233,7 +233,7 @@ def lcd(a,b)
   return a*b/euclid(a,b)
 end
 
-# Exercise 14
+# Exercise 18
 # Root of function f(x)-g(x) is where functions intersect
 
 
