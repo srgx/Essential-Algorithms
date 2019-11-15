@@ -85,6 +85,7 @@ end
 
 
 # Exercise 7
+# Program produces expected values for ~30.000 trials
 
 def twoSix
   a=rand(1..6)
@@ -114,6 +115,15 @@ def euclid(m,n)
   end
   return m
 end
+
+# Exercise 9
+# Least common multiple
+# g=GCD(a,b), A=g*m, B=g*n,
+# A*B/GCD(a,b) = g*m*g*n/g = g*m*n
+def lcm(a,b)
+  return a*b/euclid(a,b)
+end
+
 
 # Exercise 10
 
@@ -151,9 +161,52 @@ T = 200
 end
 
 
-# Exercise 14
-# [[561, [3, 11, 17]], [1105, [5, 13, 17]], [1729, [7, 13, 19]], 
-# [2465, [5, 17, 29]], [2821, [7, 13, 31]], [6601, [7, 23, 41]], [8911, [7, 19, 67]]]
+# Exercise 11
+# ...
+
+
+# Exercise 12
+# Number of steps grows very slowly
+
+def gcdSteps(m,n)
+  steps=0
+  while(n!=0)
+    steps+=1
+    r=m%n
+    m=n
+    n=r
+  end
+  return steps
+end
+
+
+def generatePairs(n)
+  pairs = []
+  n.times do
+    p = []
+    2.times { p << rand(1..100000) }
+    pairs << p
+  end
+  return pairs
+end
+
+def stepsAv(n)
+  pairs = generatePairs(n)
+  result = []
+  pairs.each do |p|
+    c=[]
+    average = (p[0]+p[1])/2.0
+    steps = gcdSteps(p[0],p[1])
+    c << average
+    c << steps
+    result << c
+  end
+  return result
+end
+
+
+# Exercise 13
+# Start loop with current_prime**2, all smaller multiplies have already been marked
 
 def sieve(n)
   is_composite = Array.new(n+1,false)
@@ -190,6 +243,12 @@ end
 PRIMES=[2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47]
 
 if(sieve(50)!=PRIMES) then raise "Error" end
+
+
+# Exercise 14
+# [[561, [3, 11, 17]], [1105, [5, 13, 17]], [1729, [7, 13, 19]], 
+# [2465, [5, 17, 29]], [2821, [7, 13, 31]], [6601, [7, 23, 41]], [8911, [7, 19, 67]]]
+
 
 def isPrime(n)
   if(n==1) then return false end
@@ -284,18 +343,6 @@ CARMS=[[561, [3, 11, 17]], [1105, [5, 13, 17]],
 if(generateCarmichael(3000)!=CARMS) then raise "Error" end
 
 
-# Exercise 9
-# Least common multiple
-# g=GCD(a,b), A=g*m, B=g*n,
-# A*B/GCD(a,b) = g*m*g*n/g = g*m*n
-def lcd(a,b)
-  return a*b/euclid(a,b)
-end
-
-# Exercise 18
-# Root of function f(x)-g(x) is where functions intersect
-
-
 # Exercise 15
 # Middle rectangle can reduce error for increasing and decreasing curves
 
@@ -340,48 +387,10 @@ if(rectangleRule(:poly,0,200,25)!=2508800) then raise "Error" end
 if(rectangleRule2(:poly,0,200,25)!=2665600) then raise "Error" end
 
 
-# Exercise 12
-# Number of steps grows very slowly
-
-def gcdSteps(m,n)
-  steps=0
-  while(n!=0)
-    steps+=1
-    r=m%n
-    m=n
-    n=r
-  end
-  return steps
-end
-
-
-def generatePairs(n)
-  pairs = []
-  n.times do
-    p = []
-    2.times { p << rand(1..100000) }
-    pairs << p
-  end
-  return pairs
-end
-
-def stepsAv(n)
-  pairs = generatePairs(n)
-  result = []
-  pairs.each do |p|
-    c=[]
-    average = (p[0]+p[1])/2.0
-    steps = gcdSteps(p[0],p[1])
-    c << average
-    c << steps
-    result << c
-  end
-  return result
-end
+# Exercise 18
+# Root of function f(x)-g(x) is where functions intersect
 
 
 
-# Exercise 13
-# Start loop with current_prime**2, all smaller multiplies have already been marked
 
 
