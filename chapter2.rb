@@ -57,7 +57,7 @@ end
 
 def randomize(arr)
   max_i = arr.size-1
-  0.upto(max_i) do |i|
+  0.upto(max_i-1) do |i|
     j = rand(i..max_i)
     arr[i],arr[j] = arr[j],arr[i]
   end
@@ -81,6 +81,8 @@ def dealCards(players)
   end
   return result
 end
+
+
 
 # Exercise 7
 
