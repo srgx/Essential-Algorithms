@@ -128,25 +128,24 @@ end
 # Exercise 10
 
 def exponentiation(a,p)
-  if([0,1].include?(p)) then return [1,a][p] end
   n=1
   arr=[]
-  while(n<p)
-    arr << a**n
+  while(n<=p)
+    arr << a
+    a=a**2
     n*=2
   end
   n/=2
   r=n
   i=arr.size-1
   product=arr[i]
-  loop do
+  while(r<p)
     while(r+n>p)
       n/=2
       i-=1
     end
     r+=n
     product*=arr[i]
-    break if r>=p
   end
   return product
 end
@@ -154,8 +153,9 @@ end
 
 T = 200
 
+
 0.upto(T) do |i|
-  0.upto(T) do |j|
+  1.upto(T) do |j|
     if exponentiation(i,j)!=i**j then raise "Error for values #{i},#{j}" end
   end
 end
