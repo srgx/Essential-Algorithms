@@ -387,9 +387,22 @@ if(rectangleRule(:poly,0,200,25)!=2508800) then raise "Error" end
 if(rectangleRule2(:poly,0,200,25)!=2665600) then raise "Error" end
 
 
+
+# Exercise 17
+# monteCarlo3D(isInside(p),trials,x,y,z)
+#   points_inside=0
+#   trials.times
+#     <pickRandomPoint(x,y,z)>
+#     <if isInside(pickedPoint) points_inside++ >
+#   end
+#   volume=x*y*z
+#   shapeVolume=volume*(points_inside/trials)
+#   return shapeVolume
+# end
+
+
 # Exercise 18
 # Root of function f(x)-g(x) is where functions intersect
-
 
 
 
