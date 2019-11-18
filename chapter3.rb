@@ -1,4 +1,4 @@
-# Exercise 2
+# Exercises 1, 2
 class Sentinel
   attr_accessor :next
 end
@@ -8,9 +8,24 @@ class Cell
   def initialize(n) @value=n end
 end
 
+ERR="Error"
+
+def iter(top)
+  while(top.next!=nil)
+    puts top.next.value
+    top=top.next
+  end
+end
+
 def addAtBeginning(top,new_cell)
   new_cell.next=top.next
   top.next=new_cell
+end
+
+# Return new bottom
+def addAtEnd(bottom,new_cell)
+  bottom.next=new_cell
+  return new_cell
 end
 
 def findCellBefore(top,value)
@@ -21,17 +36,54 @@ def findCellBefore(top,value)
   return nil
 end
 
+def listLength(sentinel)
+  l=0
+  while(sentinel.next!=nil)
+    l+=1
+    sentinel=sentinel.next
+  end
+  return l
+end
+
+# Return updated bottom
+def deleteAfter(after_me,bottom)
+  if(after_me.next.next.nil?) then bottom = after_me end
+  after_me.next=after_me.next.next
+  return bottom
+end
+
+sent=Sentinel.new
+bottomCell=Cell.new(42)
+addAtBeginning(sent,bottomCell)
+[12,38,80,2,16].each { | n | addAtBeginning(sent,Cell.new(n)) }
+unless(listLength(sent)==6) then raise ERR end
+bottomCell=addAtEnd(bottomCell,Cell.new(68))
+bottomCell=addAtEnd(bottomCell,Cell.new(69))
+bottomCell=addAtEnd(bottomCell,Cell.new(70))
+unless(bottomCell.value==70) then raise ERR end
+unless(listLength(sent)==9) then raise ERR end
+cell69=findCellBefore(sent,70)
+bottomCell=deleteAfter(cell69,bottomCell)
+unless(listLength(sent)==8) then raise ERR end
+unless(bottomCell.value==69) then raise ERR end
+
+sentC=Sentinel.new
+botC=Cell.new(33)
+addAtBeginning(sentC,botC)
+if(listLength(sentC)!=1)then raise ERR end
+botC=deleteAfter(sentC,botC)
+if(listLength(sentC)!=0)then raise ERR end
+unless(botC==sentC) then raise ERR end
+botC=addAtEnd(botC,Cell.new(2))
+if(listLength(sentC)!=1)then raise ERR end
+unless(botC.value==2)then raise ERR end
+
 sentinel=Sentinel.new
 sentinel2=Sentinel.new
 [12,38,80,2,16].each { | n | addAtBeginning(sentinel,Cell.new(n)) }
 max_cell=findCellBefore(sentinel,80).next
 
-def iter(top)
-  while(top.next!=nil)
-    puts top.next.value
-    top=top.next
-  end
-end
+
 
 def findMaxCell(top)
   if((nc=top.next)==nil) then return nc end
@@ -43,7 +95,7 @@ def findMaxCell(top)
   return mc
 end
 
-ERR="Error"
+
 unless(findCellBefore(sentinel,9).nil?) then raise ERR end
 unless(findMaxCell(sentinel2).nil?) then raise ERR end
 if(findMaxCell(sentinel)!=max_cell) then raise ERR end
@@ -131,7 +183,7 @@ def testDelete(top,target)
 end
 
 
-unless(testDelete(topSentinel,cellToDel)) then raise "Error" end
+unless(testDelete(topSentinel,cellToDel)) then raise ERR end
 
 # Exercise 9
 def isSortedAsc(top)
@@ -149,7 +201,7 @@ sorted = Sentinel.new
 [5,4,3,2,1].each { | n | addAtBeginning(sorted,Cell.new(n)) } # [1,2,3,4,5]
 
 
-if(isSortedAsc(unsorted))then raise "Error" end
-unless(isSortedAsc(sorted))then raise "Error" end
+if(isSortedAsc(unsorted))then raise ERR end
+unless(isSortedAsc(sorted))then raise ERR end
 
 
