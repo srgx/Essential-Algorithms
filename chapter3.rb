@@ -52,17 +52,15 @@ if(findMaxCell(sentinel)!=max_cell) then raise ERR end
 
 class SentinelD
   attr_accessor :next, :previous
-  def sentinel?
-    return true
+  attr_reader :value
+  def initialize
+    @value=Float::INFINITY
   end
 end
 
 class CellD
   attr_accessor :value, :next, :previous
   def initialize(n) @value=n end
-  def sentinel?
-    return false
-  end
 end
 
 def insertCell(after_me,new_cell)
@@ -92,14 +90,14 @@ addAtBottom(bottomSentinel,CellD.new(77))
 
 
 def iterD(top)
-  while(!top.next.sentinel?)
+  while(top.next.value<Float::INFINITY)
     puts top.next.value
     top=top.next
   end
 end
 
 def iterB(bottom)
-  while(!bottom.previous.sentinel?)
+  while(bottom.previous.value<Float::INFINITY)
     puts bottom.previous.value
     bottom=bottom.previous
   end
@@ -114,7 +112,7 @@ end
 
 def len(top)
   l=0
-  while(!top.next.sentinel?)
+  while(top.next.value<Float::INFINITY)
     l+=1
     top=top.next
   end
@@ -132,6 +130,8 @@ def testDelete(top,target)
   return len(top)==l-1
 end
 
+
 unless(testDelete(topSentinel,cellToDel)) then raise "Error" end
+
 
 
