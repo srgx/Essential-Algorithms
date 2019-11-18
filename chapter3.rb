@@ -205,3 +205,13 @@ if(isSortedAsc(unsorted))then raise ERR end
 unless(isSortedAsc(sorted))then raise ERR end
 
 
+# Exercise 7
+# If name starts with letter from second part of alphabet it is better to start
+# searching from bottom sentinel. It can improve performance but algorithm is still O(N)
+
+
+# Exercise 10
+# For already sorted lists insertion sort does O(N) steps, selection sort is always O(N^2)
+
+
+
