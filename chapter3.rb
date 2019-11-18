@@ -133,5 +133,23 @@ end
 
 unless(testDelete(topSentinel,cellToDel)) then raise "Error" end
 
+# Exercise 9
+def isSortedAsc(top)
+  if(top.next==nil||top.next.next.nil?) then return true end
+  while(top.next.next!=nil)
+    if(top.next.value>top.next.next.value) then return false end
+    top=top.next
+  end
+  return true
+end
+
+unsorted = Sentinel.new
+[1,2,3,4,5].each { | n | addAtBeginning(unsorted,Cell.new(n)) } # [5,4,3,2,1]
+sorted = Sentinel.new
+[5,4,3,2,1].each { | n | addAtBeginning(sorted,Cell.new(n)) } # [1,2,3,4,5]
+
+
+if(isSortedAsc(unsorted))then raise "Error" end
+unless(isSortedAsc(sorted))then raise "Error" end
 
 
