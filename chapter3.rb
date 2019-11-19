@@ -235,9 +235,9 @@ def isSortedAsc(top)
 end
 
 unsorted = Sentinel.new
-[1,2,3,4,5].each { | n | addAtBeginning(unsorted,Cell.new(n)) } # [5,4,3,2,1]
+1.upto(5) { | n | addAtBeginning(unsorted,Cell.new(n)) } # [5,4,3,2,1]
 sorted = Sentinel.new
-[5,4,3,2,1].each { | n | addAtBeginning(sorted,Cell.new(n)) } # [1,2,3,4,5]
+5.downto(1) { | n | addAtBeginning(sorted,Cell.new(n)) } # [1,2,3,4,5]
 
 
 if(isSortedAsc(unsorted))then raise ERR end
@@ -247,5 +247,47 @@ unless(isSortedAsc(sorted))then raise ERR end
 # Exercise 10
 # For already sorted lists insertion sort does O(N) steps, selection sort is always O(N^2)
 
+
+
+
+# --------------------------------------------------------------------------
+# --------------------------------------------------------------------------
+
+noLoop=Sentinel.new
+5.downto(1) { | n | addAtBeginning(noLoop,Cell.new(n)) }
+
+
+withLoop=Sentinel.new
+lastCell=Cell.new(9)
+midCell=Cell.new(4) # Loop starts here
+addAtBeginning(withLoop,lastCell)
+8.downto(5) { | n | addAtBeginning(withLoop,Cell.new(n)) }
+addAtBeginning(withLoop,midCell)
+3.downto(1) { | n | addAtBeginning(withLoop,Cell.new(n)) }
+lastCell.next=midCell
+
+
+def reverseList(sentinel)
+  prev_cell=nil
+  curr_cell=sentinel
+  while(curr_cell!=nil) # curr_cell.next can be nil
+    next_cell=curr_cell.next
+    curr_cell.next=prev_cell
+    prev_cell=curr_cell
+    curr_cell=next_cell
+  end
+  return prev_cell
+end
+
+def hasLoopReversing(sentinel)
+  if(sentinel.next.nil?) then return false end
+  new_sentinel=reverseList(sentinel)
+  reverseList(new_sentinel)
+  return new_sentinel==sentinel
+end
+
+
+if(hasLoopReversing(noLoop)) then raise ERR end
+unless(hasLoopReversing(withLoop)) then raise ERR end
 
 
