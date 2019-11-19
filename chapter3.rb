@@ -101,10 +101,12 @@ unless(findMaxCell(sentinel2).nil?) then raise ERR end
 if(findMaxCell(sentinel)!=max_cell) then raise ERR end
 
 # Exercises 3,4,5,6
-
-class SentinelD
+class BaseSentinel
   attr_accessor :next, :previous
   attr_reader :value
+end
+
+class SentinelD < BaseSentinel
   def initialize
     @value=Float::INFINITY
   end
@@ -149,7 +151,7 @@ def iterD(top)
 end
 
 def iterB(bottom)
-  while(bottom.previous.value<Float::INFINITY)
+  while(bottom.previous.value>-Float::INFINITY)
     puts bottom.previous.value
     bottom=bottom.previous
   end
@@ -185,6 +187,43 @@ end
 
 unless(testDelete(topSentinel,cellToDel)) then raise ERR end
 
+
+# Exercise 7
+# If name starts with letter from second part of alphabet it is better to start
+# searching from bottom sentinel. It can improve performance but algorithm is still O(N)
+
+# Exercise 8
+
+class MaxSentinel < SentinelD
+end
+
+class MinSentinel < BaseSentinel
+  def initialize
+    @value=-Float::INFINITY
+  end
+end
+
+def insertSorted(top,new_cell)
+  while(new_cell.value>top.next.value)
+    top=top.next
+  end
+  insertCell(top,new_cell)
+end
+
+minSent=MinSentinel.new # top sentinel
+maxSent=MaxSentinel.new # bottom sentinel
+minSent.next=maxSent
+maxSent.previous=minSent
+insertSorted(minSent,CellD.new(54))
+insertSorted(minSent,CellD.new(12))
+insertSorted(minSent,CellD.new(1))
+insertSorted(minSent,CellD.new(33))
+insertSorted(minSent,CellD.new(7))
+unless(len(minSent)==5) then raise ERR end
+unless(minSent.next.value==1) then raise ERR end
+unless(maxSent.previous.value==54) then raise ERR end
+
+
 # Exercise 9
 def isSortedAsc(top)
   if(top.next==nil||top.next.next.nil?) then return true end
@@ -203,11 +242,6 @@ sorted = Sentinel.new
 
 if(isSortedAsc(unsorted))then raise ERR end
 unless(isSortedAsc(sorted))then raise ERR end
-
-
-# Exercise 7
-# If name starts with letter from second part of alphabet it is better to start
-# searching from bottom sentinel. It can improve performance but algorithm is still O(N)
 
 
 # Exercise 10
