@@ -416,6 +416,10 @@ if(rectangleRule(:poly,0,200,25)!=2508800) then raise "Error" end
 if(rectangleRule2(:poly,0,200,25)!=2665600) then raise "Error" end
 
 
+# Exercise 16
+# Adaptive Monte Carlo algorithm picks points only in important areas
+# If all points are inside or outside box, it adds or ignores box area
+
 
 # Exercise 17
 # monteCarlo3D(isInside(p),trials,x,y,z)
@@ -432,7 +436,6 @@ if(rectangleRule2(:poly,0,200,25)!=2665600) then raise "Error" end
 
 # Exercise 18
 # Root of function f(x)-g(x) is where functions intersect
-
 
 
 
