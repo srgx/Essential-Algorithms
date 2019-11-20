@@ -247,11 +247,7 @@ unless(isSortedAsc(sorted))then raise ERR end
 # Exercise 10
 # For already sorted lists insertion sort does O(N) steps, selection sort is always O(N^2)
 
-
-
-
-# --------------------------------------------------------------------------
-# --------------------------------------------------------------------------
+# Exercise 12
 
 noLoop=Sentinel.new
 5.downto(1) { | n | addAtBeginning(noLoop,Cell.new(n)) }
@@ -289,5 +285,32 @@ end
 
 if(hasLoopReversing(noLoop)) then raise ERR end
 unless(hasLoopReversing(withLoop)) then raise ERR end
+
+
+def tortoiseHare(sentinel)
+  tortoise=hare=sentinel
+  while(!(hare.next.nil?||hare.next.next.nil?))
+    tortoise,hare=tortoise.next,hare.next.next
+    if(hare==tortoise) # first meeting, loop found
+      hare=sentinel # reset hare
+      # move to meet again at loop start
+      while(hare!=tortoise)
+        tortoise,hare=tortoise.next, hare.next # hare is slow
+      end
+      # hare is waiting for tortoise at loop start
+      while(tortoise.next!=hare)
+        tortoise=tortoise.next
+      end
+      tortoise.next=nil # break loop
+      return true
+    end
+  end
+  return false
+end
+
+if(tortoiseHare(noLoop)) then raise ERR end
+unless(tortoiseHare(withLoop)) then raise ERR end # break loop
+if(tortoiseHare(withLoop)) then raise ERR end
+if(hasLoopReversing(withLoop)) then raise ERR end
 
 
