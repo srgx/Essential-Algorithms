@@ -247,6 +247,86 @@ unless(isSortedAsc(sorted))then raise ERR end
 # Exercise 10
 # For already sorted lists insertion sort does O(N) steps, selection sort is always O(N^2)
 
+
+# Exercise 11
+
+class PlanetSentinel
+  def next_planet_by(property)
+    {distance:@next_distance,mass:@next_mass,diameter:@next_diameter}[property]
+  end
+  
+  def set_next_planet_by(property,planet)
+    case property
+    when :distance
+      @next_distance=planet
+    when :mass
+      @next_mass=planet
+    when :diameter
+      @next_diameter=planet
+    else
+      raise "Wrong planet property"
+    end
+  end
+end
+
+class Planet < PlanetSentinel
+  attr_reader :name
+  def initialize(name,distance,mass,diameter)
+    @name,@distance_to_sun,@mass,@diameter=name,distance,mass,diameter
+  end
+  
+  def get_property(property)
+    {distance:@distance_to_sun,mass:@mass,diameter:@diameter}[property]
+  end
+end
+
+
+def orderPlanetBy(sentinel,planet,property)
+  s=sentinel
+  while((nxt=s.next_planet_by(property))!=nil&&
+         nxt.get_property(property)<planet.get_property(property))
+    s=nxt
+  end
+  planet.set_next_planet_by(property,nxt)
+  s.set_next_planet_by(property,planet)
+end
+
+
+def addPlanetToList(sentinel,planet)
+  orderPlanetBy(sentinel,planet,:mass)
+  orderPlanetBy(sentinel,planet,:diameter)
+  orderPlanetBy(sentinel,planet,:distance)
+end
+
+
+planetSentinel=PlanetSentinel.new
+
+
+planets=[["Uranus",7,5,6],["Venus",2,3,3],["Earth",3,4,4],
+         ["Mars",4,2,2],["Mercury",1,1,1],["Saturn",6,7,7],
+         ["Jupiter",5,8,8],["Neptune",8,6,5]]
+
+planets.each { |p| addPlanetToList(planetSentinel,Planet.new(p[0],p[1],p[2],p[3])) }
+
+
+def showPlanetsBy(sentinel,property,label)
+  puts "-------------------------"
+  puts label
+  puts "-------------------------"
+  s,c=sentinel,1
+  while((nxt=s.next_planet_by(property))!=nil)
+    puts "#{c}. #{nxt.name}"
+    s=nxt
+    c+=1
+  end
+end
+
+=begin
+showPlanetsBy(planetSentinel,:distance,"Distance")
+showPlanetsBy(planetSentinel,:mass,"Mass")
+showPlanetsBy(planetSentinel,:diameter,"Diameter")
+=end
+
 # Exercise 12
 
 noLoop=Sentinel.new
