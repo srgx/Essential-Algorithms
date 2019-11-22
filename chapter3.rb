@@ -251,51 +251,36 @@ unless(isSortedAsc(sorted))then raise ERR end
 # Exercise 11
 
 class PlanetSentinel
-  def next_planet_by(property)
-    {distance:@next_distance,mass:@next_mass,diameter:@next_diameter}[property]
-  end
-  
-  def set_next_planet_by(property,planet)
-    case property
-    when :distance
-      @next_distance=planet
-    when :mass
-      @next_mass=planet
-    when :diameter
-      @next_diameter=planet
-    else
-      raise "Wrong planet property"
-    end
+  attr_reader :nexts
+  def initialize
+    @nexts=Hash.new
   end
 end
 
 class Planet < PlanetSentinel
-  attr_reader :name
+  attr_reader :properties
   def initialize(name,distance,mass,diameter)
-    @name,@distance_to_sun,@mass,@diameter=name,distance,mass,diameter
-  end
-  
-  def get_property(property)
-    {distance:@distance_to_sun,mass:@mass,diameter:@diameter}[property]
+    super()
+    @properties={name:name,distance_to_sun:distance,mass:mass,diameter:diameter}
   end
 end
 
 
 def orderPlanetBy(sentinel,planet,property)
   s=sentinel
-  while((nxt=s.next_planet_by(property))!=nil&&
-         nxt.get_property(property)<planet.get_property(property))
+  while((nxt=s.nexts[property])!=nil&&
+         nxt.properties[property]<planet.properties[property])
     s=nxt
   end
-  planet.set_next_planet_by(property,nxt)
-  s.set_next_planet_by(property,planet)
+  planet.nexts[property]=nxt
+  s.nexts[property]=planet
 end
 
 
 def addPlanetToList(sentinel,planet)
   orderPlanetBy(sentinel,planet,:mass)
   orderPlanetBy(sentinel,planet,:diameter)
-  orderPlanetBy(sentinel,planet,:distance)
+  orderPlanetBy(sentinel,planet,:distance_to_sun)
 end
 
 
@@ -314,15 +299,15 @@ def showPlanetsBy(sentinel,property,label)
   puts label
   puts "-------------------------"
   s,c=sentinel,1
-  while((nxt=s.next_planet_by(property))!=nil)
-    puts "#{c}. #{nxt.name}"
+  while((nxt=s.nexts[property])!=nil)
+    puts "#{c}. #{nxt.properties[:name]}"
     s=nxt
     c+=1
   end
 end
 
 =begin
-showPlanetsBy(planetSentinel,:distance,"Distance")
+showPlanetsBy(planetSentinel,:distance_to_sun,"Distance")
 showPlanetsBy(planetSentinel,:mass,"Mass")
 showPlanetsBy(planetSentinel,:diameter,"Diameter")
 =end
