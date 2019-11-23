@@ -23,6 +23,23 @@ SAMPLE2=[17,15,23,7,9,13]
 if(sampleVariance(SAMPLE1)!=16.25) then raise ERR end
 if(sampleVariance(SAMPLE2)!=33.2) then raise ERR end
 
+
+# Exercise 3
+def findMedianSorted(arr)
+  s=arr.size
+  m=s/2
+  if(s%2!=0)
+    return arr[m]
+  else
+    return (arr[m]+arr[m-1])/2.0
+  end
+end
+
+if(findMedianSorted([1,2,3])!=2) then raise ERR end
+if(findMedianSorted([1,8,12,45,69])!=12) then raise ERR end
+if(findMedianSorted([1,2,3,4,9,12,15])!=4) then raise ERR end
+if(findMedianSorted([12,33,98,131])!=65.5) then raise ERR end
+
 # Exercise 4
 exampleArray=[7,8,9,10]
 
@@ -34,6 +51,33 @@ end
 
 removeItem(exampleArray,1)
 if(exampleArray!=[7,9,10]) then raise ERR end
+
+# Exercise 5
+
+def sum_to(x)
+  (x**2+x)/2
+end
+
+# lower triangular array
+def findIndex(r,c) # row, column
+  cells_from_rows=sum_to(r)
+  return cells_from_rows+c
+end
+
+# upper triangular array
+def findIndex2(r,c,s) # row, column, size
+  cells_from_rows=sum_to(s)-sum_to(s-r)
+  return cells_from_rows+(c-r)
+end
+
+if(findIndex(3,2)!=8) then raise ERR end
+if(findIndex(4,3)!=13) then raise ERR end
+if(findIndex2(0,2,5)!=2) then raise ERR end
+if(findIndex2(1,2,5)!=6) then raise ERR end
+if(findIndex2(2,3,5)!=10) then raise ERR end
+if(findIndex2(3,3,5)!=12) then raise ERR end
+if(findIndex2(4,4,5)!=14) then raise ERR end
+
 
 # Exercise 9
 rectangularArray=[]
@@ -161,8 +205,5 @@ indicesExample
 2,5,10 -> 11
 
 =end
-
-# Triangular Arrays
-# ...
 
 
