@@ -155,8 +155,95 @@ def distances(arr)
 end
 
 # Exercise 11
-# ...
+# Check if col<=row
 
+# Exercise 12
+
+# triangular arrays(3x3)
+TR_1=[1,2,3,4,5,6]
+TR_2=[7,8,9,10,11,12]
+
+def addTriangular(arr1,arr2,s)
+  new_arr=Array.new(arr1.size)
+  0.upto(s-1) do |i|
+    0.upto(i) do |j|
+      index=findIndex(i,j)
+      new_arr[index]=arr1[index]+arr2[index]
+    end
+  end
+  return new_arr
+end
+
+TR_SUM=[8, 10, 12, 14, 16, 18]
+
+if(addTriangular(TR_1,TR_2,3)!=TR_SUM) then raise ERR end
+
+
+# Exercise 13
+
+MATRIX1=[[1,2,3],
+         [4,5,6],
+         [8,2,55]]
+MATRIX2=[[7,8,9],
+         [12,1,33],
+         [5,6,2]]
+
+RESULT=[[0,0,0],[0,0,0],[0,0,0]]
+
+
+def multiplyArrays(arr1,arr2,result)
+  0.upto(arr1.size-1) do |i|
+    0.upto(arr1[0].size-1) do |j|
+      result[i][j]=0
+      0.upto(arr1[0].size-1) do |k|
+        result[i][j]+=(arr1[i][k]*arr2[k][j])
+      end
+    end
+  end
+end
+
+multiplyArrays(MATRIX1,MATRIX2,RESULT)
+
+if(RESULT!=[[46, 28, 81], [118, 73, 213], [355, 396, 248]]) then raise ERR end
+
+
+TR_3=[4,
+      2,7,
+      3,5,9]
+TR_4=[7,
+      6,8,
+      2,6,2]
+
+def showTriangular(arr)
+  c=row=1
+  0.upto(arr.size-1) do |i|
+    print "[#{arr[i]}]"
+    c-=1
+    if(c==0)
+      row+=1
+      c=row
+      puts
+    end
+  end
+end
+
+
+def multiplyTriangular(arr1,arr2,s)
+  new_arr=Array.new(arr1.size)
+  0.upto(s-1) do |i|
+    0.upto(s-1) do |j|
+      new_arr[findIndex(i,j)]=0
+      0.upto(s-1) do |k|
+        if(k<=i&&k>=j)
+          new_arr[findIndex(i,j)]+=arr1[findIndex(i,k)]*arr2[findIndex(k,j)]
+        end
+      end
+    end
+  end
+  return new_arr
+end
+
+if(multiplyTriangular(TR_3,TR_4,3)!=[28,56,56,69,94,18]) then raise ERR end
 
 # --------------------------------------------------------------------------
 # --------------------------------------------------------------------------
