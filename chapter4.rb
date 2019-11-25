@@ -52,23 +52,35 @@ end
 removeItem(exampleArray,1)
 if(exampleArray!=[7,9,10]) then raise ERR end
 
-# Exercise 5
+# Exercises 5, 6
 
 def sum_to(x)
   (x**2+x)/2
 end
 
-# lower triangular array
+# lower left triangular array
 def findIndex(r,c) # row, column
   cells_from_rows=sum_to(r)
   return cells_from_rows+c
 end
 
-# upper triangular array
+# upper right triangular array (map rows in order)
 def findIndex2(r,c,s) # row, column, size
   cells_from_rows=sum_to(s)-sum_to(s-r)
   return cells_from_rows+(c-r)
 end
+
+# upper right triangular array with different mapping (columns from findIndex are rows)
+def findIndex3(r,c)
+  return findIndex(c,r)
+end
+
+# upper left triangular array (rows from findIndex in reverse order)
+# (r+c)<s
+def findIndex4(r,c,s)
+  findIndex(s-(r+1),c)
+end
+
 
 if(findIndex(3,2)!=8) then raise ERR end
 if(findIndex(4,3)!=13) then raise ERR end
@@ -77,7 +89,48 @@ if(findIndex2(1,2,5)!=6) then raise ERR end
 if(findIndex2(2,3,5)!=10) then raise ERR end
 if(findIndex2(3,3,5)!=12) then raise ERR end
 if(findIndex2(4,4,5)!=14) then raise ERR end
+if(findIndex3(0,2)!=3) then raise ERR end
+if(findIndex3(1,3)!=7) then raise ERR end
+if(findIndex4(0,2,5)!=12) then raise ERR end
+if(findIndex4(2,1,5)!=4) then raise ERR end
+if(findIndex4(3,1,5)!=2) then raise ERR end
+if(findIndex4(4,0,5)!=0) then raise ERR end
 
+
+# Exercises 7, 8
+def showArray(arr)
+  arr.each { |r| p r }
+end
+
+EMPTY_ARR=[]
+8.times { EMPTY_ARR << Array.new(6) }
+
+# main diagonal(on or below 1, above 0)
+def fillArr(arr)
+  0.upto(arr.size-1) do |i|
+    0.upto(arr[0].size-1) do |j|
+      arr[i][j] = (i>=j) ? 1 : 0
+    end
+  end
+end
+
+# antidiagonal(on or below 0, above 1)
+def fillArr2(arr)
+  width=arr[0].size
+  0.upto(arr.size-1) do |i|
+    0.upto(arr[0].size-1) do |j|
+      arr[i][j] = (j+i<width) ? 1 : 0
+    end
+  end
+end
+
+=begin
+fillArr(EMPTY_ARR)
+showArray(EMPTY_ARR)
+puts "-------------------"
+fillArr2(EMPTY_ARR)
+showArray(EMPTY_ARR)
+=end
 
 # Exercise 9
 rectangularArray=[]
@@ -101,9 +154,9 @@ def distances(arr)
   end
 end
 
-def showArray(arr)
-  arr.each { |r| p r }
-end
+# Exercise 11
+# ...
+
 
 # --------------------------------------------------------------------------
 # --------------------------------------------------------------------------
