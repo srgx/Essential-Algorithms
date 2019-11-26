@@ -245,6 +245,182 @@ end
 
 if(multiplyTriangular(TR_3,TR_4,3)!=[28,56,56,69,94,18]) then raise ERR end
 
+# Exercise 14
+class ArrayRow
+  attr_accessor :row_number, :next_row, :row_sentinel
+end
+
+class ArrayEntry
+  attr_accessor :column_number, :value, :next_entry
+end
+
+def findRowBefore(row,array_row_sentinel)
+  array_row=array_row_sentinel
+  while(array_row.next_row!=nil&&array_row.next_row.row_number<row)
+    array_row=array_row.next_row
+  end
+  return array_row
+end
+
+def findColumnBefore(column,row_sentinel)
+  array_entry=row_sentinel
+  while(array_entry.next_entry!=nil&&array_entry.next_entry.column_number<column)
+    array_entry=array_entry.next_entry
+  end
+  return array_entry
+end
+
+def getValue(row,column,sentinel)
+  default=0
+  array_row=findRowBefore(row,sentinel)
+  array_row=array_row.next_row
+  if(array_row.nil?||array_row.row_number>row) then return default end
+  array_entry=findColumnBefore(column,array_row.row_sentinel)
+  array_entry=array_entry.next_entry
+  if(array_entry.nil?||array_entry.column_number>column) then return default end
+  return array_entry.value
+end
+
+def setValue(row,column,value,sentinel)
+  default=0
+  if(value==default)
+    deleteEntry(row,column,sentinel)
+    return
+  end
+  
+  array_row=findRowBefore(row,sentinel)
+  if(array_row.next_row.nil?||array_row.next_row.row_number>row)
+    new_row=ArrayRow.new
+    new_row.row_number=row
+    new_row.next_row=array_row.next_row
+    array_row.next_row=new_row
+    sentinel_entry=ArrayEntry.new
+    new_row.row_sentinel=sentinel_entry
+    sentinel_entry.next_entry=nil
+  end
+  array_row=array_row.next_row
+  
+  array_entry=findColumnBefore(column,array_row.row_sentinel)
+  if(array_entry.next_entry.nil?||array_entry.next_entry.column_number>column)
+    new_entry=ArrayEntry.new
+    new_entry.column_number=column
+    new_entry.next_entry=array_entry.next_entry
+    array_entry.next_entry=new_entry
+  end
+  array_entry=array_entry.next_entry
+  array_entry.value=value
+end
+
+def deleteEntry(row,column,sentinel)
+  array_row=findRowBefore(row,sentinel)
+  if(array_row.next_row.nil?||array_row.next_row.row_number>row) then return end
+  target_row=array_row.next_row
+  array_entry=findColumnBefore(column,target_row.row_sentinel)
+  if(array_entry.next_entry.nil?||array_entry.next_entry.column_number>column) then return end
+  array_entry.next_entry=array_entry.next_entry.next_entry
+  if(target_row.row_sentinel.next_entry.nil?)
+    array_row.next_row=array_row.next_row.next_row
+  end
+end
+
+def showSparseRows(sentinel)
+  while(sentinel.next_row!=nil)
+    puts sentinel.next_row.row_number
+    sentinel=sentinel.next_row
+  end
+end
+
+# copy row to result
+def copyEntries(row,result)
+  sentinel=row.row_sentinel
+  r=row.row_number
+  while(sentinel.next_entry!=nil)
+    c=sentinel.next_entry.column_number
+    v=sentinel.next_entry.value
+    setValue(r,c,v,result)
+    sentinel=sentinel.next_entry
+  end
+end
+
+# add sum of rows to result
+def addEntries(row1,row2,result)
+  r=row1.row_number
+  s1=row1.row_sentinel
+  s2=row2.row_sentinel
+  
+  while(s1.next_entry!=nil&&s2.next_entry!=nil)
+    if(s1.next_entry.column_number==s2.next_entry.column_number)
+      sum=s1.next_entry.value+s2.next_entry.value
+      c=s1.next_entry.column_number
+      setValue(r,c,sum,result)
+      s1=s1.next_entry
+      s2=s2.next_entry
+    elsif(s1.next_entry.column_number<s2.next_entry.column_number)
+      setValue(r,s1.next_entry.column_number,s1.next_entry.value,result)
+      s1=s1.next_entry
+    else
+      setValue(r,s2.next_entry.column_number,s2.next_entry.value,result)
+      s2=s2.next_entry
+    end
+  end
+  
+  if(s1.next_entry!=nil)
+    setValue(r,s1.next_entry.column_number,s1.next_entry.value,result)
+  end
+  if(s2.next_entry!=nil)
+    setValue(r,s2.next_entry.column_number,s2.next_entry.value,result)
+  end
+  
+end
+
+# add sparse arrays
+def addArrays(arr1,arr2,result)
+  arr1_row=arr1.next_row
+  arr2_row=arr2.next_row
+  result_row=result.next_row
+  
+  while(arr1_row!=nil&&arr2_row!=nil)
+    if(arr1_row.row_number<arr2_row.row_number)
+      copyEntries(arr1_row,result)
+      arr1_row=arr1_row.next_row
+    elsif(arr2_row.row_number<arr1_row.row_number)
+      copyEntries(arr2_row,result)
+      arr2_row=arr2_row.next_row
+    else
+      addEntries(arr1_row,arr2_row,result)
+      arr1_row=arr1_row.next_row
+      arr2_row=arr2_row.next_row
+    end
+  end
+  
+  if(arr1_row!=nil)
+    copyEntries(arr1_row,result)
+  end
+  if(arr2_row!=nil)
+    copyEntries(arr2_row,result)
+  end
+  
+end
+
+sparseSentinel=ArrayRow.new
+setValue(0,0,5,sparseSentinel)
+setValue(0,1,5,sparseSentinel)
+setValue(0,3,5,sparseSentinel)
+setValue(0,5,5,sparseSentinel)
+sparseSentinel2=ArrayRow.new
+setValue(0,0,5,sparseSentinel2)
+setValue(0,1,5,sparseSentinel2)
+setValue(0,2,5,sparseSentinel2)
+setValue(0,3,5,sparseSentinel2)
+setValue(0,4,5,sparseSentinel2)
+setValue(0,5,5,sparseSentinel2)
+setValue(1,2,8,sparseSentinel2)
+sparseResult=ArrayRow.new
+addArrays(sparseSentinel,sparseSentinel2,sparseResult)
+if(getValue(0,3,sparseResult)!=10) then raise ERR end
+if(getValue(0,4,sparseResult)!=5) then raise ERR end
+if(getValue(1,2,sparseResult)!=8) then raise ERR end
+
 # --------------------------------------------------------------------------
 # --------------------------------------------------------------------------
 # O(N^2) example
