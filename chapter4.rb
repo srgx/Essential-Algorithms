@@ -412,19 +412,10 @@ setValue(0,1,5,sparseSentinel)
 setValue(0,3,5,sparseSentinel)
 setValue(0,5,5,sparseSentinel)
 sparseSentinel2=ArrayRow.new
-setValue(0,0,5,sparseSentinel2)
-setValue(0,1,5,sparseSentinel2)
-setValue(0,2,5,sparseSentinel2)
-setValue(0,3,5,sparseSentinel2)
-setValue(0,4,5,sparseSentinel2)
-setValue(0,5,5,sparseSentinel2)
-setValue(0,6,5,sparseSentinel2)
-setValue(0,7,5,sparseSentinel2)
-setValue(1,2,8,sparseSentinel2)
-setValue(1,2,8,sparseSentinel2)
-setValue(2,2,8,sparseSentinel2)
-setValue(3,2,8,sparseSentinel2)
-setValue(4,2,8,sparseSentinel2)
+0.upto(7) { |i| setValue(0,i,5,sparseSentinel2) }
+1.upto(4) { |i| setValue(i,2,8,sparseSentinel2) }
+
+
 sparseResult=ArrayRow.new
 addArrays(sparseSentinel,sparseSentinel2,sparseResult)
 if(getValue(0,3,sparseResult)!=10) then raise ERR end
@@ -432,9 +423,72 @@ if(getValue(0,4,sparseResult)!=5) then raise ERR end
 if(getValue(1,2,sparseResult)!=8) then raise ERR end
 if(getValue(0,6,sparseResult)!=5) then raise ERR end
 if(getValue(0,7,sparseResult)!=5) then raise ERR end
-if(getValue(2,2,sparseResult)!=8) then raise ERR end
-if(getValue(3,2,sparseResult)!=8) then raise ERR end
-if(getValue(4,2,sparseResult)!=8) then raise ERR end
+2.upto(4) { |i| if(getValue(i,2,sparseResult)!=8) then raise ERR end }
+
+
+# Exercise 10
+# j<=i, k<=j
+
+def tetrahedral(n)
+  result=0
+  d=2
+  n.downto(1) do |i|
+    result+=i*d
+    d+=1
+  end
+  return result
+end
+
+#puts tetrahedral 2
+
+# Exercise 15
+MT1=ArrayRow.new
+MT2=ArrayRow.new
+
+=begin
+MATRIX1=[[1,2],
+         [4,5]]
+MATRIX2=[[7,8],
+         [12,1]]
+=end
+
+# MT1 and MT2 are MATRIX1 and MATRIX2 sparse arrays
+
+setValue(0,0,1,MT1)
+setValue(0,1,2,MT1)
+setValue(1,0,4,MT1)
+setValue(1,1,5,MT1)
+
+setValue(0,0,7,MT2)
+setValue(0,1,8,MT2)
+setValue(1,0,12,MT2)
+setValue(1,1,1,MT2)
+
+sparseMulRes=ArrayRow.new
+
+def multiplySparseArrays(arr1,arr2,result,s)
+  0.upto(s-1) do |i|
+    0.upto(s-1) do |j|
+      setValue(i,j,0,result)
+      0.upto(s-1) do |k|
+        current_result=getValue(i,j,result)
+        arr1_value=getValue(i,k,arr1)
+        arr2_value=getValue(k,j,arr2)
+        setValue(i,j,current_result+(arr1_value*arr2_value),result)
+      end
+    end
+  end
+end
+
+multiplySparseArrays(MT1,MT2,sparseMulRes,2)
+
+
+if(getValue(0,0,sparseMulRes)!=31||
+   getValue(0,1,sparseMulRes)!=10) then raise ERR end
+
+if(getValue(1,0,sparseMulRes)!=88||
+   getValue(1,1,sparseMulRes)!=37) then raise ERR end
+
 
 # --------------------------------------------------------------------------
 # --------------------------------------------------------------------------
