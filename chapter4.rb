@@ -364,11 +364,13 @@ def addEntries(row1,row2,result)
     end
   end
   
-  if(s1.next_entry!=nil)
+  while(s1.next_entry!=nil)
     setValue(r,s1.next_entry.column_number,s1.next_entry.value,result)
+    s1=s1.next_entry
   end
-  if(s2.next_entry!=nil)
+  while(s2.next_entry!=nil)
     setValue(r,s2.next_entry.column_number,s2.next_entry.value,result)
+    s2=s2.next_entry
   end
   
 end
@@ -393,11 +395,13 @@ def addArrays(arr1,arr2,result)
     end
   end
   
-  if(arr1_row!=nil)
+  while(arr1_row!=nil)
     copyEntries(arr1_row,result)
+    arr1_row=arr1_row.next_row
   end
-  if(arr2_row!=nil)
+  while(arr2_row!=nil)
     copyEntries(arr2_row,result)
+    arr2_row=arr2_row.next_row
   end
   
 end
@@ -414,12 +418,23 @@ setValue(0,2,5,sparseSentinel2)
 setValue(0,3,5,sparseSentinel2)
 setValue(0,4,5,sparseSentinel2)
 setValue(0,5,5,sparseSentinel2)
+setValue(0,6,5,sparseSentinel2)
+setValue(0,7,5,sparseSentinel2)
 setValue(1,2,8,sparseSentinel2)
+setValue(1,2,8,sparseSentinel2)
+setValue(2,2,8,sparseSentinel2)
+setValue(3,2,8,sparseSentinel2)
+setValue(4,2,8,sparseSentinel2)
 sparseResult=ArrayRow.new
 addArrays(sparseSentinel,sparseSentinel2,sparseResult)
 if(getValue(0,3,sparseResult)!=10) then raise ERR end
 if(getValue(0,4,sparseResult)!=5) then raise ERR end
 if(getValue(1,2,sparseResult)!=8) then raise ERR end
+if(getValue(0,6,sparseResult)!=5) then raise ERR end
+if(getValue(0,7,sparseResult)!=5) then raise ERR end
+if(getValue(2,2,sparseResult)!=8) then raise ERR end
+if(getValue(3,2,sparseResult)!=8) then raise ERR end
+if(getValue(4,2,sparseResult)!=8) then raise ERR end
 
 # --------------------------------------------------------------------------
 # --------------------------------------------------------------------------
