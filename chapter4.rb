@@ -480,7 +480,57 @@ def multiplySparseArrays(arr1,arr2,result,s)
   end
 end
 
-multiplySparseArrays(MT1,MT2,sparseMulRes,2)
+def multiplySparseMatrices(arr1,arr2,result,s)
+  new_array2=ArrayRow.new # it will be arr2 with columns first
+  arr2_row=arr2.next_row
+  
+  while(arr2_row!=nil)
+    r=arr2_row.row_number
+    sentinel=arr2_row.row_sentinel
+    while(sentinel.next_entry!=nil)
+      setValue(sentinel.next_entry.column_number,r,sentinel.next_entry.value,new_array2)
+      sentinel=sentinel.next_entry
+    end
+    arr2_row=arr2_row.next_row
+  end
+  
+  arr1_row=arr1.next_row
+  arr2_row=new_array2.next_row # column
+  while(arr1_row!=nil)
+    while(arr2_row!=nil)
+      total=0
+      
+      
+      arr1c=findRowBefore(arr1_row.row_number,arr1)
+      
+      arr2c=findRowBefore(arr2_row.row_number,new_array2)
+      while(arr1c!=nil&&arr2c!=nil)
+        if(arr1c.row_number==arr2c.row_number)
+          total+=arr1
+        end
+      
+      end
+      
+      
+      
+      #0.upto(s-1) do |k|
+      #  puts getValue(arr1_row.row_number,k,arr1)
+      #  puts getValue(arr2_row.row_number,k,new_array2)
+      #  puts "---"
+      #  total+=getValue(arr1_row.row_number,k,arr1)*getValue(arr2_row.row_number,k,new_array2)
+      #end
+      #puts "zzz"
+      
+      setValue(arr1_row.row_number,arr2_row.row_number,total,result)
+      arr2_row=arr2_row.next_row
+    end
+    arr1_row=arr1_row.next_row
+  end
+  
+end
+
+#multiplySparseArrays(MT1,MT2,sparseMulRes,2)
+multiplySparseMatrices(MT1,MT2,sparseMulRes,2)
 
 
 if(getValue(0,0,sparseMulRes)!=31||
