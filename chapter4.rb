@@ -454,6 +454,7 @@ MATRIX2=[[7,8],
 
 # MT1 and MT2 are MATRIX1 and MATRIX2 sparse arrays
 
+
 setValue(0,0,1,MT1)
 setValue(0,1,2,MT1)
 setValue(1,0,4,MT1)
@@ -464,7 +465,6 @@ setValue(0,1,8,MT2)
 setValue(1,0,12,MT2)
 setValue(1,1,1,MT2)
 
-sparseMulRes=ArrayRow.new
 
 def multiplySparseArrays(arr1,arr2,result,s)
   0.upto(s-1) do |i|
@@ -480,10 +480,9 @@ def multiplySparseArrays(arr1,arr2,result,s)
   end
 end
 
-def multiplySparseMatrices(arr1,arr2,result,s)
-  new_array2=ArrayRow.new # it will be arr2 with columns first
+def multiplySparseMatrices(arr1,arr2,result)
+  new_array2=ArrayRow.new
   arr2_row=arr2.next_row
-  
   while(arr2_row!=nil)
     r=arr2_row.row_number
     sentinel=arr2_row.row_sentinel
@@ -495,51 +494,88 @@ def multiplySparseMatrices(arr1,arr2,result,s)
   end
   
   arr1_row=arr1.next_row
-  arr2_row=new_array2.next_row # column
   while(arr1_row!=nil)
+    arr2_row=new_array2.next_row # first column
     while(arr2_row!=nil)
       total=0
-      
-      
-      arr1c=findRowBefore(arr1_row.row_number,arr1)
-      
-      arr2c=findRowBefore(arr2_row.row_number,new_array2)
-      while(arr1c!=nil&&arr2c!=nil)
-        if(arr1c.row_number==arr2c.row_number)
-          total+=arr1
+      arr1_cell=arr1_row.row_sentinel.next_entry
+      arr2_cell=arr2_row.row_sentinel.next_entry
+      while(arr1_cell!=nil&&arr2_cell!=nil)
+        if(arr1_cell.column_number==arr2_cell.column_number)
+          total+=arr1_cell.value*arr2_cell.value
+          arr1_cell=arr1_cell.next_entry
+          arr2_cell=arr2_cell.next_entry
+        elsif(arr1_cell.column_number<arr2_cell.column_number)
+          arr1_cell=arr1_cell.next_entry
+        else
+          arr2_cell=arr2_cell.next_entry
         end
-      
       end
-      
-      
-      
-      #0.upto(s-1) do |k|
-      #  puts getValue(arr1_row.row_number,k,arr1)
-      #  puts getValue(arr2_row.row_number,k,new_array2)
-      #  puts "---"
-      #  total+=getValue(arr1_row.row_number,k,arr1)*getValue(arr2_row.row_number,k,new_array2)
-      #end
-      #puts "zzz"
-      
       setValue(arr1_row.row_number,arr2_row.row_number,total,result)
-      arr2_row=arr2_row.next_row
+      arr2_row=arr2_row.next_row # next column
     end
     arr1_row=arr1_row.next_row
   end
   
 end
 
-#multiplySparseArrays(MT1,MT2,sparseMulRes,2)
-multiplySparseMatrices(MT1,MT2,sparseMulRes,2)
+def test1(res)
+  if(getValue(0,0,res)!=31||
+     getValue(0,1,res)!=10) then raise ERR end
+
+  if(getValue(1,0,res)!=88||
+     getValue(1,1,res)!=37) then raise ERR end
+end
+
+def test2(res)
+  if(getValue(0,0,res)!=24||
+     getValue(1,0,res)!=0||
+     getValue(2,0,res)!=12||
+     getValue(0,1,res)!=8||
+     getValue(1,1,res)!=0||
+     getValue(2,1,res)!=13||
+     getValue(0,2,res)!=572||
+     getValue(1,2,res)!=176||
+     getValue(2,2,res)!=220) then raise ERR end
+end
 
 
-if(getValue(0,0,sparseMulRes)!=31||
-   getValue(0,1,sparseMulRes)!=10) then raise ERR end
+sparseMulRes=ArrayRow.new
+multiplySparseArrays(MT1,MT2,sparseMulRes,2)
+test1(sparseMulRes)
 
-if(getValue(1,0,sparseMulRes)!=88||
-   getValue(1,1,sparseMulRes)!=37) then raise ERR end
+sparseMulRes=ArrayRow.new
+multiplySparseMatrices(MT1,MT2,sparseMulRes)
+test1(sparseMulRes)
 
 
+
+
+DIFF1=ArrayRow.new
+DIFF2=ArrayRow.new
+
+setValue(0,0,12,DIFF1)
+setValue(0,1,4,DIFF1)
+setValue(1,0,8,DIFF1)
+setValue(2,0,3,DIFF1)
+setValue(2,1,2,DIFF1)
+setValue(2,2,1,DIFF1)
+
+setValue(0,2,22,DIFF2)
+setValue(1,0,6,DIFF2)
+setValue(1,1,2,DIFF2)
+setValue(1,2,77,DIFF2)
+setValue(2,1,9,DIFF2)
+
+sparseMulRes=ArrayRow.new
+multiplySparseMatrices(DIFF1,DIFF2,sparseMulRes)
+test2(sparseMulRes)
+
+
+sparseMulRes=ArrayRow.new
+multiplySparseArrays(DIFF1,DIFF2,sparseMulRes,3)
+test2(sparseMulRes)
+ 
 # --------------------------------------------------------------------------
 # --------------------------------------------------------------------------
 # O(N^2) example
