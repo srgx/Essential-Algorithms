@@ -221,4 +221,78 @@ if(dequeue(topSentinel)!="worst") then raise ERR end
 if(topSentinel.next.value!=nil) then raise ERR end
 
 
+# Exercise 12
+def enqueue2(top,value)
+  new_cell=CellP.new
+  new_cell.value=value
+  
+  new_cell.next=top.next
+  new_cell.prev=top
+  
+  new_cell.next.prev=new_cell
+  top.next=new_cell
+end
 
+def dequeue2(bottom)
+  if(bottom.prev.value.nil?) then return :empty end
+  result=bottom.prev.value
+  bottom.prev=bottom.prev.prev
+  bottom.prev.next=bottom
+  return result
+end
+
+def queueSize(top)
+  s=0
+  while(top.next.value!=nil)
+    s+=1
+    top=top.next
+  end
+  return s
+end
+
+topSentinel=CellP.new
+bottomSentinel=CellP.new
+topSentinel.next=bottomSentinel
+bottomSentinel.prev=topSentinel
+
+enqueue2(topSentinel,5)
+enqueue2(topSentinel,2)
+enqueue2(topSentinel,7)
+enqueue2(topSentinel,4)
+enqueue2(topSentinel,1)
+enqueue2(topSentinel,6)
+enqueue2(topSentinel,3)
+
+
+def queueSelectionSort(top,bot)
+  top_temp=CellP.new
+  bot_temp=CellP.new
+  top_temp.next=bot_temp
+  bot_temp.prev=top_temp
+  
+  num_items=queueSize(top)
+  
+  0.upto(num_items-1) do |i|
+    max=dequeue2(bot)
+    (num_items-i-1).times do
+      v=dequeue2(bot)
+      if(v>max)
+        enqueue2(top,max)
+        max=v
+      else
+        enqueue2(top,v)
+      end
+    end
+    enqueue2(top_temp,max) # move max to temp queue
+  end
+  
+  while((v=dequeue2(bot_temp))!=:empty) # move all values from temp to destination
+    enqueue2(top,v)
+  end
+end
+
+queueSelectionSort(topSentinel,bottomSentinel)
+
+7.downto(1) do |i|
+  if(dequeue2(bottomSentinel)!=i) then raise ERR end
+end
