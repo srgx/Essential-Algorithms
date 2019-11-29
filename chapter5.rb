@@ -115,42 +115,27 @@ def stackInsertionSort2(stackSentinel)
   end
 end
 
-
+# ------------------------------------------------------------------------------
+# STACK INSERTION SORT TESTS
 NUMS=[5,3,6,2,4,7,1]
-
+# TEST VERSION 1
 aStack=Cell.new
 NUMS.each { |i| push(aStack,i)}
 stackInsertionSort(aStack)
-
 if(stackSize(aStack)!=7) then raise ERR end
-1.upto(stackSize(aStack)) do |i|
-  if(pop(aStack)!=i) then raise ERR end
-end
-
+1.upto(stackSize(aStack)) { |i| if(pop(aStack)!=i) then raise ERR end }
+# TEST VERSION 2
 aStack=Cell.new
 NUMS.each { |i| push(aStack,i)}
 stackInsertionSort2(aStack)
-
 if(stackSize(aStack)!=7) then raise ERR end
-1.upto(stackSize(aStack)) do |i|
-  if(pop(aStack)!=i) then raise ERR end
-end
-
+1.upto(stackSize(aStack)) { |i| if(pop(aStack)!=i) then raise ERR end }
+# ------------------------------------------------------------------------------
 
 # Exercise 5
 # It is possible to sort train with one holding track and output track (for current item)
 
 # Exercise 6
-
-stack2=Cell.new
-push(stack2,4)
-push(stack2,2)
-push(stack2,1)
-push(stack2,5)
-push(stack2,7)
-push(stack2,3)
-push(stack2,6)
-
 
 def stackSelectionSort(stack)
   temp_stack=Cell.new
@@ -173,21 +158,25 @@ def stackSelectionSort(stack)
   end
 end
 
+# ------------------------------------------------------------------------------
+# STACK SELECTION SORT TEST
+stack2=Cell.new
+[4,2,1,5,7,3,6].each { |i| push(stack2,i) }
 stackSelectionSort(stack2)
-
-1.upto(stackSize(stack2)) do |i|
-  if(pop(stack2)!=i) then raise ERR end
-end
+1.upto(stackSize(stack2)) { |i| if(pop(stack2)!=i) then raise ERR end }
+# ------------------------------------------------------------------------------
 
 # Exercise 8
-class CellP
-  attr_accessor :next, :prev, :value, :priority
+
+class CellD
+  attr_accessor :next, :prev, :value
 end
 
-topSentinel=CellP.new
-bottomSentinel=CellP.new
-topSentinel.next=bottomSentinel
-bottomSentinel.prev=topSentinel
+class CellP < CellD
+  attr_accessor :priority
+end
+
+
 
 def enqueueAfter(after,value,priority)
   new_cell=CellP.new
@@ -230,20 +219,24 @@ def showFromBot(bot)
   end
 end
 
-
+# ------------------------------------------------------------------------------
+# PRIORITY QUEUE TEST
+topSentinel=CellP.new
+bottomSentinel=CellP.new
+topSentinel.next=bottomSentinel
+bottomSentinel.prev=topSentinel
 enqueue(topSentinel,"bronze",2)
 enqueue(topSentinel,"best",5)
 enqueue(topSentinel,"worst",1)
 enqueue(topSentinel,"gold",4)
 enqueue(topSentinel,"silver",3)
-
-
 if(dequeue(topSentinel)!="best") then raise ERR end
 if(dequeue(topSentinel)!="gold") then raise ERR end
 if(dequeue(topSentinel)!="silver") then raise ERR end
 if(dequeue(topSentinel)!="bronze") then raise ERR end
 if(dequeue(topSentinel)!="worst") then raise ERR end
 if(topSentinel.next.value!=nil) then raise ERR end
+# ------------------------------------------------------------------------------
 
 
 # Exercise 12
@@ -275,28 +268,20 @@ def queueSize(top)
   return s
 end
 
-topSentinel=CellP.new
-bottomSentinel=CellP.new
-topSentinel.next=bottomSentinel
-bottomSentinel.prev=topSentinel
 
-enqueue2(topSentinel,5)
-enqueue2(topSentinel,2)
-enqueue2(topSentinel,7)
-enqueue2(topSentinel,4)
-enqueue2(topSentinel,1)
-enqueue2(topSentinel,6)
-enqueue2(topSentinel,3)
-
-
-def queueSelectionSort(top,bot)
+def createTemp
   top_temp=CellP.new
   bot_temp=CellP.new
   top_temp.next=bot_temp
   bot_temp.prev=top_temp
-  
+  return [top_temp,bot_temp]
+end
+
+
+def queueSelectionSort(top,bot)
+  r=createTemp
+  top_temp,bot_temp=r[0],r[1]
   num_items=queueSize(top)
-  
   0.upto(num_items-1) do |i|
     max=dequeue2(bot)
     (num_items-i-1).times do
@@ -316,8 +301,51 @@ def queueSelectionSort(top,bot)
   end
 end
 
-queueSelectionSort(topSentinel,bottomSentinel)
 
-7.downto(1) do |i|
-  if(dequeue2(bottomSentinel)!=i) then raise ERR end
+# ------------------------------------------------------------------------------
+# QUEUE SELECTION SORT TEST
+topSentinel=CellP.new
+bottomSentinel=CellP.new
+topSentinel.next=bottomSentinel
+bottomSentinel.prev=topSentinel
+[5,2,7,4,1,6,3].each { |i| enqueue2(topSentinel,i)}
+queueSelectionSort(topSentinel,bottomSentinel)
+7.downto(1) { |i| if(dequeue2(bottomSentinel)!=i) then raise ERR end }
+# ------------------------------------------------------------------------------
+
+def queueInsertionSort(top,bot)
+  r=createTemp
+  top_temp,bot_temp=r[0],r[1]
+  num_items=queueSize(top)
+  next_item=dequeue2(bot)
+  1.upto(num_items-1) { enqueue2(top_temp,dequeue2(bot)) } # move all items to temp
+  while(next_item!=:empty) do
+    s,set=queueSize(top),false
+    0.upto(s-1) do
+      v=dequeue2(bot)
+      if(next_item>v&&!set)
+        enqueue2(top,next_item)
+        enqueue2(top,v)
+        set=true
+      else
+        enqueue2(top,v)
+      end
+    end
+    if(!set) then enqueue2(top,next_item) end
+    next_item=dequeue2(bot_temp)
+  end
 end
+
+
+# ------------------------------------------------------------------------------
+# QUEUE INSERTION SORT TEST
+topSentinel=CellD.new
+bottomSentinel=CellD.new
+topSentinel.next=bottomSentinel
+bottomSentinel.prev=topSentinel
+[5,2,7,4,1,6,3].each { |i| enqueue2(topSentinel,i)}
+queueInsertionSort(topSentinel,bottomSentinel)
+7.downto(1) { |i| if(dequeue2(bottomSentinel)!=i) then raise ERR end }
+# ------------------------------------------------------------------------------
+
+
