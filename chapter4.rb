@@ -154,6 +154,41 @@ def distances(arr)
   end
 end
 
+# Exercise 10
+# j<=i, k<=j
+
+# 0 0 0 - 0
+# 1 0 0 - 1
+# 1 1 0 - 2
+# 1 1 1 - 3
+# 2 0 0 - 4
+# 2 1 0 - 5
+# 2 1 1 - 6
+# 2 2 0 - 7
+# 2 2 1 - 8
+# 2 2 2 - 9
+
+def tetrahedral(rows)
+  return (rows**3+3*(rows**2)+2*rows)/6
+end
+
+
+def findIndexT(x,y,z)
+  return tetrahedral(x)+sum_to(y)+z
+end
+
+indexT=0
+0.upto(3) do |i|
+  0.upto(i) do |j|
+    0.upto(j) do |k|
+      if(findIndexT(i,j,k)!=indexT) then raise ERR end
+      indexT+=1
+    end
+  end
+end
+
+
+
 # Exercise 11
 # Check if col<=row
 
@@ -425,21 +460,6 @@ if(getValue(0,6,sparseResult)!=5) then raise ERR end
 if(getValue(0,7,sparseResult)!=5) then raise ERR end
 2.upto(4) { |i| if(getValue(i,2,sparseResult)!=8) then raise ERR end }
 
-
-# Exercise 10
-# j<=i, k<=j
-
-def tetrahedral(n)
-  result=0
-  d=2
-  n.downto(1) do |i|
-    result+=i*d
-    d+=1
-  end
-  return result
-end
-
-#puts tetrahedral 2
 
 # Exercise 15
 MT1=ArrayRow.new
