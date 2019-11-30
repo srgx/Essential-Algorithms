@@ -17,36 +17,105 @@ end
 def insertionSort(array)
   1.upto(array.size-1) do |i|
     v=array[i]
-    j=i-1
-    while(j>=0&&array[j]>v)
-      array[j+1]=array[j]
+    j=i
+    while(j>0&&array[j-1]>v)
+      array[j]=array[j-1]
       j-=1
     end
-    array[j+1]=v
+    array[j]=v
   end
 end
 
-arr=[]
-5000.times { arr << rand(100) }
+def selectionSort(array)
+  0.upto(array.size-1) do |i|
+    min_indx=i
+    (i+1).upto(array.size-1) do |j|
+      if(array[j]<array[min_indx]) then min_indx=j end
+    end
+    swap(array,i,min_indx)
+  end
+end
 
-starting = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+def bubbleSort(array)
+  swp=true
+  while(swp)
+    swp=false
+    0.upto(array.size-2) do |i|
+      if(array[i]>array[i+1])
+        swap(array,i,i+1)
+        swp=true
+      end
+    end
+  end
+end
+
+def isSortedAsc(array)
+  sorted=true
+  0.upto(array.size-2) do |i|
+    if (array[i]>array[i+1])
+      sorted=false
+      break
+    end
+  end
+  return sorted
+end
+
+def isSortedDesc(array)
+  sorted=true
+  0.upto(array.size-2) do |i|
+    if (array[i]<array[i+1])
+      sorted=false
+      break
+    end
+  end
+  return sorted
+end
+
+ERR="Error"
+
+
+ARRAY_SIZE=2000
+
+arr=[]
+ARRAY_SIZE.times { arr << rand(100) }
+starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
+selectionSort(arr)
+ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+elapsed = ending - starting
+puts "Selection sort - #{elapsed}"
+
+unless(isSortedAsc(arr)) then raise ERR end
+
+arr=[]
+ARRAY_SIZE.times { arr << rand(100) }
+starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
 insertionSort(arr)
 ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 elapsed = ending - starting
-puts elapsed
+puts "Insertion sort - #{elapsed}"
 
+unless(isSortedAsc(arr)) then raise ERR end
 
 arr=[]
-5000.times { arr << rand(100) }
-
-starting = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+ARRAY_SIZE.times { arr << rand(100) }
+starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
 someSort(arr)
 ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 elapsed = ending - starting
-puts elapsed
+puts "Some sort - #{elapsed}"
 
-arr=[6,3,5,4,5,2,1]
-someSort(arr)
-p arr
+unless(isSortedAsc(arr)) then raise ERR end
+
+
+arr=[]
+ARRAY_SIZE.times { arr << rand(100) }
+starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
+bubbleSort(arr)
+ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+elapsed = ending - starting
+puts "Bubble sort - #{elapsed}"
+
+unless(isSortedAsc(arr)) then raise ERR end
+
 
 
