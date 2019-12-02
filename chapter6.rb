@@ -132,7 +132,7 @@ class HeapQueue # priority queue
   end
 
   def enqueue(value,priority)
-    if(@next_index>=@array_size) then raise "Heap is full!" end
+    if(@next_index>=@array_size) then raise "Queue is full!" end
     @values[@next_index]=value
     @priorities[@next_index]=priority
 
@@ -142,13 +142,10 @@ class HeapQueue # priority queue
       
       if(@priorities[index]<=@priorities[parent]) then break end
       
-      temp = @values[index]
-      @values[index] = @values[parent]
-      @values[parent] = temp
       
-      temp = @priorities[index]
-      @priorities[index] = @priorities[parent]
-      @priorities[parent] = temp
+      swap(@values,index,parent)
+      
+      swap(@priorities,index,parent)
       
       index=parent
     end
@@ -170,7 +167,6 @@ class HeapQueue # priority queue
      
       if(@priorities[index]>=@priorities[child1]&&
          @priorities[index]>=@priorities[child2]) then break end
-      
       
       swap_child = @priorities[child1]>@priorities[child2] ? child1 : child2
       
@@ -194,6 +190,51 @@ queue.enqueue("lion",90)
 queue.enqueue("dragon",120)
 queue.enqueue("fox",70)
 
+
+
+# Exercise 8
+# Add O(log N), Remove O(log N)
+
+# Exercise 9
+def makeHeap(array)
+  0.upto(array.size-1) do |i|
+    index=i
+    while(index!=0)
+      parent=(index-1)/2
+      if(array[index]<=array[parent]) then break end
+      swap(array,index,parent)
+      index=parent
+    end
+  end
+end
+
+def heapSort(array)
+  makeHeap(array)
+  currentSize=array.size
+  (array.size-1).downto(0) do |i|
+    swap(array,0,i)
+    currentSize-=1
+    index=0
+    while(true)
+      child1=2*index+1
+      child2=2*index+2
+      
+      if(child1 >= currentSize) then child1=index end
+      if(child2 >= currentSize) then child2=index end
+     
+      if(array[index]>=array[child1]&&
+         array[index]>=array[child2]) then break end
+      
+      swap_child = array[child1]>array[child2] ? child1 : child2
+      
+      swap(array,index,swap_child)
+      
+      index=swap_child
+    end
+  end
+end
+
+
 ERR="Error"
 
 sorted=["dragon","lion","tiger","fox","cat","dog","mouse"]
@@ -202,7 +243,7 @@ sorted.each do |a|
 end
 
 
-ARRAY_SIZE=1000
+ARRAY_SIZE=4000
 
 arr=[]
 ARRAY_SIZE.times { arr << rand(100) }
@@ -254,6 +295,17 @@ betterBubbleSort(arr)
 ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 elapsed = ending - starting
 puts "Better bubble sort - #{elapsed}"
+
+unless(isSortedAsc(arr)) then raise ERR end
+
+
+arr=[]
+ARRAY_SIZE.times { arr << rand(100) }
+starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
+heapSort(arr)
+ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+elapsed = ending - starting
+puts "Heap sort - #{elapsed}"
 
 unless(isSortedAsc(arr)) then raise ERR end
 
