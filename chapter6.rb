@@ -290,8 +290,8 @@ def quickSort2(array,from,to)
     array[i]=g
     i+=1
   end
-  quickSort(array,from,mid-1)
-  quickSort(array,mid+1,to)
+  quickSort2(array,from,mid-1)
+  quickSort2(array,mid+1,to)
 end
 
 # Exercise 13
@@ -321,8 +321,8 @@ def quickSort3(array,from,to)
     end
     array[hi]=array[lo]
   end
-  quickSort(array,from,lo-1)
-  quickSort(array,lo+1,to)
+  quickSort3(array,from,lo-1)
+  quickSort3(array,lo+1,to)
 end
 
 
@@ -334,10 +334,12 @@ sorted.each do |a|
 end
 
 
-ARRAY_SIZE=1000
+ARRAY_SIZE=4000
+RAND_RANGE=ARRAY_SIZE**5
+
 
 arr=[]
-ARRAY_SIZE.times { arr << rand(100) }
+ARRAY_SIZE.times { arr << rand(RAND_RANGE) }
 starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
 selectionSort(arr)
 ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -347,7 +349,7 @@ puts "Selection sort - #{elapsed}"
 unless(isSortedAsc(arr)) then raise ERR end
 
 arr=[]
-ARRAY_SIZE.times { arr << rand(100) }
+ARRAY_SIZE.times { arr << rand(RAND_RANGE) }
 starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
 insertionSort(arr)
 ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -357,7 +359,7 @@ puts "Insertion sort - #{elapsed}"
 unless(isSortedAsc(arr)) then raise ERR end
 
 arr=[]
-ARRAY_SIZE.times { arr << rand(100) }
+ARRAY_SIZE.times { arr << rand(RAND_RANGE) }
 starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
 someSort(arr)
 ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -369,7 +371,7 @@ unless(isSortedAsc(arr)) then raise ERR end
 
 
 arr=[]
-ARRAY_SIZE.times { arr << rand(100) }
+ARRAY_SIZE.times { arr << rand(RAND_RANGE) }
 starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
 bubbleSort(arr)
 ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -380,7 +382,7 @@ unless(isSortedAsc(arr)) then raise ERR end
     
 
 arr=[]
-ARRAY_SIZE.times { arr << rand(100) }
+ARRAY_SIZE.times { arr << rand(RAND_RANGE) }
 starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
 betterBubbleSort(arr)
 ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -391,7 +393,7 @@ unless(isSortedAsc(arr)) then raise ERR end
 
 
 arr=[]
-ARRAY_SIZE.times { arr << rand(100) }
+ARRAY_SIZE.times { arr << rand(RAND_RANGE) }
 starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
 heapSort(arr)
 ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -403,18 +405,18 @@ unless(isSortedAsc(arr)) then raise ERR end
 
 
 arr=[]
-ARRAY_SIZE.times { arr << rand(100) }
+ARRAY_SIZE.times { arr << rand(RAND_RANGE) }
 starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
 quickSort(arr,0,arr.size-1)
 ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 elapsed = ending - starting
-puts "Quick sort with stacks- #{elapsed}"
+puts "Quick sort with stacks - #{elapsed}"
 
 unless(isSortedAsc(arr)) then raise ERR end
 
 
 arr=[]
-ARRAY_SIZE.times { arr << rand(100) }
+ARRAY_SIZE.times { arr << rand(RAND_RANGE) }
 starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
 quickSort2(arr,0,arr.size-1)
 ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -425,7 +427,7 @@ unless(isSortedAsc(arr)) then raise ERR end
 
 
 arr=[]
-ARRAY_SIZE.times { arr << rand(100) }
+ARRAY_SIZE.times { arr << rand(RAND_RANGE) }
 starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
 quickSort3(arr,0,arr.size-1)
 ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
