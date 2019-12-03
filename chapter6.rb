@@ -234,6 +234,97 @@ def heapSort(array)
   end
 end
 
+# Exercise 11
+def quickSort(array,from,to)
+  if(from>=to) then return end
+  before,after=[],[] # stacks
+  swap(array,from,rand(from..to))
+  divider=array[from]
+  (from+1).upto(to) do |i|
+    v=array[i]
+    if(v<divider)
+      before.push(v)
+    else
+      after.push(v)
+    end
+  end
+  
+  i=from
+  while((g=before.pop)!=nil)
+    array[i]=g
+    i+=1
+  end
+  array[i],mid=divider,i
+  i+=1
+  while((g=after.pop)!=nil)
+    array[i]=g
+    i+=1
+  end
+  quickSort(array,from,mid-1)
+  quickSort(array,mid+1,to)
+end
+
+# Exercise 12
+def quickSort2(array,from,to)
+  if(from>=to) then return end
+  before,after=[],[] # queues
+  swap(array,from,rand(from..to))
+  divider=array[from]
+  (from+1).upto(to) do |i|
+    v=array[i]
+    if(v<divider)
+      before.push(v)
+    else
+      after.push(v)
+    end
+  end
+  
+  i=from
+  while((g=before.shift)!=nil)
+    array[i]=g
+    i+=1
+  end
+  array[i],mid=divider,i
+  i+=1
+  while((g=after.shift)!=nil)
+    array[i]=g
+    i+=1
+  end
+  quickSort(array,from,mid-1)
+  quickSort(array,mid+1,to)
+end
+
+# Exercise 13
+def quickSort3(array,from,to)
+  if(from>=to) then return end
+  divider=array[from]
+  lo,hi=from,to
+  while(true)
+    while(array[hi]>=divider)
+      hi-=1
+      if(hi<=lo) then break end
+    end
+    if(hi<=lo)
+      array[lo]=divider
+      break
+    end
+    array[lo]=array[hi]
+    lo=lo+1
+    while(array[lo]<divider)
+      lo+=1
+      if(lo>=hi) then break end
+    end
+    if(lo>=hi)
+      lo=hi
+      array[hi]=divider
+      break
+    end
+    array[hi]=array[lo]
+  end
+  quickSort(array,from,lo-1)
+  quickSort(array,lo+1,to)
+end
+
 
 ERR="Error"
 
@@ -243,7 +334,7 @@ sorted.each do |a|
 end
 
 
-ARRAY_SIZE=4000
+ARRAY_SIZE=1000
 
 arr=[]
 ARRAY_SIZE.times { arr << rand(100) }
@@ -308,5 +399,40 @@ elapsed = ending - starting
 puts "Heap sort - #{elapsed}"
 
 unless(isSortedAsc(arr)) then raise ERR end
+
+
+
+arr=[]
+ARRAY_SIZE.times { arr << rand(100) }
+starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
+quickSort(arr,0,arr.size-1)
+ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+elapsed = ending - starting
+puts "Quick sort with stacks- #{elapsed}"
+
+unless(isSortedAsc(arr)) then raise ERR end
+
+
+arr=[]
+ARRAY_SIZE.times { arr << rand(100) }
+starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
+quickSort2(arr,0,arr.size-1)
+ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+elapsed = ending - starting
+puts "Quick sort with queues - #{elapsed}"
+
+unless(isSortedAsc(arr)) then raise ERR end
+
+
+arr=[]
+ARRAY_SIZE.times { arr << rand(100) }
+starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
+quickSort3(arr,0,arr.size-1)
+ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+elapsed = ending - starting
+puts "Quick sort in place - #{elapsed}"
+
+unless(isSortedAsc(arr)) then raise ERR end
+
 
 
