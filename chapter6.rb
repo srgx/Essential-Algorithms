@@ -326,6 +326,26 @@ def quickSort3(array,from,to)
 end
 
 
+# Exercise 15
+def countingSort(array,max_value)
+  counts=Array.new(max_value+1)
+  0.upto(max_value) { |i| counts[i] = 0 }
+  0.upto(array.size-1) { |i| counts[array[i]]+=1 }
+  
+  index=0
+  0.upto(max_value) do |i|
+    counts[i].times do
+      array[index]=i
+      index+=1
+    end
+  end
+end
+
+# Exercises 10,14,16,17,18,19
+# ...
+
+
+
 ERR="Error"
 
 sorted=["dragon","lion","tiger","fox","cat","dog","mouse"]
@@ -334,8 +354,8 @@ sorted.each do |a|
 end
 
 
-ARRAY_SIZE=4000
-RAND_RANGE=ARRAY_SIZE**5
+ARRAY_SIZE=1000
+RAND_RANGE=ARRAY_SIZE*3
 
 
 arr=[]
@@ -435,6 +455,18 @@ elapsed = ending - starting
 puts "Quick sort in place - #{elapsed}"
 
 unless(isSortedAsc(arr)) then raise ERR end
+
+
+arr=[]
+ARRAY_SIZE.times { arr << rand(RAND_RANGE) }
+starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
+countingSort(arr,RAND_RANGE)
+ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+elapsed = ending - starting
+puts "Counting sort - #{elapsed}"
+
+unless(isSortedAsc(arr)) then raise ERR end
+
 
 
 
