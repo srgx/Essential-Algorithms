@@ -325,6 +325,9 @@ def quickSort3(array,from,to)
   quickSort3(array,lo+1,to)
 end
 
+# Exercise 14
+# Divide elements into 3 parts, n<divider, n==divider, n>divider
+# Don't sort middle group
 
 # Exercise 15
 def countingSort(array,max_value)
@@ -341,21 +344,70 @@ def countingSort(array,max_value)
   end
 end
 
-# Exercises 10,14,16,17,18,19
+# Exercise 16
+def countingSort2(array,min_value,max_value) # counting sort with mapping
+
+  size=max_value-min_value+1
+  counts=Array.new(size)
+  
+  0.upto(size-1) { |i| counts[i] = 0 }
+  0.upto(array.size-1) { |i| counts[array[i]-min_value]+=1 }
+  
+  index=0
+  0.upto(size-1) do |i|
+    counts[i].times do
+      array[index]=i+min_value
+      index+=1
+    end
+  end
+  
+end
+
+
+# Exercises 10,17,19
 # ...
 
+# Exercise 18
+def bucketSort(array,max_value,number_of_buckets)
+
+  size=array.size
+  buckets=Array.new(number_of_buckets)
+  0.upto(number_of_buckets-1) { |i| buckets[i]=Array.new }
+  bucket_width=(max_value+1)/number_of_buckets.to_f
+  
+  0.upto(array.size-1) do |i|
+    value,index=array[i]
+    index=(value/bucket_width).to_i
+    buckets[index] << value
+  end
+  
+  index=0
+  buckets.each do |bkt|
+    quickSort3(bkt,0,bkt.size-1)
+    0.upto(bkt.size-1) do |i|
+      array[index] = bkt[i]
+      index+=1
+    end
+  end
+  
+end
 
 
 ERR="Error"
 
+# -----------------------------------------------------------------------------------------
+RESULT=[200, 202, 202, 203, 204, 205, 210]
+arr=[205,200,202,210,203,204,202]
+countingSort2(arr,200,210)
+if(arr!=RESULT) then raise ERR end
+# -----------------------------------------------------------------------------------------
 sorted=["dragon","lion","tiger","fox","cat","dog","mouse"]
 sorted.each do |a|
   if(queue.dequeue!=a) then raise ERR end
 end
-
-
-ARRAY_SIZE=1000
-RAND_RANGE=ARRAY_SIZE*3
+# -----------------------------------------------------------------------------------------
+ARRAY_SIZE=2000
+RAND_RANGE=ARRAY_SIZE*2
 
 
 arr=[]
@@ -464,6 +516,17 @@ countingSort(arr,RAND_RANGE)
 ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 elapsed = ending - starting
 puts "Counting sort - #{elapsed}"
+
+unless(isSortedAsc(arr)) then raise ERR end
+
+
+arr=[]
+ARRAY_SIZE.times { arr << rand(RAND_RANGE) }
+starting= Process.clock_gettime(Process::CLOCK_MONOTONIC)
+bucketSort(arr,RAND_RANGE,RAND_RANGE/10) # values per bucket
+ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+elapsed = ending - starting
+puts "Bucket sort - #{elapsed}"
 
 unless(isSortedAsc(arr)) then raise ERR end
 
