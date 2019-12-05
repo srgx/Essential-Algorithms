@@ -234,6 +234,12 @@ def heapSort(array)
   end
 end
 
+
+# Exercise 10
+# children: 2*index+1, 2*index+2, parent: (p-1)/2
+# children: 3*index+1, 3*index+2, 3*index+3, parent: (p-1)/3
+# children: 4*index+1, 4*index+2...., parent: (p-1)/4
+
 # Exercise 11
 def quickSort(array,from,to)
   if(from>=to) then return end
@@ -364,8 +370,10 @@ def countingSort2(array,min_value,max_value) # counting sort with mapping
 end
 
 
-# Exercises 10,17,19
-# ...
+# Exercise 17
+# Bucketsort with M buckets is similar to countingsort when
+# range of items is from 0 to M-1 (1 bucket per value)
+# Countingsort only counts values, bucketsort stores them in buckets
 
 # Exercise 18
 def bucketSort(array,max_value,number_of_buckets)
@@ -376,7 +384,7 @@ def bucketSort(array,max_value,number_of_buckets)
   bucket_width=(max_value+1)/number_of_buckets.to_f
   
   0.upto(array.size-1) do |i|
-    value,index=array[i]
+    value=array[i]
     index=(value/bucket_width).to_i
     buckets[index] << value
   end
@@ -391,6 +399,19 @@ def bucketSort(array,max_value,number_of_buckets)
   end
   
 end
+
+
+# Exercise 19
+# a. 10 floating-point values - bubblesort
+# b. 1000 integers - bubblesort, mergesort, quicksort
+# c. 1000 names - bubblesort, heapsort
+# d. 100.000 integers with values between 0 and 1000 - countingsort, bucketsort
+# e. 100.000 integers with values between 0 and 1 billion - bucketsort, heapsort
+# f. 100.000 names - heapsort, quicksort
+# g. 1 million floating-point values - heap sort, bucketsort
+# h. 1 million names - heapsort, quicksort, mergesort
+# i. 1 million integers with uniform distribution - heapsort, quicksort, bucketsort
+# j. 1 million integers with nonuniform distributions - heapsort, mergesort, quicksort
 
 
 ERR="Error"
