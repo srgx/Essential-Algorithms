@@ -71,7 +71,49 @@ def binarySearchR(array,value,min,max) # min and max indices
 end
 
 # Exercise 6
-# ...
+def interpolationSearch(array,value)
+  min,max=0,array.size-1
+  while(min<=max)
+    if(min==max||array[min]==array[max]) # if no other values between min and max
+      if(array[min]==value) then return min else break end
+    else
+      mid=min+(max-min)*(value-array[min])/(array[max]-array[min])
+      mid=mid<=min||mid>=max ? (min+max)/2 : mid # is mid in bounds?
+      if(value<array[mid])
+        max=mid-1
+      elsif(value>array[mid])
+        min=mid+1
+      else
+        return mid
+      end
+    end
+  end
+  return :no_index
+end
+
+# Exercise 7
+def interpolationSearchR(array,value,min,max)
+  if(min<=max)
+    if(min==max||array[min]==array[max]) # if no other values between min and max
+      return array[min]==value ? min : :no_index
+    else
+      mid=min+(max-min)*(value-array[min])/(array[max]-array[min])
+      mid=mid<=min||mid>=max ? (min+max)/2 : mid # is mid in bounds?
+      if(value<array[mid])
+        interpolationSearchR(array,value,min,mid-1)
+      elsif(value>array[mid])
+        interpolationSearchR(array,value,mid+1,max)
+      else
+        return mid
+      end
+    end
+  else
+    return :no_index
+  end
+end
+
+# Exercise 8
+# Bucketsort uses similar formula to find element's bucket index
 
 
 # -------------------------------------------------------------------------
@@ -114,5 +156,20 @@ unless(binarySearchR(numbers,44,0,s-1)==:no_index) then raise ERR end
 unless(binarySearchR(numbers,99,0,s-1)==4) then raise ERR end
 unless(binarySearchR(numbers,12,0,s-1)==0) then raise ERR end
 unless(binarySearchR(numbers,43,0,s-1)==2) then raise ERR end
+# -------------------------------------------------------------------------
+unless(interpolationSearch(numbers,2)==:no_index) then raise ERR end
+unless(interpolationSearch(numbers,100)==:no_index) then raise ERR end
+unless(interpolationSearch(numbers,44)==:no_index) then raise ERR end
+unless(interpolationSearch(numbers,99)==4) then raise ERR end
+unless(interpolationSearch(numbers,12)==0) then raise ERR end
+unless(interpolationSearch(numbers,43)==2) then raise ERR end
+# -------------------------------------------------------------------------
+unless(interpolationSearchR(numbers,2,0,s-1)==:no_index) then raise ERR end
+unless(interpolationSearchR(numbers,100,0,s-1)==:no_index) then raise ERR end
+unless(interpolationSearchR(numbers,44,0,s-1)==:no_index) then raise ERR end
+unless(interpolationSearchR(numbers,99,0,s-1)==4) then raise ERR end
+unless(interpolationSearchR(numbers,12,0,s-1)==0) then raise ERR end
+unless(interpolationSearchR(numbers,43,0,s-1)==2) then raise ERR end
+unless(interpolationSearchR([2,2,2,2,2],2,0,4)==0) then raise ERR end
 # -------------------------------------------------------------------------
 
