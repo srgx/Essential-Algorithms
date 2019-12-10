@@ -115,6 +115,18 @@ end
 # Exercise 8
 # Bucketsort uses similar formula to find element's bucket index
 
+# Exercise 9
+# After finding index move left until different value is found
+# Worst case run time is O(N)
+def interpolationFirst(array,value)
+  index=interpolationSearch(array,value)
+  loop do
+    index-=1
+    break if array[index]!=value
+  end
+  return index+1
+end
+
 
 # -------------------------------------------------------------------------
 ERR="Error"
