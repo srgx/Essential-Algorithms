@@ -43,19 +43,18 @@ end
 
 
 class HashTable < AbstractHash
-  def addValue(id,value)
-    res=self.getValue(id) # answer
+  def addValue(id,value) # return Answer.new(value|nil,probes)
+    res,v=self.getValue(id),nil
     unless(res.result!=nil)
       i=id%@size
       @array[i].addAfterMe(id,value)
-    else
-      puts "Duplicate key"
+      v=value
     end
     
-    return Answer.new(nil,res.probes)
+    return Answer.new(v,res.probes)
   end
   
-  def getValue(id)
+  def getValue(id) # return Answer.new(value|nil,probes)
     i=id%@size
     bucket=@array[i]
     p=0
@@ -67,28 +66,41 @@ class HashTable < AbstractHash
     result = bucket.next!=nil ? bucket.next.value : nil
     return Answer.new(result,p)
   end
+  
+  def deleteValue(id) # return value|nil
+    i=id%@size
+    bucket=@array[i]
+    v=nil
+    while(bucket.next!=nil&&bucket.next.id!=id)
+      bucket=bucket.next
+    end
+    
+    if(bucket.next!=nil)
+      v=bucket.next.value
+      bucket.next=bucket.next.next
+    end
+    return v
+  end
 end
 
 class HashTableSorted < AbstractHash
-  def addValue(id,value)
+  def addValue(id,value) # return Answer.new(value|nil,probes)
     i=id%@size
     bucket=@array[i]
-    p=0
+    p,v=0,nil
     while(bucket.next!=nil&&bucket.next.id<id)
       bucket=bucket.next
       p+=1
     end
     
-    
     if(bucket.next.nil?||bucket.next.id!=id)
       bucket.addAfterMe(id,value)
-    else
-      puts "Duplicate key"
+      v=value
     end
-    return Answer.new(nil,p)
+    return Answer.new(v,p)
   end
   
-  def getValue(id)
+  def getValue(id) # return Answer.new(value|nil,probes)
     i=id%@size
     bucket=@array[i]
     p=0
@@ -99,6 +111,22 @@ class HashTableSorted < AbstractHash
     
     result=!bucket.next.nil?&&bucket.next.id==id ? bucket.next.value : nil
     return Answer.new(result,p)
+  end
+  
+  def deleteValue(id) # return value|nil
+    i=id%@size
+    bucket=@array[i]
+    v=nil
+    while(bucket.next!=nil&&bucket.next.id<id)
+      bucket=bucket.next
+    end
+    
+    if(!bucket.next.nil?&&bucket.next.id==id)
+      v=bucket.next.value
+      bucket.next=bucket.next.next
+    end
+    
+    return v
   end
   
 end
@@ -112,7 +140,7 @@ def hashTest(elements,type)
     r=h.addValue(v,v.to_s)
     probes+=r.probes
   end
-  average=probes/100.to_f
+  average=probes/elements.to_f
   puts "Average #{type} set probes #{average}"
   probes=0
   1000.times do
@@ -120,15 +148,103 @@ def hashTest(elements,type)
     r=h.getValue(v)
     probes+=r.probes
   end
-  average=probes/100.to_f
+  average=probes/1000.to_f
   puts "Average #{type} get probes #{average}"
 end
 
 
+# Show number of probes
 #hashTest(250,"sorted")
 #hashTest(250,"unsorted")
 
-# Exercise 4
-# ...
 
+# Exercise 4
+class Element
+  attr_accessor :id, :value
+  def initialize(id,value)
+    @id=id
+    @value=value
+  end
+end
+
+class LinearHash
+  attr_reader :array
+  def initialize(size)
+    @size=size
+    @array=Array.new(size)
+  end
+  
+  def addValue(id,value) # return value|nil
+    i=id
+    s,v=0,nil
+    duplicate=false
+    while(!@array[i % @size].nil?&&s<@size-1)
+      if(@array[i % @size].id==id)
+        duplicate=true
+        break
+      end
+      i+=1
+      s+=1
+    end
+    if(@array[i % @size].nil?&&!duplicate)
+      @array[i % @size] = Element.new(id,value)
+      v=value
+    end
+    return v
+  end
+  
+  def getValue(id) # return value|nil
+    i=id
+    s,v=0,nil
+    while(!@array[i%@size].nil?&&s<@size-1&&@array[i % @size].id!=id)
+      i+=1
+      s+=1
+    end
+    return !@array[i % @size].nil?&&@array[i % @size].id==id ? @array[i % @size].value : nil
+  end
+end
+
+
+ERR="Error"
+# -------------------------------------------------------------------------
+h=HashTable.new(10)
+h.addValue(1,"Frodo")
+if(h.addValue(12,"Sauron").result!="Sauron") then raise ERR end
+if(h.addValue(12,"Gandalf").result!=nil) then raise ERR end
+h.addValue(34,"Sam")
+h.addValue(32,"Saruman")
+if(h.deleteValue(33)!=nil) then raise ERR end
+if(h.getValue(12).result!="Sauron") then raise ERR end
+if(h.getValue(34).result!="Sam") then raise ERR end
+if(h.deleteValue(12)!="Sauron") then raise ERR end
+if(h.getValue(12).result!=nil) then raise ERR end
+if(h.getValue(34).result!="Sam") then raise ERR end
+if(h.getValue(32).result!="Saruman") then raise ERR end
+# -------------------------------------------------------------------------
+h=HashTableSorted.new(10)
+h.addValue(1,"Frodo")
+if(h.addValue(12,"Sauron").result!="Sauron") then raise ERR end
+if(h.addValue(12,"Gandalf").result!=nil) then raise ERR end
+h.addValue(34,"Sam")
+h.addValue(32,"Saruman")
+if(h.deleteValue(33)!=nil) then raise ERR end
+if(h.getValue(12).result!="Sauron") then raise ERR end
+if(h.getValue(34).result!="Sam") then raise ERR end
+if(h.deleteValue(12)!="Sauron") then raise ERR end
+if(h.getValue(12).result!=nil) then raise ERR end
+if(h.getValue(34).result!="Sam") then raise ERR end
+if(h.getValue(32).result!="Saruman") then raise ERR end
+# -------------------------------------------------------------------------
+h=LinearHash.new(5)
+h.addValue(2,"Pippin")
+h.addValue(42,"Merry")
+if(h.addValue(42,"DuplicateMerry")!=nil) then raise ERR end
+h.addValue(74,"Balrog")
+h.addValue(124,"Gimli")
+if(h.addValue(92,"Smaug")!="Smaug") then raise ERR end
+if(h.addValue(123,"Boromir")!=nil) then raise ERR end
+if(h.getValue(124)!="Gimli") then raise ERR end
+if(h.getValue(42)!="Merry") then raise ERR end
+if(h.getValue(999)!=nil) then raise ERR end
+# -------------------------------------------------------------------------
 
