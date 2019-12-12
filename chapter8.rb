@@ -12,7 +12,7 @@ end
 
 class Cell
   attr_accessor :id, :value, :next
-  
+
   def addAfterMe(id,value)
     new_cell=Cell.new
     new_cell.id=id
@@ -30,7 +30,7 @@ class AbstractHash
       @array[i]=Cell.new # set sentinels
     end
   end
-  
+
   def showBucket(id)
     i=id%@size
     sentinel=@array[i]
@@ -50,10 +50,10 @@ class HashTable < AbstractHash
       @array[i].addAfterMe(id,value)
       v=value
     end
-    
+
     return Answer.new(v,res.probes)
   end
-  
+
   def getValue(id) # return Answer.new(value|nil,probes)
     i=id%@size
     bucket=@array[i]
@@ -62,11 +62,11 @@ class HashTable < AbstractHash
       bucket=bucket.next
       p+=1
     end
-    
+
     result = bucket.next!=nil ? bucket.next.value : nil
     return Answer.new(result,p)
   end
-  
+
   def deleteValue(id) # return value|nil
     i=id%@size
     bucket=@array[i]
@@ -74,7 +74,7 @@ class HashTable < AbstractHash
     while(bucket.next!=nil&&bucket.next.id!=id)
       bucket=bucket.next
     end
-    
+
     if(bucket.next!=nil)
       v=bucket.next.value
       bucket.next=bucket.next.next
@@ -92,14 +92,14 @@ class HashTableSorted < AbstractHash
       bucket=bucket.next
       p+=1
     end
-    
+
     if(bucket.next.nil?||bucket.next.id!=id)
       bucket.addAfterMe(id,value)
       v=value
     end
     return Answer.new(v,p)
   end
-  
+
   def getValue(id) # return Answer.new(value|nil,probes)
     i=id%@size
     bucket=@array[i]
@@ -108,11 +108,11 @@ class HashTableSorted < AbstractHash
       bucket=bucket.next
       p+=1
     end
-    
+
     result=!bucket.next.nil?&&bucket.next.id==id ? bucket.next.value : nil
     return Answer.new(result,p)
   end
-  
+
   def deleteValue(id) # return value|nil
     i=id%@size
     bucket=@array[i]
@@ -120,15 +120,15 @@ class HashTableSorted < AbstractHash
     while(bucket.next!=nil&&bucket.next.id<id)
       bucket=bucket.next
     end
-    
+
     if(!bucket.next.nil?&&bucket.next.id==id)
       v=bucket.next.value
       bucket.next=bucket.next.next
     end
-    
+
     return v
   end
-  
+
 end
 
 
@@ -173,36 +173,75 @@ class LinearHash
     @size=size
     @array=Array.new(size)
   end
-  
+
   def addValue(id,value) # return value|nil
-    i=id
+    k=id % @size # first choice
     s,v=0,nil
     duplicate=false
-    while(!@array[i % @size].nil?&&s<@size-1)
-      if(@array[i % @size].id==id)
+    while(!@array[(k+s)%@size].nil?&&s<@size-1)
+      if(@array[(k+s)%@size].id==id)
         duplicate=true
         break
       end
-      i+=1
       s+=1
     end
-    if(@array[i % @size].nil?&&!duplicate)
-      @array[i % @size] = Element.new(id,value)
+    if(@array[(k+s)%@size].nil?&&!duplicate)
+      @array[(k+s)%@size] = Element.new(id,value)
       v=value
     end
     return v
   end
-  
+
   def getValue(id) # return value|nil
-    i=id
+    k=id % @size # first choice
     s,v=0,nil
-    while(!@array[i%@size].nil?&&s<@size-1&&@array[i % @size].id!=id)
-      i+=1
+    while(!@array[(k+s)%@size].nil?&&s<@size-1&&@array[(k+s)%@size].id!=id)
       s+=1
     end
-    return !@array[i % @size].nil?&&@array[i % @size].id==id ? @array[i % @size].value : nil
+    return !@array[(k+s)%@size].nil?&&@array[(k+s)%@size].id==id ? @array[(k+s)%@size].value : nil
   end
 end
+
+
+# Exercise 5
+class QuadraticHash
+  attr_reader :array
+  def initialize(size)
+    @size=size
+    @array=Array.new(size)
+  end
+
+  def addValue(id,value) # return value|nil
+    k=id % @size # first choice
+    s,v=0,nil
+    duplicate=false
+    while(!@array[(k+s**2)%@size].nil?&&s<@size-1)
+      if(@array[(k+s**2)%@size].id==id)
+        duplicate=true
+        break
+      end
+      s+=1
+    end
+    if(@array[(k+s**2)%@size].nil?&&!duplicate)
+      @array[(k+s**2)%@size] = Element.new(id,value)
+      v=value
+    end
+    return v
+  end
+
+  def getValue(id) # return value|nil
+    k=id % @size # first choice
+    s,v=0,nil
+    while(!@array[(k+s**2)%@size].nil?&&s<@size-1&&@array[(k+s**2)%@size].id!=id)
+      s+=1
+    end
+    return !@array[(k+s**2)%@size].nil?&&@array[(k+s**2)%@size].id==id ? @array[(k+s**2)%@size].value : nil
+  end
+
+end
+
+# Exercise 6
+# ...
 
 
 ERR="Error"
@@ -247,4 +286,15 @@ if(h.getValue(124)!="Gimli") then raise ERR end
 if(h.getValue(42)!="Merry") then raise ERR end
 if(h.getValue(999)!=nil) then raise ERR end
 # -------------------------------------------------------------------------
-
+h=QuadraticHash.new(5)
+h.addValue(2,"Pippin")
+h.addValue(42,"Merry")
+if(h.addValue(42,"DuplicateMerry")!=nil) then raise ERR end
+h.addValue(74,"Balrog")
+h.addValue(124,"Gimli")
+if(h.addValue(92,"Smaug")!="Smaug") then raise ERR end
+if(h.addValue(123,"Boromir")!=nil) then raise ERR end
+if(h.getValue(124)!="Gimli") then raise ERR end
+if(h.getValue(42)!="Merry") then raise ERR end
+if(h.getValue(999)!=nil) then raise ERR end
+# -------------------------------------------------------------------------
