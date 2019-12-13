@@ -114,18 +114,16 @@ class HashTableSorted < AbstractHash
   end
 
   def deleteValue(id) # return value|nil
-    i=id%@size
+    i=id % @size
     bucket=@array[i]
     v=nil
     while(bucket.next!=nil&&bucket.next.id<id)
       bucket=bucket.next
     end
-
     if(!bucket.next.nil?&&bucket.next.id==id)
       v=bucket.next.value
       bucket.next=bucket.next.next
     end
-
     return v
   end
 
@@ -178,14 +176,16 @@ class LinearHash
     k=id % @size # first choice
     s,v=0,nil
     duplicate=false
-    while(!@array[(k+s)%@size].nil?&&s<@size-1)
+    while(!@array[(k+s)%@size].nil?&&
+          @array[(k+s)%@size]!=:deleted&&s<@size-1)
       if(@array[(k+s)%@size].id==id)
         duplicate=true
         break
       end
       s+=1
     end
-    if(@array[(k+s)%@size].nil?&&!duplicate)
+    r=@array[(k+s)%@size]
+    if((r.nil?||r==:deleted)&&!duplicate)
       @array[(k+s)%@size] = Element.new(id,value)
       v=value
     end
@@ -193,13 +193,35 @@ class LinearHash
   end
 
   def getValue(id) # return value|nil
-    k=id % @size # first choice
+    k=id % @size
     s,v=0,nil
-    while(!@array[(k+s)%@size].nil?&&s<@size-1&&@array[(k+s)%@size].id!=id)
+    while(@array[(k+s)%@size]==:deleted||
+        (!@array[(k+s)%@size].nil?&&s<@size-1&&
+          @array[(k+s)%@size].id!=id))
       s+=1
     end
-    return !@array[(k+s)%@size].nil?&&@array[(k+s)%@size].id==id ? @array[(k+s)%@size].value : nil
+    r=@array[(k+s)%@size]
+    return !r.nil?&&r!=:deleted&&
+            r.id==id ? r.value : nil
   end
+
+
+  def deleteValue(id) # return value|nil
+    k=id % @size
+    s,v=0,nil
+    while(@array[(k+s)%@size]==:deleted||
+        (!@array[(k+s)%@size].nil?&&s<@size-1&&
+          @array[(k+s)%@size].id!=id))
+      s+=1
+    end
+    r=@array[(k+s)%@size]
+    if(!r.nil?)
+      v=r.value
+      @array[(k+s)%@size]=:deleted
+    end
+    return v
+  end
+
 end
 
 
@@ -212,9 +234,10 @@ class QuadraticHash
   end
 
   def addValue(id,value) # return value|nil
-    k=id % @size # first choice
+    k=id % @size
     s,v=0,nil
     duplicate=false
+
     while(!@array[(k+s**2)%@size].nil?&&s<@size-1)
       if(@array[(k+s**2)%@size].id==id)
         duplicate=true
@@ -222,20 +245,27 @@ class QuadraticHash
       end
       s+=1
     end
+
     if(@array[(k+s**2)%@size].nil?&&!duplicate)
       @array[(k+s**2)%@size] = Element.new(id,value)
       v=value
     end
+
     return v
+
   end
 
   def getValue(id) # return value|nil
-    k=id % @size # first choice
-    s,v=0,nil
-    while(!@array[(k+s**2)%@size].nil?&&s<@size-1&&@array[(k+s**2)%@size].id!=id)
+    k=id % @size
+    s=0
+    while(!@array[(k+s**2)%@size].nil?&&s<@size-1&&
+           @array[(k+s**2)%@size].id!=id)
       s+=1
     end
-    return !@array[(k+s**2)%@size].nil?&&@array[(k+s**2)%@size].id==id ? @array[(k+s**2)%@size].value : nil
+
+    r=@array[(k+s**2)%@size]
+    return !r.nil?&&
+            r.id==id ? r.value : nil
   end
 
 end
@@ -246,33 +276,25 @@ end
 
 ERR="Error"
 # -------------------------------------------------------------------------
-h=HashTable.new(10)
-h.addValue(1,"Frodo")
-if(h.addValue(12,"Sauron").result!="Sauron") then raise ERR end
-if(h.addValue(12,"Gandalf").result!=nil) then raise ERR end
-h.addValue(34,"Sam")
-h.addValue(32,"Saruman")
-if(h.deleteValue(33)!=nil) then raise ERR end
-if(h.getValue(12).result!="Sauron") then raise ERR end
-if(h.getValue(34).result!="Sam") then raise ERR end
-if(h.deleteValue(12)!="Sauron") then raise ERR end
-if(h.getValue(12).result!=nil) then raise ERR end
-if(h.getValue(34).result!="Sam") then raise ERR end
-if(h.getValue(32).result!="Saruman") then raise ERR end
+# for hash tables with chaining
+def chainTest(type)
+  h = type=="unsorted" ? HashTable.new(10) : HashTableSorted.new(10)
+  h.addValue(1,"Frodo")
+  if(h.addValue(12,"Sauron").result!="Sauron") then raise ERR end
+  if(h.addValue(12,"Gandalf").result!=nil) then raise ERR end
+  h.addValue(34,"Sam")
+  h.addValue(32,"Saruman")
+  if(h.deleteValue(33)!=nil) then raise ERR end
+  if(h.getValue(12).result!="Sauron") then raise ERR end
+  if(h.getValue(34).result!="Sam") then raise ERR end
+  if(h.deleteValue(12)!="Sauron") then raise ERR end
+  if(h.getValue(12).result!=nil) then raise ERR end
+  if(h.getValue(34).result!="Sam") then raise ERR end
+  if(h.getValue(32).result!="Saruman") then raise ERR end
+end
 # -------------------------------------------------------------------------
-h=HashTableSorted.new(10)
-h.addValue(1,"Frodo")
-if(h.addValue(12,"Sauron").result!="Sauron") then raise ERR end
-if(h.addValue(12,"Gandalf").result!=nil) then raise ERR end
-h.addValue(34,"Sam")
-h.addValue(32,"Saruman")
-if(h.deleteValue(33)!=nil) then raise ERR end
-if(h.getValue(12).result!="Sauron") then raise ERR end
-if(h.getValue(34).result!="Sam") then raise ERR end
-if(h.deleteValue(12)!="Sauron") then raise ERR end
-if(h.getValue(12).result!=nil) then raise ERR end
-if(h.getValue(34).result!="Sam") then raise ERR end
-if(h.getValue(32).result!="Saruman") then raise ERR end
+chainTest("unsorted")
+chainTest("sorted")
 # -------------------------------------------------------------------------
 h=LinearHash.new(5)
 h.addValue(2,"Pippin")
@@ -285,6 +307,19 @@ if(h.addValue(123,"Boromir")!=nil) then raise ERR end
 if(h.getValue(124)!="Gimli") then raise ERR end
 if(h.getValue(42)!="Merry") then raise ERR end
 if(h.getValue(999)!=nil) then raise ERR end
+# -------------------------------------------------------------------------
+h=LinearHash.new(10)
+h.addValue(12,"Frodo")
+h.addValue(32,"Gandalf")
+h.addValue(33,"Smaug")
+if(h.deleteValue(32)!="Gandalf") then raise ERR end
+if(h.getValue(33)!="Smaug") then raise ERR end
+if(h.getValue(12)!="Frodo") then raise ERR end
+if(h.getValue(32)!=nil) then raise ERR end
+if(h.deleteValue(33)!="Smaug") then raise ERR end
+h.addValue(82,"Bilbo")
+h.addValue(62,"Pippin")
+if(h.array.include?(:deleted)) then raise ERR end
 # -------------------------------------------------------------------------
 h=QuadraticHash.new(5)
 h.addValue(2,"Pippin")
