@@ -58,12 +58,12 @@ class HashTable < AbstractHash
     i=id%@size
     bucket=@array[i]
     p=0
-    while(bucket.next!=nil&&bucket.next.id!=id)
-      bucket=bucket.next
+    while((r=bucket.next)!=nil&&r.id!=id)
+      bucket=r
       p+=1
     end
 
-    result = bucket.next!=nil ? bucket.next.value : nil
+    result = r!=nil ? r.value : nil
     return Answer.new(result,p)
   end
 
@@ -71,13 +71,13 @@ class HashTable < AbstractHash
     i=id%@size
     bucket=@array[i]
     v=nil
-    while(bucket.next!=nil&&bucket.next.id!=id)
-      bucket=bucket.next
+    while((r=bucket.next)!=nil&&r.id!=id)
+      bucket=r
     end
 
-    if(bucket.next!=nil)
-      v=bucket.next.value
-      bucket.next=bucket.next.next
+    if((r=bucket.next)!=nil)
+      v=r.value
+      bucket.next=r.next
     end
     return v
   end
@@ -88,8 +88,8 @@ class HashTableSorted < AbstractHash
     i=id%@size
     bucket=@array[i]
     p,v=0,nil
-    while(bucket.next!=nil&&bucket.next.id<id)
-      bucket=bucket.next
+    while((r=bucket.next)!=nil&&r.id<id)
+      bucket=r
       p+=1
     end
 
@@ -165,6 +165,8 @@ class Element
   end
 end
 
+#def isNormalE
+
 class LinearHash
   attr_reader :array
   def initialize(size)
@@ -173,19 +175,18 @@ class LinearHash
   end
 
   def addValue(id,value) # return value|nil
-    k=id % @size # first choice
+    k=id % @size
     s,v=0,nil
     duplicate=false
-    while(!@array[(k+s)%@size].nil?&&
-          @array[(k+s)%@size]!=:deleted&&s<@size-1)
-      if(@array[(k+s)%@size].id==id)
+    while((r=@array[(k+s)%@size]).class==Element&&s<@size-1)
+      if(r.id==id)
         duplicate=true
         break
       end
       s+=1
     end
-    r=@array[(k+s)%@size]
-    if((r.nil?||r==:deleted)&&!duplicate)
+
+    if(!duplicate&&r.class!=Element)
       @array[(k+s)%@size] = Element.new(id,value)
       v=value
     end
@@ -195,12 +196,11 @@ class LinearHash
   def getValue(id) # return value|nil
     k=id % @size
     s,v=0,nil
-    while(@array[(k+s)%@size]==:deleted||
-        (!@array[(k+s)%@size].nil?&&s<@size-1&&
-          @array[(k+s)%@size].id!=id))
+    while((((r=@array[(k+s)%@size])==:deleted)||
+            (r.class==Element&&r.id!=id))&&
+            s<@size-1)
       s+=1
     end
-    r=@array[(k+s)%@size]
     return !r.nil?&&r!=:deleted&&
             r.id==id ? r.value : nil
   end
@@ -209,12 +209,12 @@ class LinearHash
   def deleteValue(id) # return value|nil
     k=id % @size
     s,v=0,nil
-    while(@array[(k+s)%@size]==:deleted||
-        (!@array[(k+s)%@size].nil?&&s<@size-1&&
-          @array[(k+s)%@size].id!=id))
+    while((((r=@array[(k+s)%@size])==:deleted)||
+            (r.class==Element&&r.id!=id))&&
+            s<@size-1)
       s+=1
     end
-    r=@array[(k+s)%@size]
+
     if(!r.nil?)
       v=r.value
       @array[(k+s)%@size]=:deleted
@@ -238,15 +238,15 @@ class QuadraticHash
     s,v=0,nil
     duplicate=false
 
-    while(!@array[(k+s**2)%@size].nil?&&s<@size-1)
-      if(@array[(k+s**2)%@size].id==id)
+    while(!(r=@array[(k+s**2)%@size]).nil?&&s<@size-1)
+      if(r.id==id)
         duplicate=true
         break
       end
       s+=1
     end
 
-    if(@array[(k+s**2)%@size].nil?&&!duplicate)
+    if(r.nil?&&!duplicate)
       @array[(k+s**2)%@size] = Element.new(id,value)
       v=value
     end
@@ -258,12 +258,10 @@ class QuadraticHash
   def getValue(id) # return value|nil
     k=id % @size
     s=0
-    while(!@array[(k+s**2)%@size].nil?&&s<@size-1&&
-           @array[(k+s**2)%@size].id!=id)
+    while(!(r=@array[(k+s**2)%@size]).nil?&&r.id!=id&&s<@size-1)
       s+=1
     end
 
-    r=@array[(k+s**2)%@size]
     return !r.nil?&&
             r.id==id ? r.value : nil
   end
