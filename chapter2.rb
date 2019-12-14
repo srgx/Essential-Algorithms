@@ -242,30 +242,30 @@ def sieve(n)
   (4..n).step(2) do |i|
     is_composite[i] = true
   end
-  
+
   current_prime = 3
   stop_at = Integer.sqrt(n)
-  
+
   while(current_prime <= stop_at)
     (current_prime**2..n).step(current_prime) { |i| is_composite[i] = true }
-    
+
     #current_prime+=2
     #while((current_prime<=n)&&(is_composite[current_prime]))
     #  current_prime+=2
     #end
-    
+
     loop do
       current_prime+=2
       break if(!((current_prime<=n)&&(is_composite[current_prime])))
     end
-    
+
   end
-  
+
   primes = []
   2.upto(n) do |i|
     if(!is_composite[i]) then primes << i end
   end
-  
+
   return primes
 end
 
@@ -275,7 +275,7 @@ if(sieve(50)!=PRIMES) then raise "Error" end
 
 
 # Exercise 14
-# [[561, [3, 11, 17]], [1105, [5, 13, 17]], [1729, [7, 13, 19]], 
+# [[561, [3, 11, 17]], [1105, [5, 13, 17]], [1729, [7, 13, 19]],
 # [2465, [5, 17, 29]], [2821, [7, 13, 31]], [6601, [7, 23, 41]], [8911, [7, 19, 67]]]
 
 
@@ -375,17 +375,11 @@ if(generateCarmichael(3000)!=CARMS) then raise "Error" end
 # Exercise 15
 # Middle rectangle can reduce error for increasing and decreasing curves
 
-def poly(x)
-  return x**2
-end
 
-def linear(x)
-  return x*2
-end
+poly = lambda{ |x| x**2 }
+linear = lambda { |x| x*2 }
+constant = lambda { |x| 10 }
 
-def constant(x)
-  return 10
-end
 
 # Left
 def rectangleRule(func,xmin,xmax,intervals)
@@ -393,7 +387,7 @@ def rectangleRule(func,xmin,xmax,intervals)
   total_area=0
   x=xmin
   intervals.times do
-    total_area = total_area + dx*send(func,x)
+    total_area = total_area + dx*func.call(x)
     x+=dx
   end
   return total_area
@@ -405,15 +399,15 @@ def rectangleRule2(func,xmin,xmax,intervals)
   total_area=0
   x=xmin+dx/2
   intervals.times do
-    total_area = total_area + dx*send(func,x)
+    total_area = total_area + dx*func.call(x)
     x+=dx
   end
   return total_area
 end
 
 
-if(rectangleRule(:poly,0,200,25)!=2508800) then raise "Error" end
-if(rectangleRule2(:poly,0,200,25)!=2665600) then raise "Error" end
+if(rectangleRule(poly,0,200,25)!=2508800) then raise "Error" end
+if(rectangleRule2(poly,0,200,25)!=2665600) then raise "Error" end
 
 
 # Exercise 16
@@ -436,6 +430,3 @@ if(rectangleRule2(:poly,0,200,25)!=2665600) then raise "Error" end
 
 # Exercise 18
 # Root of function f(x)-g(x) is where functions intersect
-
-
-
