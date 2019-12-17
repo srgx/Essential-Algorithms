@@ -156,7 +156,7 @@ class LinearHash
     k=id % @size
     s,v=0,nil
     while((((r=@array[(k+s)%@size])==:deleted)||
-            (r!=nil&&r!=:deleted&&r.id!=id))&&
+            (r!=nil&&r.id!=id))&&
             s<@size-1)
       s+=1
     end
@@ -169,7 +169,7 @@ class LinearHash
     k=id % @size
     s,v=0,nil
     while((((r=@array[(k+s)%@size])==:deleted)||
-            (r!=nil&&r!=:deleted&&r.id!=id))&&
+            (r!=nil&&r.id!=id))&&
             s<@size-1)
       s+=1
     end
@@ -215,7 +215,7 @@ class QuadraticHash
     k=id % @size
     s,v=0,nil
     while((((r=@array[(k+s**2)%@size])==:deleted)||
-            (r!=nil&&r!=:deleted&&r.id!=id))&&
+            (r!=nil&&r.id!=id))&&
             s<@size-1)
       s+=1
     end
@@ -227,7 +227,7 @@ class QuadraticHash
     k=id % @size
     s,v=0,nil
     while((((r=@array[(k+s**2)%@size])==:deleted)||
-            (r!=nil&&r!=:deleted&&r.id!=id))&&
+            (r!=nil&&r.id!=id))&&
             s<@size-1)
       s+=1
     end
@@ -275,7 +275,7 @@ class PseudorandomHash
     s,v=0,nil
     p=Random.new(k).rand(0..@size-1)
     while((((r=@array[(k+s*p)%@size])==:deleted)||
-            (r!=nil&&r!=:deleted&&r.id!=id))&&
+            (r!=nil&&r.id!=id))&&
             s<@size-1)
       s+=1
     end
@@ -288,7 +288,7 @@ class PseudorandomHash
     s,v=0,nil
     p=Random.new(k).rand(0..@size-1)
     while((((r=@array[(k+s*p)%@size])==:deleted)||
-            (r!=nil&&r!=:deleted&&r.id!=id))&&
+            (r!=nil&&r.id!=id))&&
             s<@size-1)
       s+=1
     end
