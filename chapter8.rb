@@ -174,7 +174,7 @@ class LinearHash
       s+=1
     end
 
-    if(!r.nil?&&r!=:deleted)
+    if(!r.nil?&&r!=:deleted&&r.id==id)
       v=r.value
       @array[(k+s)%@size]=:deleted
     end
@@ -232,7 +232,7 @@ class QuadraticHash
       s+=1
     end
 
-    if(!r.nil?&&r!=:deleted)
+    if(!r.nil?&&r!=:deleted&&r.id==id)
       v=r.value
       @array[(k+s**2)%@size]=:deleted
     end
@@ -293,7 +293,7 @@ class PseudorandomHash
       s+=1
     end
 
-    if(!r.nil?&&r!=:deleted)
+    if(!r.nil?&&r!=:deleted&&r.id=id)
       v=r.value
       @array[(k+s*p)%@size]=:deleted
     end
@@ -427,7 +427,6 @@ end
 
 
 # Exercise 10
-# ...
 class OrderedDouble
   attr_reader :array
   def initialize(size)
@@ -436,6 +435,60 @@ class OrderedDouble
   end
 
   def addValue(id,value)
+    k=id % @size
+    s,v=0,nil
+    duplicate=false
+    original=value
+    p=Random.new(id).rand(0..@size-1)
+    while((r=@array[(k+s*p)%@size])!=nil&&r!=:deleted&&s<@size-1)
+      if(r.id==id)
+        duplicate=true
+        break
+      end
+      if(r.id>id)
+        id,r.id=r.id,id
+        value,r.value=r.value,value
+        p=Random.new(id).rand(0..@size-1)
+      end
+      s+=1
+    end
+
+    if(!duplicate&&r==nil||r==:deleted)
+      @array[(k+s*p)%@size] = Element.new(id,value)
+      v=original
+    end
+    return v
+  end
+
+  def getValue(id)
+    k=id % @size
+    s,v=0,nil
+    p=Random.new(id).rand(0..@size-1)
+    while((((r=@array[(k+s*p)%@size])==:deleted)||
+            (r!=nil&&r.id<id))&&
+            s<@size-1)
+      s+=1
+    end
+    return !r.nil?&&r!=:deleted&&
+            r.id==id ? r.value : nil
+  end
+
+  def deleteValue(id)
+    k=id % @size
+    s,v=0,nil
+    p=Random.new(id).rand(0..@size-1)
+    while((((r=@array[(k+s*p)%@size])==:deleted)||
+            (r!=nil&&r.id<id))&&
+            s<@size-1)
+      s+=1
+    end
+
+    if(!r.nil?&&r!=:deleted&&r.id==id)
+      v=r.value
+      @array[(k+s*p)%@size]=:deleted
+    end
+
+    return v
   end
 
 end
@@ -444,7 +497,7 @@ end
 ERR="Error"
 # -------------------------------------------------------------------------
 def hashTest(type)
-  s=15
+  s=10
   hashTypes=
     { sorted: HashTableSorted,
       unsorted: HashTable,
@@ -452,7 +505,8 @@ def hashTest(type)
       quadratic: QuadraticHash,
       pseudorandom: PseudorandomHash,
       double: DoubleHash,
-      ordered_quadratic: OrderedQuadratic }
+      ordered_quadratic: OrderedQuadratic,
+      ordered_double: OrderedDouble }
 
   h=hashTypes[type].new(s)
 
@@ -463,19 +517,38 @@ def hashTest(type)
   raise ERR if(h.addValue(25,"C")!="C")
   raise ERR if(h.addValue(121,"D")!="D")
   raise ERR if(h.addValue(83,"E")!="E")
+  raise ERR if(h.addValue(22,"F")!="F")
+
+  # GET VALUES
+  raise ERR if(h.getValue(95)!="A")
+  raise ERR if(h.getValue(65)!="B")
+  raise ERR if(h.getValue(25)!="C")
+  raise ERR if(h.getValue(121)!="D")
+  raise ERR if(h.getValue(83)!="E")
+  raise ERR if(h.getValue(22)!="F")
+
+  # ABSENCE
+  0.upto(21) { |i| raise ERR if(h.getValue(i)!=nil) }
 
   # DELETE VALUES
   raise ERR if(h.deleteValue(95)!="A")
   raise ERR if(h.deleteValue(65)!="B")
+  raise ERR if(h.deleteValue(121)!="D")
   raise ERR if(h.deleteValue(35)!=nil)
+  raise ERR if(h.deleteValue(65)!=nil)
 
   # GET VALUES
   raise ERR if(h.getValue(25)!="C")
-  raise ERR if(h.getValue(121)!="D")
   raise ERR if(h.getValue(83)!="E")
-  raise ERR if(h.getValue(65)!=nil)
-  raise ERR if(h.getValue(63)!=nil)
+  raise ERR if(h.getValue(22)!="F")
   raise ERR if(h.getValue(95)!=nil)
+  raise ERR if(h.getValue(65)!=nil)
+  raise ERR if(h.getValue(121)!=nil)
+
+  # DELETE VALUES
+  raise ERR if(h.deleteValue(22)!="F")
+  raise ERR if(h.deleteValue(25)!="C")
+  raise ERR if(h.deleteValue(83)!="E")
 
 end
 # -------------------------------------------------------------------------
@@ -486,4 +559,5 @@ hashTest(:quadratic)
 hashTest(:pseudorandom)
 hashTest(:double)
 hashTest(:ordered_quadratic)
+hashTest(:ordered_double)
 # -------------------------------------------------------------------------
