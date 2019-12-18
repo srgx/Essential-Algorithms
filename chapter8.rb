@@ -444,13 +444,15 @@ class OrderedDouble
       if(r.id==id)
         duplicate=true
         break
-      end
-      if(r.id>id)
+      elsif(r.id>id)
         id,r.id=r.id,id
         value,r.value=r.value,value
-        p=Random.new(id).rand(0..@size-1)
+        p=Random.new(id).rand(0..@size-1) # step size for larger element
+        k=(k+s*p)%@size # larger element taken from this position
+        s=1 # start 1*p unit from k
+      else
+        s+=1
       end
-      s+=1
     end
 
     if(!duplicate&&r==nil||r==:deleted)
