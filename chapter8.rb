@@ -45,15 +45,21 @@ class HashTable < AbstractHash
     return v
   end
 
-  def getValue(id)
+  def getValue(id,sequence=nil)
     i=id%@size
     bucket=@array[i]
+    s=0
     while((r=bucket.next)!=nil&&r.id!=id)
       bucket=r
+      s+=1
     end
 
-    result = r!=nil ? r.value : nil
-    return result
+    if(sequence.nil?)
+      return r!=nil ? r.value : nil
+    elsif(sequence)
+      return s+1
+    end
+
   end
 
   def deleteValue(id)
@@ -88,15 +94,20 @@ class HashTableSorted < AbstractHash
     return v
   end
 
-  def getValue(id)
+  def getValue(id,sequence=nil)
     i=id%@size
     bucket=@array[i]
+    s=0
     while(bucket.next!=nil&&bucket.next.id<id)
       bucket=bucket.next
+      s+=1
     end
 
-    result=!bucket.next.nil?&&bucket.next.id==id ? bucket.next.value : nil
-    return result
+    if(sequence.nil?)
+      return !bucket.next.nil?&&bucket.next.id==id ? bucket.next.value : nil
+    elsif(sequence)
+      return s+1
+    end
   end
 
   def deleteValue(id)
@@ -152,7 +163,7 @@ class LinearHash
     return v
   end
 
-  def getValue(id)
+  def getValue(id,sequence=nil)
     k=id % @size
     s,v=0,nil
     while((((r=@array[(k+s)%@size])==:deleted)||
@@ -160,8 +171,12 @@ class LinearHash
             s<@size-1)
       s+=1
     end
-    return !r.nil?&&r!=:deleted&&
-            r.id==id ? r.value : nil
+    if(sequence.nil?)
+      return !r.nil?&&r!=:deleted&&
+              r.id==id ? r.value : nil
+    elsif(sequence)
+      return s+1
+    end
   end
 
 
@@ -211,7 +226,7 @@ class QuadraticHash
     return v
   end
 
-  def getValue(id)
+  def getValue(id,sequence=nil)
     k=id % @size
     s,v=0,nil
     while((((r=@array[(k+s**2)%@size])==:deleted)||
@@ -219,8 +234,12 @@ class QuadraticHash
             s<@size-1)
       s+=1
     end
-    return !r.nil?&&r!=:deleted&&
-            r.id==id ? r.value : nil
+    if(sequence.nil?)
+      return !r.nil?&&r!=:deleted&&
+              r.id==id ? r.value : nil
+    elsif(sequence)
+      return s+1
+    end
   end
 
   def deleteValue(id)
@@ -270,7 +289,7 @@ class PseudorandomHash
     return v
   end
 
-  def getValue(id)
+  def getValue(id,sequence=nil)
     k=id % @size
     s,v=0,nil
     p=Random.new(k).rand(0..@size-1)
@@ -279,8 +298,12 @@ class PseudorandomHash
             s<@size-1)
       s+=1
     end
-    return !r.nil?&&r!=:deleted&&
-            r.id==id ? r.value : nil
+    if(sequence.nil?)
+      return !r.nil?&&r!=:deleted&&
+              r.id==id ? r.value : nil
+    elsif(sequence)
+      return s+1
+    end
   end
 
   def deleteValue(id)
@@ -330,7 +353,7 @@ class DoubleHash
     return v
   end
 
-  def getValue(id)
+  def getValue(id,sequence=nil)
     k=id % @size
     s,v=0,nil
     p=Random.new(id).rand(0..@size-1)
@@ -339,8 +362,12 @@ class DoubleHash
             s<@size-1)
       s+=1
     end
-    return !r.nil?&&r!=:deleted&&
-            r.id==id ? r.value : nil
+    if(sequence.nil?)
+      return !r.nil?&&r!=:deleted&&
+              r.id==id ? r.value : nil
+    elsif(sequence)
+      return s+1
+    end
   end
 
   def deleteValue(id)
@@ -394,7 +421,7 @@ class OrderedQuadratic
     return v
   end
 
-  def getValue(id)
+  def getValue(id,sequence=nil)
     k=id % @size
     s,v=0,nil
     while((((r=@array[(k+s**2)%@size])==:deleted)||
@@ -402,8 +429,12 @@ class OrderedQuadratic
             s<@size-1)
       s+=1
     end
-    return !r.nil?&&r!=:deleted&&
-            r.id==id ? r.value : nil
+    if(sequence.nil?)
+      return !r.nil?&&r!=:deleted&&
+              r.id==id ? r.value : nil
+    elsif(sequence)
+      return s+1
+    end
   end
 
   def deleteValue(id)
@@ -462,7 +493,7 @@ class OrderedDouble
     return v
   end
 
-  def getValue(id)
+  def getValue(id,sequence=nil)
     k=id % @size
     s,v=0,nil
     p=Random.new(id).rand(0..@size-1)
@@ -471,8 +502,12 @@ class OrderedDouble
             s<@size-1)
       s+=1
     end
-    return !r.nil?&&r!=:deleted&&
-            r.id==id ? r.value : nil
+    if(sequence.nil?)
+      return !r.nil?&&r!=:deleted&&
+              r.id==id ? r.value : nil
+    elsif(sequence)
+      return s+1
+    end
   end
 
   def deleteValue(id)
@@ -496,21 +531,80 @@ class OrderedDouble
 end
 
 
-ERR="Error"
+# Exercise 11
+
+HASH_TYPES=
+{ sorted: HashTableSorted,
+  unsorted: HashTable,
+  linear: LinearHash,
+  quadratic: QuadraticHash,
+  pseudorandom: PseudorandomHash,
+  double: DoubleHash,
+  ordered_quadratic: OrderedQuadratic,
+  ordered_double: OrderedDouble }
+
+
+def measureSteps(type)
+  s,num_values=101,90
+  fail=true
+  while(fail==true) # make sure num_values elements are successfully added
+    h=HASH_TYPES[type].new(s)
+    sequences=[]
+    fail=false
+    num_values.times do |i|
+      if(h.addValue(rand(1..10**7),"")==nil)
+        fail=true
+        break
+      end
+      itindx=i+1
+      if(itindx==50||itindx==60||itindx==70||itindx==80||itindx==90)
+        sequences << h.getValue(rand(1..10**7),true)
+      end
+    end
+  end
+  return sequences
+end
+
+def averageSteps(type)
+  averages=Array.new(5,0)
+  1000.times do
+    sequences=measureSteps(type)
+    0.upto(sequences.size-1) do |i|
+      averages[i]+=sequences[i]
+    end
+  end
+  0.upto(averages.size-1) do |i|
+    averages[i]/=1000.to_f
+  end
+  return averages
+end
+
+# Main function for exercise 11
+def measureOpenAddressing
+  puts "Results for values: 50, 60, 70, 80, 90"
+  print "Linear "
+  p averageSteps(:linear)
+  print "Quadratic "
+  p averageSteps(:quadratic)
+  print "Pseudorandom "
+  p averageSteps(:pseudorandom)
+  print "Double "
+  p averageSteps(:double)
+  print "Ordered Quadratic "
+  p averageSteps(:ordered_quadratic)
+  print "Ordered Double "
+  p averageSteps(:ordered_double)
+end
+
+# measureOpenAddressing
+
+# TESTS
 # -------------------------------------------------------------------------
+ERR="Error"
 def hashTest(type)
   s=10
-  hashTypes=
-    { sorted: HashTableSorted,
-      unsorted: HashTable,
-      linear: LinearHash,
-      quadratic: QuadraticHash,
-      pseudorandom: PseudorandomHash,
-      double: DoubleHash,
-      ordered_quadratic: OrderedQuadratic,
-      ordered_double: OrderedDouble }
 
-  h=hashTypes[type].new(s)
+  h=HASH_TYPES[type].new(s)
 
   # ADD VALUES
   raise ERR if(h.addValue(95,"A")!="A")
@@ -553,6 +647,7 @@ def hashTest(type)
   raise ERR if(h.deleteValue(83)!="E")
 
 end
+
 # -------------------------------------------------------------------------
 hashTest(:unsorted)
 hashTest(:sorted)
