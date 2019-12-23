@@ -51,27 +51,37 @@ def drawKoch(depth,pt1,angle,length,color)
   end
 end
 
-def snowFlake(x,y,size,color)
+# 4 Koch curves
+snowFlake = lambda { |x,y,size,color|
   depth = 2
   drawKoch(depth,Point.new(x,y),0,size,color)
   drawKoch(depth,Point.new(x+size,y),90,size,color)
   drawKoch(depth,Point.new(x+size,y+size),180,size,color)
-  drawKoch(depth,Point.new(x,y+size),270,size,color)
-end
+  drawKoch(depth,Point.new(x,y+size),270,size,color) 
+  }
+
+# Koch snowflake(3 Koch curves)
+realSnowFlake = lambda { |x,y,size,color|
+  depth = 2
+  pt3=Point.new(size/2+x,y+(size*Math.sqrt(3))/2.0)
+  drawKoch(depth,Point.new(x,y),0,size,color)
+  drawKoch(depth,Point.new(x+size,y),120,size,color)
+  drawKoch(depth,pt3,240,size,color)
+  }
 
 COLORS=['blue','red','orange','green','lime','fuchsia','aqua','purple']
 
-def star(startX,startY,startS)
-  step=3
-  100.times do
-    snowFlake(startX,startY,startS,COLORS[rand(COLORS.size)])
+def star(startX,startY,startS,fun,dv)
+  step=5
+  55.times do
+    fun.call(startX,startY,startS,COLORS[rand(COLORS.size)])
     startX+=step
-    startY+=step
+    startY+=step/dv.to_f # dv=1 for snowFlake, dv=2 for realSnowFlake
     startS-=step*2
   end
 end
 
-#star(180,200,600)
-#star(1140,200,600)
+#star(180,200,600,snowFlake,1)
+#star(1140,200,600,realSnowFlake,2)
 #show
 
