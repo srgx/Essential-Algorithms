@@ -1,3 +1,16 @@
+# Exercises 1, 2
+
+def factorial(n)
+  return n.zero? ? 1 : n * factorial(n-1)
+end
+
+def fibonacci(n)
+  return n<=1 ? n : fibonacci(n-1) + fibonacci(n-2)
+end
+
+ERR="Error"
+
+
 # Exercise 5
 
 require 'ruby2d'
@@ -21,7 +34,7 @@ end
 def drawKoch(depth,pt1,angle,length,color)
   v=0.0174532925
   angle_radians=angle*v
-  if(depth==0)    
+  if(depth==0)
     xx=length*Math.cos(angle_radians)+pt1.x
     yy=length*Math.sin(angle_radians)+pt1.y
     Line.new(
@@ -31,19 +44,19 @@ def drawKoch(depth,pt1,angle,length,color)
       color: color,
       z: 20
     )
-  else    
+  else
     pt2=Point.new
     pt2.x=(length/3.0)*Math.cos(angle_radians)+pt1.x
     pt2.y=(length/3.0)*Math.sin(angle_radians)+pt1.y
-    
+
     pt3=Point.new
     pt3.x=(length/3.0)*Math.cos((angle-60)*v)+pt2.x
     pt3.y=(length/3.0)*Math.sin((angle-60)*v)+pt2.y
-    
+
     pt4=Point.new
     pt4.x=(length/3.0)*2*Math.cos(angle_radians)+pt1.x
     pt4.y=(length/3.0)*2*Math.sin(angle_radians)+pt1.y
-    
+
     drawKoch(depth-1,pt1,angle,length/3.0,color)
     drawKoch(depth-1,pt2,angle-60,length/3.0,color)
     drawKoch(depth-1,pt3,angle+60,length/3.0,color)
@@ -57,7 +70,7 @@ snowFlake = lambda { |x,y,size,color|
   drawKoch(depth,Point.new(x,y),0,size,color)
   drawKoch(depth,Point.new(x+size,y),90,size,color)
   drawKoch(depth,Point.new(x+size,y+size),180,size,color)
-  drawKoch(depth,Point.new(x,y+size),270,size,color) 
+  drawKoch(depth,Point.new(x,y+size),270,size,color)
   }
 
 # Koch snowflake(3 Koch curves)
@@ -85,3 +98,17 @@ end
 #star(1140,200,600,realSnowFlake,2)
 #show
 
+
+# ----------------------------------------------------------------
+# TESTS
+# ----------------------------------------------------------------
+raise ERR if(factorial(3)!=6)
+raise ERR if(factorial(4)!=24)
+raise ERR if(factorial(5)!=120)
+raise ERR if(factorial(6)!=720)
+# ----------------------------------------------------------------
+raise ERR if(fibonacci(6)!=8)
+raise ERR if(fibonacci(7)!=13)
+raise ERR if(fibonacci(8)!=21)
+raise ERR if(fibonacci(9)!=34)
+# ----------------------------------------------------------------
