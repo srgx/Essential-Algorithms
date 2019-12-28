@@ -10,8 +10,20 @@ end
 
 ERR="Error"
 
+# Exercise 3
+def hanoi(from,to,helper,n)
+  if(n==1)
+    puts "#{from} -> #{to}" # move one disc
+  else
+    hanoi(from,helper,to,n-1) # move smaller discs to helper
+    puts "#{from} -> #{to}" # move largest disc to destination
+    hanoi(helper,to,from,n-1) # move smaller disc to destination
+  end
+end
 
-# Exercise 5
+#hanoi("A","C","B",3)
+
+# Exercises 5, 6
 
 require 'ruby2d'
 
@@ -31,7 +43,8 @@ class Point
   end
 end
 
-def drawKoch(depth,pt1,angle,length,color)
+# angle is angle of whole curve, ang is angle of next depths
+def drawKoch(depth,pt1,angle,length,color,ang=60)
   v=0.0174532925
   angle_radians=angle*v
   if(depth==0)
@@ -45,59 +58,65 @@ def drawKoch(depth,pt1,angle,length,color)
       z: 20
     )
   else
+    side=length/3.0 # triangle side
+    s=Math.cos(ang*v)*side*2 # triangle bottom(space between 2 parts)
+    part=(length-s)/2.0
+
     pt2=Point.new
-    pt2.x=(length/3.0)*Math.cos(angle_radians)+pt1.x
-    pt2.y=(length/3.0)*Math.sin(angle_radians)+pt1.y
+    pt2.x=part*Math.cos(angle_radians)+pt1.x
+    pt2.y=part*Math.sin(angle_radians)+pt1.y
 
     pt3=Point.new
-    pt3.x=(length/3.0)*Math.cos((angle-60)*v)+pt2.x
-    pt3.y=(length/3.0)*Math.sin((angle-60)*v)+pt2.y
+    pt3.x=side*Math.cos((angle-ang)*v)+pt2.x
+    pt3.y=side*Math.sin((angle-ang)*v)+pt2.y
 
     pt4=Point.new
-    pt4.x=(length/3.0)*2*Math.cos(angle_radians)+pt1.x
-    pt4.y=(length/3.0)*2*Math.sin(angle_radians)+pt1.y
+    pt4.x=side*Math.cos((angle+ang)*v)+pt3.x
+    pt4.y=side*Math.sin((angle+ang)*v)+pt3.y
 
-    drawKoch(depth-1,pt1,angle,length/3.0,color)
-    drawKoch(depth-1,pt2,angle-60,length/3.0,color)
-    drawKoch(depth-1,pt3,angle+60,length/3.0,color)
-    drawKoch(depth-1,pt4,angle,length/3.0,color)
+    drawKoch(depth-1,pt1,angle,part,color,ang)
+    drawKoch(depth-1,pt2,angle-ang,side,color,ang)
+    drawKoch(depth-1,pt3,angle+ang,side,color,ang)
+    drawKoch(depth-1,pt4,angle,part,color,ang)
   end
 end
 
 # 4 Koch curves
-snowFlake = lambda { |x,y,size,color|
-  depth = 2
-  drawKoch(depth,Point.new(x,y),0,size,color)
-  drawKoch(depth,Point.new(x+size,y),90,size,color)
-  drawKoch(depth,Point.new(x+size,y+size),180,size,color)
-  drawKoch(depth,Point.new(x,y+size),270,size,color)
+snowFlake = lambda { |point,size,color,angle=60,depth=3|
+  x,y=point.x,point.y
+  drawKoch(depth,Point.new(x,y),0,size,color,angle)
+  drawKoch(depth,Point.new(x+size,y),90,size,color,angle)
+  drawKoch(depth,Point.new(x+size,y+size),180,size,color,angle)
+  drawKoch(depth,Point.new(x,y+size),270,size,color,angle)
   }
 
 # Koch snowflake(3 Koch curves)
-realSnowFlake = lambda { |x,y,size,color|
-  depth = 2
+realSnowFlake = lambda { |point,size,color,angle=60,depth=3|
+  x,y=point.x,point.y
   pt3=Point.new(size/2+x,y+(size*Math.sqrt(3))/2.0)
-  drawKoch(depth,Point.new(x,y),0,size,color)
-  drawKoch(depth,Point.new(x+size,y),120,size,color)
-  drawKoch(depth,pt3,240,size,color)
+  drawKoch(depth,Point.new(x,y),0,size,color,angle)
+  drawKoch(depth,Point.new(x+size,y),120,size,color,angle)
+  drawKoch(depth,pt3,240,size,color,angle)
   }
 
 COLORS=['blue','red','orange','green','lime','fuchsia','aqua','purple']
 
-def star(startX,startY,startS,fun,dv)
-  step=5
-  55.times do
-    fun.call(startX,startY,startS,COLORS[rand(COLORS.size)])
+def star(point,startS,fun,dv)
+  startX,startY=point.x,point.y
+  step=100
+  5.times do
+    fun.call(Point.new(startX,startY),startS,COLORS[rand(COLORS.size)])
     startX+=step
     startY+=step/dv.to_f # dv=1 for snowFlake, dv=2 for realSnowFlake
     startS-=step*2
   end
 end
 
-#star(180,200,600,snowFlake,1)
-#star(1140,200,600,realSnowFlake,2)
+#star(Point.new(180,200),600,snowFlake,1)
+#star(Point.new(1140,200),600,realSnowFlake,2)
+#realSnowFlake.call(Point.new(400,300),500,'red',85,5)
+#snowFlake.call(Point.new(400,300),500,'red',85,5)
 #show
-
 
 # ----------------------------------------------------------------
 # TESTS
