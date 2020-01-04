@@ -230,6 +230,67 @@ end
 #sierpinski(4,12,12,Point.new(100,100))
 #show
 
+
+# Exercises 10, 11
+
+def gasket(depth,side,position)
+  half_side=side/2.0
+  height = Math::sqrt(side**2 - half_side**2)
+
+  if(depth.zero?)
+    Triangle.new(
+      x1: position.x,  y1: position.y, # top
+      x2: position.x+half_side, y2: position.y+height, # right
+      x3: position.x-half_side, y3: position.y+height, # left
+      color: 'red',
+      z: 100
+    )
+  else
+    new_half = (half_side/2.0)
+    new_height = Math::sqrt(half_side**2 - new_half**2)
+    left_top = Point.new(position.x - new_half,position.y+new_height)
+    right_top = Point.new(position.x + new_half,position.y+new_height)
+    
+    gasket(depth-1,half_side,position) # top
+    gasket(depth-1,half_side,left_top) # left
+    gasket(depth-1,half_side,right_top) # right
+  end
+end
+
+#gasket(6,1000,Point.new(800,100))
+#show
+
+def carpet(depth,side,position)
+  if(depth.zero?)
+    Square.new(
+      x: position.x, y: position.y,
+      size: side,
+      color: 'blue',
+      z: 10
+    )
+  else
+    ns = side/3.0 # new side
+    px,py = position.x, position.y
+    nd = depth-1 # new depth
+    
+    carpet(nd,ns,Point.new(px,py))
+    carpet(nd,ns,Point.new(px+ns,py))
+    carpet(nd,ns,Point.new(px+2*ns,py))
+    
+    carpet(nd,ns,Point.new(px,py+ns))
+    carpet(nd,ns,Point.new(px+2*ns,py+ns))
+    
+    carpet(nd,ns,Point.new(px,py+2*ns))
+    carpet(nd,ns,Point.new(px+ns,py+2*ns))
+    carpet(nd,ns,Point.new(px+2*ns,py+2*ns))
+  end
+end
+
+
+#carpet(4,600,Point.new(100,100))
+#show
+
+
 # ----------------------------------------------------------------
 # TESTS
 # ----------------------------------------------------------------
