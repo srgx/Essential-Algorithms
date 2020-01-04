@@ -127,6 +127,46 @@ class HashTableSorted < AbstractHash
 end
 
 
+def measureSortedUnsorted(items,type)
+  num_items = items
+  limit = 10000
+  tests = 100
+  hsh = (type==:sorted) ? HashTableSorted.new(10) : HashTable.new(10)
+  num_items.times do
+    v = rand(limit)
+    hsh.addValue(v,"")
+  end
+
+  sum = 0
+
+  tests.times { sum += hsh.getValue(rand(limit),true) }
+
+  return sum / tests.to_f
+end
+
+# Both hash tables have similar growth rate but algorithm with sorting
+# gives shorter probe sequences
+def graphChaining
+  unsrtd = []
+  srtd = []
+  i = 50
+  5.times do
+    unsrtd << measureSortedUnsorted(i,:unsorted)
+    srtd << measureSortedUnsorted(i,:sorted)
+    i += 50
+  end
+  
+  puts "Probe lengths for hash table with chaining."
+  puts "50, 100, 150, 200, 250 items, 10 buckets"
+  puts "Unsorted"
+  p unsrtd
+  puts "Sorted"
+  p srtd
+end
+
+#graphChaining
+
+
 # Exercise 4
 class Element
   attr_accessor :id, :value
@@ -388,6 +428,9 @@ class DoubleHash
   end
 end
 
+# Exercise 8
+# Array size N should be prime number
+
 
 # Exercise 9
 class OrderedQuadratic
@@ -544,6 +587,7 @@ HASH_TYPES=
   ordered_double: OrderedDouble }
 
 
+# return probe sequence lenghts ([12,33,44,55,66])
 def measureSteps(type)
   s,num_values=101,90
   fail=true
@@ -567,21 +611,23 @@ end
 
 def averageSteps(type)
   averages=Array.new(5,0)
-  1000.times do
+  tests=1000
+  tests.times do
     sequences=measureSteps(type)
     0.upto(sequences.size-1) do |i|
       averages[i]+=sequences[i]
     end
   end
   0.upto(averages.size-1) do |i|
-    averages[i]/=1000.to_f
+    averages[i]/=tests.to_f
   end
   return averages
 end
 
 # Main function for exercise 11
-def measureOpenAddressing
-  puts "Results for values: 50, 60, 70, 80, 90"
+def graphOpenAddressing
+  puts "Probe lengths for hash table with open addressing."
+  puts "50, 60, 70, 80, 90 items, table size - 101"
   print "Linear "
   p averageSteps(:linear)
   print "Quadratic "
@@ -596,7 +642,7 @@ def measureOpenAddressing
   p averageSteps(:ordered_double)
 end
 
-# measureOpenAddressing
+#graphOpenAddressing
 
 # TESTS
 # -------------------------------------------------------------------------
