@@ -23,7 +23,7 @@ end
 
 #hanoi("A","C","B",3)
 
-# Exercises 5, 6
+# Exercise 4
 
 require 'ruby2d'
 
@@ -42,6 +42,120 @@ class Point
     @y=y
   end
 end
+
+class Disk
+  attr_accessor :width, :height, :position
+  def initialize(width=500,height=50)
+    @width,@height = width,height
+    @position = nil
+  end
+  
+  def render
+    Rectangle.new(
+      x: @position.x, y: @position.y,
+      width: @width, height: @height,
+      color: 'blue',
+      z: 15
+    )
+  end
+end
+
+class Peg
+  def initialize(width,height,position)
+    @disks = Array.new
+    @width, @height = width, height
+    @position = position
+    @space = 5
+  end
+  
+  def addDisk(disk)
+    c,dh = self.number_of_disks, disk.height
+    x = @position.x-(disk.width-@width)/2.0
+    y = @position.y+@height-(c+1)*dh-c*@space
+    disk.position = Point.new(x,y)
+    @disks.push(disk)
+  end
+  
+  def render
+    Rectangle.new(
+      x: @position.x, y: @position.y,
+      width: @width, height: @height,
+      color: 'red',
+      z: 20
+    )
+    @disks.each { | d | d.render }
+  end
+  
+  def number_of_disks
+    return @disks.size
+  end
+  
+  def popDisk
+    return @disks.pop
+  end
+end
+
+class Game
+  def initialize
+    @solution = [[0,2],[0,1],[2,1],[0,2],[1,0],[1,2],[0,2]]
+    @pegs = Array.new(3)
+    @distance = 550 # distance between pegs
+    @first_peg_x = 350
+    @peg_y = 200
+    @peg_width, @peg_height = 30, 600
+    @step_counter=0
+    
+    0.upto(@pegs.size-1) do |i|
+      position = Point.new(@first_peg_x+i*@distance,@peg_y)
+      @pegs[i] = Peg.new(@peg_width,@peg_height,position)
+    end
+    
+    @pegs[0].addDisk(Disk.new(400))
+    @pegs[0].addDisk(Disk.new(300))
+    @pegs[0].addDisk(Disk.new(200))
+  end
+  
+  def render
+    @pegs.each do |p|
+      p.render
+    end
+  end
+  
+  def moveDisk(from,to)
+    from, to = @pegs[from], @pegs[to]
+    d = from.popDisk
+    to.addDisk(d)
+  end
+  
+  def update
+    if(!@solution[@step_counter].nil?)
+      from = @solution[@step_counter][0]
+      to = @solution[@step_counter][1]
+      self.moveDisk(from,to)
+      @step_counter+=1
+    end
+  end
+end
+
+def startHanoi
+  game = Game.new
+  game.render
+
+  tick=1
+  update do
+    if tick % 60 == 0
+      game.update
+      clear
+      game.render
+    end
+    tick += 1
+  end
+  show
+end
+
+#startHanoi
+
+# Exercises 5, 6
 
 # angle is angle of whole curve, ang is angle of next depths
 def drawKoch(depth,pt1,angle,length,color,ang=60)
