@@ -408,8 +408,6 @@ end
 # Exercise 12
 
 CHB_SIZE = 8
-spots_taken = Array.new(CHB_SIZE)
-0.upto(CHB_SIZE-1) { |i| spots_taken[i] = Array.new(CHB_SIZE,false) }
 
 def findTopLeft(row,col)
   if(col>=row)
@@ -499,6 +497,7 @@ def is_one_legal(row,col,spots_taken)
           checkDiagonals(row,col,spots_taken)
 end
 
+# check every spot separately
 def is_legal(spots_taken)
   0.upto(CHB_SIZE-1) do |row|
     0.upto(CHB_SIZE-1) do |col|
@@ -510,17 +509,152 @@ def is_legal(spots_taken)
   return true
 end
 
+# check all board at once
+def is_legal_total(spots_taken)
+  # check cols
+  0.upto(CHB_SIZE-1) do |row|
+    inrow=0
+    0.upto(CHB_SIZE-1) do |col|
+      if(spots_taken[row][col]==true)
+        inrow+=1
+        if(inrow>1) then return false end
+      end
+    end
+  end
+  
+  # check rows
+  0.upto(CHB_SIZE-1) do |col|
+    incol=0
+    0.upto(CHB_SIZE-1) do |row|
+      if(spots_taken[row][col]==true)
+        incol+=1
+        if(incol>1) then return false end
+      end
+    end
+  end
+  
+  # topleft diagonal from left border
+  0.upto(CHB_SIZE-1) do |row|
+    currentRow = row
+    currentCol = 0
+    indiag = 0
+    while(currentRow<CHB_SIZE&&currentCol<CHB_SIZE)
+      if(spots_taken[currentRow][currentCol])
+        indiag+=1
+        if(indiag>1) then return false end
+      end
+      currentRow+=1
+      currentCol+=1
+    end
+  end
+  
+  # topleft diagonal from top border
+  1.upto(CHB_SIZE-1) do |col|
+    currentRow = 0
+    currentCol = col
+    indiag = 0
+    while(currentRow<CHB_SIZE&&currentCol<CHB_SIZE)
+      if(spots_taken[currentRow][currentCol])
+        indiag+=1
+        if(indiag>1) then return false end
+      end
+      currentRow+=1
+      currentCol+=1
+    end
+  end
+  
+  # botleft diagonal from left border
+  0.upto(CHB_SIZE-1) do |row|
+    currentRow = row
+    currentCol = 0
+    indiag = 0
+    while(currentRow>=0&&currentCol<CHB_SIZE)
+      if(spots_taken[currentRow][currentCol])
+        indiag+=1
+        if(indiag>1) then return false end
+      end
+      currentRow-=1
+      currentCol+=1
+    end
+  end
+  
+  # botleft diagonal from bot border
+  1.upto(CHB_SIZE-1) do |col|
+    currentRow = CHB_SIZE-1
+    currentCol = col
+    indiag = 0
+    while(currentRow>=0&&currentCol<CHB_SIZE)
+      if(spots_taken[currentRow][currentCol])
+        indiag+=1
+        if(indiag>1) then return false end
+      end
+      currentRow-=1
+      currentCol+=1
+    end
+  end
+  
+  return true
+end
+
+# danger=1 for adding, danger=-1 for removing
+def place_queen(row,col,spots_taken,danger=1)
+
+  if(danger!=1&&danger!=-1)
+    raise "1 or -1 for danger parameter"
+  end
+
+  if(danger==-1)
+    spots_taken[row][col] = 4 # after 4 passes value is 0
+  end
+  
+  # add or remove horizontal danger
+  0.upto(CHB_SIZE-1) do |c|
+    spots_taken[row][c]+=danger
+  end
+  
+  # add or remove vertical danger
+  0.upto(CHB_SIZE-1) do |r|
+    spots_taken[r][col]+=danger
+  end
+  
+  # add or remove botleft diagonal danger
+  r = findBotLeft(row,col)
+  currentRow,currentCol = r[0],r[1]
+  while(currentRow>=0&&currentCol<CHB_SIZE)
+    spots_taken[currentRow][currentCol]+=danger
+    currentRow-=1
+    currentCol+=1
+  end
+  
+  # add or remove topleft diagonal danger
+  r = findTopLeft(row,col)
+  currentRow,currentCol = r[0],r[1]
+  while(currentRow<CHB_SIZE&&currentCol<CHB_SIZE)
+    spots_taken[currentRow][currentCol]+=danger
+    currentRow+=1
+    currentCol+=1
+  end
+  
+  if(danger==1)
+    spots_taken[row][col] = true
+  end
+end
+
+def remove_queen(row,col,spots_taken)
+  place_queen(row,col,spots_taken,-1)
+end
+
+# spot is true or false
 def eightQueens(spots_taken,num_queens_positioned)
-  if(!is_legal(spots_taken))
-    return false
-  elsif(num_queens_positioned==CHB_SIZE)
+  if(num_queens_positioned==CHB_SIZE)
     return true
   else
     0.upto(CHB_SIZE-1) do |row|
       0.upto(CHB_SIZE-1) do |col|
         if(!spots_taken[row][col])
           spots_taken[row][col]=true
-          if(eightQueens(spots_taken,num_queens_positioned + 1))
+          # use is_legal(slower) or is_legal_total(faster)
+          if(is_legal_total(spots_taken)&&eightQueens(spots_taken,num_queens_positioned + 1))
             return true
           else
             spots_taken[row][col]=false
@@ -531,6 +665,28 @@ def eightQueens(spots_taken,num_queens_positioned)
     return false
   end
 end
+
+# spot is true or number of attacking queens
+def betterEightQueens(spots_taken,num_queens_positioned)
+  if(num_queens_positioned==CHB_SIZE)
+    return true
+  else
+    0.upto(CHB_SIZE-1) do |row|
+      0.upto(CHB_SIZE-1) do |col|
+        if(spots_taken[row][col]!=true&&spots_taken[row][col].zero?)
+          place_queen(row,col,spots_taken)
+          if(betterEightQueens(spots_taken,num_queens_positioned + 1))
+            return true
+          else
+            remove_queen(row,col,spots_taken)
+          end
+        end
+      end
+    end
+    return false
+  end
+end
+
 
 def showResult(spots_taken)
   spots_taken.each do |row|
@@ -545,8 +701,48 @@ def showResult(spots_taken)
   end
 end
 
-#eightQueens(spots_taken,0)
-#showResult(spots_taken)
+def betterShowResult(spots_taken)
+  spots_taken.each do |row|
+    row.each do |p|
+      if(true==p)
+        print "X"
+      elsif(p>0)
+        print "!"
+      else
+        print " "
+      end
+    end
+    puts
+  end
+end
+
+def runQueens1
+  spots_taken = Array.new(CHB_SIZE)
+  0.upto(CHB_SIZE-1) { |i| spots_taken[i] = Array.new(CHB_SIZE,false) }
+  
+  starting = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+  eightQueens(spots_taken,0)
+  ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+  puts "First Version: #{ending-starting}"
+  
+  showResult(spots_taken)
+end
+
+
+def runQueens2
+  spots_taken = Array.new(CHB_SIZE)
+  0.upto(CHB_SIZE-1) { |i| spots_taken[i] = Array.new(CHB_SIZE,0) }
+  
+  starting = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+  betterEightQueens(spots_taken,0)
+  ending = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+  puts "Second Version: #{ending-starting}"
+  
+  betterShowResult(spots_taken)
+end
+
+#runQueens1
+#runQueens2
 
 
 # ----------------------------------------------------------------
