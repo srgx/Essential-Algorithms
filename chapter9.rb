@@ -405,6 +405,150 @@ end
 #show
 
 
+# Exercise 12
+
+CHB_SIZE = 8
+spots_taken = Array.new(CHB_SIZE)
+0.upto(CHB_SIZE-1) { |i| spots_taken[i] = Array.new(CHB_SIZE,false) }
+
+def findTopLeft(row,col)
+  if(col>=row)
+    currentRow=0
+    currentCol=col-row
+  else
+    currentRow=row-col
+    currentCol=0
+  end
+  return [currentRow,currentCol]
+end
+
+def findBotLeft(row,col)
+  cr = col+row
+  max_indx = CHB_SIZE-1
+  if(cr<=max_indx)
+    currentRow=cr
+    currentCol=0
+  else
+    currentRow=max_indx
+    currentCol=cr-max_indx
+  end
+  return [currentRow,currentCol]
+end
+
+
+def checkTopLeftDiagonal(row,col,spots_taken)
+  r = findTopLeft(row,col)
+  currentRow,currentCol = r[0],r[1]
+  while(currentRow<CHB_SIZE&&currentCol<CHB_SIZE)
+    if(spots_taken[currentRow][currentCol]&&
+       currentRow!=row&&currentCol!=col)
+      return false
+    end
+    currentRow+=1
+    currentCol+=1
+  end
+  return true
+end
+
+def checkBotLeftDiagonal(row,col,spots_taken)
+  r = findBotLeft(row,col)
+  currentRow,currentCol = r[0],r[1]
+  
+  while(currentRow>=0&&currentCol<CHB_SIZE)
+    if(spots_taken[currentRow][currentCol]&&
+       currentRow!=row&&currentCol!=col)
+      return false
+    end
+    currentRow-=1
+    currentCol+=1
+  end
+  return true
+end
+
+def checkDiagonals(row,col,spots_taken)
+  return checkTopLeftDiagonal(row,col,spots_taken)&&
+         checkBotLeftDiagonal(row,col,spots_taken)
+end
+
+def checkRow(row,col,spots_taken)
+  0.upto(CHB_SIZE-1) do |c|
+    if(c!=col&&spots_taken[row][c])
+      return false
+    end
+  end
+  return true
+end
+
+def checkCol(row,col,spots_taken)
+  0.upto(CHB_SIZE-1) do |r|
+    if(r!=row&&spots_taken[r][col])
+      return false
+    end
+  end
+  return true
+end
+
+def checkRowCol(row,col,spots_taken)
+  return checkRow(row,col,spots_taken)&&
+         checkCol(row,col,spots_taken)
+end
+
+def is_one_legal(row,col,spots_taken)
+  return checkRowCol(row,col,spots_taken)&&
+         checkDiagonals(row,col,spots_taken)
+end
+
+def is_legal(spots_taken)
+  0.upto(CHB_SIZE-1) do |row|
+    0.upto(CHB_SIZE-1) do |col|
+      if(spots_taken[row][col]&&
+         !is_one_legal(row,col,spots_taken))
+        return false
+      end
+    end
+  end
+  return true
+end
+
+def eightQueens(spots_taken,num_queens_positioned)
+  if(!is_legal(spots_taken))
+    return false
+  elsif(num_queens_positioned==CHB_SIZE)
+    return true
+  else
+    0.upto(CHB_SIZE-1) do |row|
+      0.upto(CHB_SIZE-1) do |col|
+        if(!spots_taken[row][col])
+          spots_taken[row][col]=true
+          if(eightQueens(spots_taken,num_queens_positioned + 1))
+            return true
+          else
+            spots_taken[row][col]=false
+          end
+        end
+      end
+    end
+    return false
+  end
+end
+
+def showResult(spots_taken)
+  spots_taken.each do |row|
+    row.each do |p|
+      if(p)
+        print "X"
+      else
+        print "O"
+      end
+    end
+    puts
+  end
+end
+
+#eightQueens(spots_taken,0)
+#showResult(spots_taken)
+
+
 # ----------------------------------------------------------------
 # TESTS
 # ----------------------------------------------------------------
@@ -417,4 +561,13 @@ raise ERR if(fibonacci(6)!=8)
 raise ERR if(fibonacci(7)!=13)
 raise ERR if(fibonacci(8)!=21)
 raise ERR if(fibonacci(9)!=34)
+# ----------------------------------------------------------------
+raise ERR if(findTopLeft(0,0)!=[0,0])
+raise ERR if(findTopLeft(2,1)!=[1,0])
+raise ERR if(findTopLeft(3,5)!=[0,2])
+raise ERR if(findTopLeft(3,3)!=[0,0])
+raise ERR if(findBotLeft(2,1)!=[3,0])
+raise ERR if(findBotLeft(3,3)!=[6,0])
+raise ERR if(findBotLeft(5,6)!=[7,4])
+raise ERR if(findBotLeft(6,4)!=[7,3])
 # ----------------------------------------------------------------
