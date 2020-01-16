@@ -494,15 +494,15 @@ def checkRowCol(row,col,spots_taken)
 end
 
 def is_one_legal(row,col,spots_taken)
-  return checkRowCol(row,col,spots_taken)&&
-         checkDiagonals(row,col,spots_taken)
+  return !spots_taken[row][col]||
+          checkRowCol(row,col,spots_taken)&&
+          checkDiagonals(row,col,spots_taken)
 end
 
 def is_legal(spots_taken)
   0.upto(CHB_SIZE-1) do |row|
     0.upto(CHB_SIZE-1) do |col|
-      if(spots_taken[row][col]&&
-         !is_one_legal(row,col,spots_taken))
+      if(!is_one_legal(row,col,spots_taken))
         return false
       end
     end
