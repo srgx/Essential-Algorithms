@@ -1,11 +1,7 @@
 # Exercises 1, 2
-class Sentinel
-  attr_accessor :next
-end
-
 class Cell
   attr_accessor :value, :next
-  def initialize(n) @value=n end
+  def initialize(n=nil) @value=n end
 end
 
 ERR="Error"
@@ -52,7 +48,7 @@ def deleteAfter(after_me,bottom)
   return bottom
 end
 
-sent=Sentinel.new
+sent=Cell.new
 bottomCell=Cell.new(42)
 addAtBeginning(sent,bottomCell)
 [12,38,80,2,16].each { | n | addAtBeginning(sent,Cell.new(n)) }
@@ -67,7 +63,7 @@ bottomCell=deleteAfter(cell69,bottomCell)
 unless(listLength(sent)==8) then raise ERR end
 unless(bottomCell.value==69) then raise ERR end
 
-sentC=Sentinel.new
+sentC=Cell.new
 botC=Cell.new(33)
 addAtBeginning(sentC,botC)
 if(listLength(sentC)!=1)then raise ERR end
@@ -78,8 +74,8 @@ botC=addAtEnd(botC,Cell.new(2))
 if(listLength(sentC)!=1)then raise ERR end
 unless(botC.value==2)then raise ERR end
 
-sentinel=Sentinel.new
-sentinel2=Sentinel.new
+sentinel=Cell.new
+sentinel2=Cell.new
 [12,38,80,2,16].each { | n | addAtBeginning(sentinel,Cell.new(n)) }
 max_cell=findCellBefore(sentinel,80).next
 
@@ -101,18 +97,7 @@ unless(findMaxCell(sentinel2).nil?) then raise ERR end
 if(findMaxCell(sentinel)!=max_cell) then raise ERR end
 
 # Exercises 3,4,5,6
-class BaseSentinel
-  attr_accessor :next, :previous
-  attr_reader :value
-end
-
-class SentinelD < BaseSentinel
-  def initialize
-    @value=Float::INFINITY
-  end
-end
-
-class CellD
+class DoubleCell
   attr_accessor :value, :next, :previous
   def initialize(n) @value=n end
 end
@@ -132,15 +117,15 @@ def addAtBottom(bottom,new_cell)
   insertCell(bottom.previous,new_cell)
 end
 
-topSentinel=SentinelD.new
-bottomSentinel=SentinelD.new
+topSentinel=DoubleCell.new(Float::INFINITY)
+bottomSentinel=DoubleCell.new(Float::INFINITY)
 topSentinel.next=bottomSentinel
 bottomSentinel.previous=topSentinel
-[12,34,35,28,7,3].each { |i| addAtBeginningD(topSentinel,CellD.new(i)) }
-addAtBottom(bottomSentinel,CellD.new(123))
-cellToDel=CellD.new(2)
+[12,34,35,28,7,3].each { |i| addAtBeginningD(topSentinel,DoubleCell.new(i)) }
+addAtBottom(bottomSentinel,DoubleCell.new(123))
+cellToDel=DoubleCell.new(2)
 addAtBottom(bottomSentinel,cellToDel)
-addAtBottom(bottomSentinel,CellD.new(77))
+addAtBottom(bottomSentinel,DoubleCell.new(77))
 
 
 def iterD(top)
@@ -194,15 +179,6 @@ unless(testDelete(topSentinel,cellToDel)) then raise ERR end
 
 # Exercise 8
 
-class MaxSentinel < SentinelD
-end
-
-class MinSentinel < BaseSentinel
-  def initialize
-    @value=-Float::INFINITY
-  end
-end
-
 def insertSorted(top,new_cell)
   while(new_cell.value>top.next.value)
     top=top.next
@@ -210,15 +186,15 @@ def insertSorted(top,new_cell)
   insertCell(top,new_cell)
 end
 
-minSent=MinSentinel.new # top sentinel
-maxSent=MaxSentinel.new # bottom sentinel
+minSent=DoubleCell.new(-Float::INFINITY) # top sentinel
+maxSent=DoubleCell.new(Float::INFINITY) # bottom sentinel
 minSent.next=maxSent
 maxSent.previous=minSent
-insertSorted(minSent,CellD.new(54))
-insertSorted(minSent,CellD.new(12))
-insertSorted(minSent,CellD.new(1))
-insertSorted(minSent,CellD.new(33))
-insertSorted(minSent,CellD.new(7))
+insertSorted(minSent,DoubleCell.new(54))
+insertSorted(minSent,DoubleCell.new(12))
+insertSorted(minSent,DoubleCell.new(1))
+insertSorted(minSent,DoubleCell.new(33))
+insertSorted(minSent,DoubleCell.new(7))
 unless(len(minSent)==5) then raise ERR end
 unless(minSent.next.value==1) then raise ERR end
 unless(maxSent.previous.value==54) then raise ERR end
@@ -234,9 +210,9 @@ def isSortedAsc(top)
   return true
 end
 
-unsorted = Sentinel.new
+unsorted = Cell.new
 1.upto(5) { | n | addAtBeginning(unsorted,Cell.new(n)) } # [5,4,3,2,1]
-sorted = Sentinel.new
+sorted = Cell.new
 5.downto(1) { | n | addAtBeginning(sorted,Cell.new(n)) } # [1,2,3,4,5]
 
 
@@ -314,11 +290,11 @@ showPlanetsBy(planetSentinel,:diameter,"Diameter")
 
 # Exercise 12
 
-noLoop=Sentinel.new
+noLoop=Cell.new
 5.downto(1) { | n | addAtBeginning(noLoop,Cell.new(n)) }
 
 
-withLoop=Sentinel.new
+withLoop=Cell.new
 lastCell=Cell.new(9)
 midCell=Cell.new(4) # Loop starts here
 addAtBeginning(withLoop,lastCell)
@@ -377,5 +353,3 @@ if(tortoiseHare(noLoop)) then raise ERR end
 unless(tortoiseHare(withLoop)) then raise ERR end # break loop
 if(tortoiseHare(withLoop)) then raise ERR end
 if(hasLoopReversing(withLoop)) then raise ERR end
-
-

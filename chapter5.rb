@@ -9,19 +9,19 @@ class DoubleStack
     @nextIndex1=0
     @nextIndex2=size-1
   end
-  
+
   def pushLeft(value)
     if(@nextIndex1>@nextIndex2) then raise "Stack is full" end
     @stack[@nextIndex1]=value
     @nextIndex1+=1
   end
-  
+
   def pushRight(value)
     if(@nextIndex1>@nextIndex2) then raise "Stack is full" end
     @stack[@nextIndex2]=value
     @nextIndex2-=1
   end
-  
+
   def show
     p @stack
   end
@@ -145,22 +145,18 @@ end
 
 # Exercise 8
 
-class CellD
-  attr_accessor :next, :prev, :value
-end
-
-class CellP < CellD
-  attr_accessor :priority
+class DoubleCell
+  attr_accessor :next, :prev, :value, :priority
 end
 
 def enqueueAfter(after,value,priority)
-  new_cell=CellP.new
+  new_cell=DoubleCell.new
   new_cell.priority=priority
   new_cell.value=value
-  
+
   new_cell.next=after.next
   new_cell.prev=after
-  
+
   new_cell.next.prev=new_cell
   after.next=new_cell
 end
@@ -196,23 +192,23 @@ end
 
 # Exercise 9
 def enqueueFromTop(top,value)
-  new_cell=CellD.new
+  new_cell=DoubleCell.new
   new_cell.value=value
-  
+
   new_cell.next=top.next
   new_cell.prev=top
-  
+
   new_cell.next.prev=new_cell
   top.next=new_cell
 end
 
 def enqueueFromBot(bot,value)
-  new_cell=CellD.new
+  new_cell=DoubleCell.new
   new_cell.value=value
-  
+
   new_cell.next=bot
   new_cell.prev=bot.prev
-  
+
   new_cell.prev.next=new_cell
   bot.prev=new_cell
 end
@@ -241,7 +237,7 @@ class Customer
     @id=id
     @waiting=0
   end
-  
+
   def update
     @waiting+=1
   end
@@ -253,17 +249,17 @@ class Teller
     @left=0
     @client_time=client_time
   end
-  
+
   def process(client)
     puts "Hello, Sir #{client.id}! I'm teller #{@id}."
     puts "You have been waiting #{client.waiting} minutes!"
     @left=@client_time
   end
-  
+
   def update
     if (@left>0) then @left-=1 end
   end
-  
+
   def free?
     return @left==0
   end
@@ -276,7 +272,7 @@ class Bank
     tellers.times { |i| @tellers << Teller.new(i,client_time) }
     @queue=[]
   end
-  
+
   def getFreeTellers
     result=[]
     @tellers.each do |teller|
@@ -286,20 +282,20 @@ class Bank
     end
     return result
   end
-  
+
   def update
     if(@time%3==0) then @queue << Customer.new(@time) end
-    
+
     freeTellers=self.getFreeTellers
     freeTellers.each do |tlr|
       client=@queue.shift
       if(!client.nil?) then tlr.process(client) end
     end
-    
-    
+
+
     @tellers.each { |t| t.update }
     @queue.each { |c| c.update }
-    
+
     puts "Time: #{@time}, Size: #{@queue.size}"
     @time+=1
     sleep(0.1)
@@ -318,12 +314,12 @@ end
 
 # Exercises 11, 12
 def enqueue2(top,value)
-  new_cell=CellD.new
+  new_cell=DoubleCell.new
   new_cell.value=value
-  
+
   new_cell.next=top.next
   new_cell.prev=top
-  
+
   new_cell.next.prev=new_cell
   top.next=new_cell
 end
@@ -347,8 +343,8 @@ end
 
 
 def createTemp
-  top_temp=CellD.new
-  bot_temp=CellD.new
+  top_temp=DoubleCell.new
+  bot_temp=DoubleCell.new
   top_temp.next=bot_temp
   bot_temp.prev=top_temp
   return [top_temp,bot_temp]
@@ -372,7 +368,7 @@ def queueSelectionSort(top,bot)
     end
     enqueue2(top_temp,max) # move max to temp queue
   end
-  
+
   while((v=dequeue2(bot_temp))!=:empty) # move all values from temp to destination
     enqueue2(top,v)
   end
@@ -404,8 +400,8 @@ end
 
 # ------------------------------------------------------------------------------
 # QUEUE SELECTION SORT TEST
-topSentinel=CellD.new
-bottomSentinel=CellD.new
+topSentinel=DoubleCell.new
+bottomSentinel=DoubleCell.new
 topSentinel.next=bottomSentinel
 bottomSentinel.prev=topSentinel
 [5,2,7,4,1,6,3].each { |i| enqueue2(topSentinel,i)}
@@ -414,8 +410,8 @@ queueSelectionSort(topSentinel,bottomSentinel)
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # QUEUE INSERTION SORT TEST
-topSentinel=CellD.new
-bottomSentinel=CellD.new
+topSentinel=DoubleCell.new
+bottomSentinel=DoubleCell.new
 topSentinel.next=bottomSentinel
 bottomSentinel.prev=topSentinel
 [5,2,7,4,1,6,3].each { |i| enqueue2(topSentinel,i)}
@@ -424,8 +420,8 @@ queueInsertionSort(topSentinel,bottomSentinel)
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # DEQUE TEST
-topSentinel=CellD.new
-bottomSentinel=CellD.new
+topSentinel=DoubleCell.new
+bottomSentinel=DoubleCell.new
 topSentinel.next=bottomSentinel
 bottomSentinel.prev=topSentinel
 
@@ -439,8 +435,8 @@ if(dequeueFromTop(topSentinel)!=1) then raise ERR end
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # PRIORITY QUEUE TEST
-topSentinel=CellP.new
-bottomSentinel=CellP.new
+topSentinel=DoubleCell.new
+bottomSentinel=DoubleCell.new
 topSentinel.next=bottomSentinel
 bottomSentinel.prev=topSentinel
 enqueue(topSentinel,"bronze",2)
@@ -478,4 +474,3 @@ stackInsertionSort2(aStack)
 if(stackSize(aStack)!=7) then raise ERR end
 1.upto(stackSize(aStack)) { |i| if(pop(aStack)!=i) then raise ERR end }
 # ------------------------------------------------------------------------------
-
