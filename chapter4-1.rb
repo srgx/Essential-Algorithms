@@ -237,7 +237,6 @@ class Triangular
   def initialize(arr,size)
     @arr = arr
     @size = size # triangle side
-    @arr_size = @size*(@size+1)/2
   end
 
   def show
@@ -254,10 +253,9 @@ class Triangular
   end
 
   def *(other)
-    new_arr=Triangular.new(Array.new(@arr_size,0),@size)
+    new_arr=Triangular.new(Array.new(@arr.size,0),@size)
     0.upto(@size-1) do |i|
       0.upto(@size-1) do |j|
-        new_arr.arr[findIndex(i,j)]=0
         0.upto(@size-1) do |k|
           if(k<=i&&k>=j)
             new_arr.arr[findIndex(i,j)]+=@arr[findIndex(i,k)]*other.arr[findIndex(k,j)]
@@ -269,16 +267,12 @@ class Triangular
   end
 
   def +(other)
-    new_arr=Triangular.new(Array.new(@arr_size,0),@size)
-    0.upto(@size-1) do |i|
-      0.upto(i) do |j|
-        index=findIndex(i,j)
-        new_arr.arr[index]=@arr[index]+other.arr[index]
-      end
+    new_arr=Triangular.new(Array.new(@arr.size,0),@size)
+    0.upto(@arr.size-1) do |i|
+      new_arr.arr[i]=@arr[i]+other.arr[i]
     end
     return new_arr
   end
-
 end
 
 
