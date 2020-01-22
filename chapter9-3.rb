@@ -90,7 +90,8 @@ def runWarnsdorf(numRows,numCols)
   end
 end
 
-
+=begin
 runTour(5,5)
 puts "-------------------------"
 runWarnsdorf(5,5)
+=end

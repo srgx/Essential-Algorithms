@@ -84,7 +84,7 @@ class SparseArray
     end
   end
 
-  def+(other)
+  def +(other)
     result = SparseArray.new
     arr1_row=@sentinel.next_row
     arr2_row=other.sentinel.next_row

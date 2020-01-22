@@ -194,25 +194,20 @@ end
 
 class Matrix
   attr_accessor :arr
-  def initialize(arr=nil)
-    if(!arr.nil?)
-      @arr = arr
-    else
-      @arr = [[0,0,0],[0,0,0],[0,0,0]]
-    end
+  def initialize(arr)
+    @arr = arr
   end
 
-  def*(otherm)
-    result = Matrix.new
+  def *(other)
+    result = Matrix.new([[0,0,0],[0,0,0],[0,0,0]])
     0.upto(@arr.size-1) do |i|
       0.upto(@arr[0].size-1) do |j|
         result.arr[i][j]=0
         0.upto(@arr[0].size-1) do |k|
-          result.arr[i][j]+=(@arr[i][k]*otherm.arr[k][j])
+          result.arr[i][j]+=(@arr[i][k]*other.arr[k][j])
         end
       end
     end
-
     return result
   end
 end
