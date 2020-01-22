@@ -11,17 +11,20 @@ end
 ERR="Error"
 
 # Exercise 3
-def hanoi(from,to,helper,n)
+def hanoi(from,to,helper,n,solution)
   if(n==1)
+    solution << [from,to]
     puts "#{from} -> #{to}" # move one disc
   else
-    hanoi(from,helper,to,n-1) # move smaller discs to helper
+    hanoi(from,helper,to,n-1,solution) # move smaller discs to helper
+    solution << [from,to]
     puts "#{from} -> #{to}" # move largest disc to destination
-    hanoi(helper,to,from,n-1) # move smaller disc to destination
+    hanoi(helper,to,from,n-1,solution) # move smaller disc to destination
+    return solution
   end
 end
 
-#hanoi("A","C","B",3)
+#hanoi(0,2,1,3,[])
 
 # Exercise 4
 
@@ -96,8 +99,8 @@ class Peg
 end
 
 class Game
-  def initialize
-    @solution = [[0,2],[0,1],[2,1],[0,2],[1,0],[1,2],[0,2]]
+  def initialize(solution,discs)
+    @solution = solution
     @pegs = Array.new(3)
     @distance = 550 # distance between pegs
     @first_peg_x = 350
@@ -110,9 +113,11 @@ class Game
       @pegs[i] = Peg.new(@peg_width,@peg_height,position)
     end
 
-    @pegs[0].addDisk(Disk.new(400))
-    @pegs[0].addDisk(Disk.new(300))
-    @pegs[0].addDisk(Disk.new(200))
+    sz = 400
+    discs.times do
+      @pegs[0].addDisk(Disk.new(sz))
+      sz-=80
+    end
   end
 
   def render
@@ -137,8 +142,8 @@ class Game
   end
 end
 
-def startHanoi
-  game = Game.new
+def startHanoi(discs)
+  game = Game.new(hanoi(0,2,1,discs,[]),discs)
   game.render
 
   tick=1
@@ -153,7 +158,7 @@ def startHanoi
   show
 end
 
-#startHanoi
+#startHanoi 3
 
 # Exercises 5, 6
 
