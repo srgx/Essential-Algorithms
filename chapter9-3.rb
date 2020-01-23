@@ -108,7 +108,6 @@ runWarnsdorf(5,5)
 # Rearranged selections are permutations
 
 # Exercise 18
-LENGTH = 3
 
 def SelectKofNwithDuplicates(index,selections,items,results)
   if(index==selections.size)
