@@ -183,14 +183,54 @@ def PermuteKofNwithoutDuplicates(index,selections,items,results)
   end
 end
 
+# Exercise 20
+
+def factorial(n)
+  result = 1
+  while(n!=0)
+    result *= n
+    n-=1
+  end
+  return result
+end
+
+# Exercise 21
+
+def initFibo
+  $fiboValues = Array.new(100)
+  $fiboValues[0] = 0
+  $fiboValues[1] = 1
+  $maxN = 1
+end
+
+def fibo(n)
+  if($maxN<n)
+    $fiboValues[n] = fibo(n-1) + fibo(n-2)
+    $maxN = n
+  end
+  return $fiboValues[n]
+end
+
+# Exercise 22
+
+def nonRecFibo(n)
+  if(n>$maxN)
+    ($maxN+1).upto(n) do |i|
+      $fiboValues[i] = nonRecFibo(i-1) + nonRecFibo(i-2)
+    end
+  end
+  return $fiboValues[n]
+end
+
+# Exercise 23
+# ...
+
 
 # TESTS
 # ---------------------------------
-
 ERR = "Error"
 
 # SELECTIONS
-
 a = []
 b = []
 SelectKofNwithDuplicates(0,Array.new(2,0),[4,5,6],b)
@@ -202,7 +242,6 @@ SelectKofNwithoutDuplicates(0,Array.new(2,0),[4,5,6],b)
 raise ERR if b!= [[4, 5], [4, 6], [5, 6]]
 
 # PERMUTATIONS
-
 a = []
 b = []
 PermuteKofNwithDuplicates(0,Array.new(3,0),[4,5,6],b)
@@ -224,5 +263,7 @@ raise ERR if b != [[4, 5, 6], [4, 6, 5],
                    [6, 4, 5], [6, 5, 4]]
 
 
-# Exercise 20
-# ...
+# FIBONACCI
+initFibo
+raise ERR if fibo(7)!=13
+raise ERR if nonRecFibo(7)!=13
