@@ -1,17 +1,28 @@
 # Exercise 15
 
+DROWS = [-2,-2,-1,1,2,2,1,-1]
+DCOLS = [-1,1,2,2,1,-1,-2,-2]
+
+class Move
+  attr_reader :row, :col, :moves
+  def initialize(r,c,m)
+    @row, @col, @moves = r, c, m
+  end
+
+  def <(other)
+    return @moves<other.moves
+  end
+end
+
 def knightsTour(row,col,moveNumber,numMovesTaken,numRows,numCols)
   numMovesTaken+=1
   moveNumber[row][col] = numMovesTaken
 
   if(numMovesTaken==numRows*numCols) then return true end
-  dRows = [-2,-2,-1,1,2,2,1,-1]
-  dCols = [-1,1,2,2,1,-1,-2,-2]
-
 
   0.upto(7) do |i|
-    r = row + dRows[i]
-    c = col + dCols[i]
+    r = row + DROWS[i]
+    c = col + DCOLS[i]
     if((r>=0)&&(r<numRows)&&
        (c>=0)&&(c<numCols)&&(moveNumber[r][c]==0))
        if(knightsTour(r,c,moveNumber,numMovesTaken,numRows,numCols))
@@ -35,9 +46,6 @@ def runTour(numRows,numCols)
 end
 
 # Exercise 16
-
-DROWS = [-2,-2,-1,1,2,2,1,-1]
-DCOLS = [-1,1,2,2,1,-1,-2,-2]
 
 def countMoves(row,col,moveNumber,numRows,numCols)
   moves = 0
@@ -64,7 +72,7 @@ def warnsdorf(row,col,moveNumber,numMovesTaken,numRows,numCols)
     if((r>=0)&&(r<numRows)&&
        (c>=0)&&(c<numCols)&&(moveNumber[r][c]==0))
        moves = countMoves(r,c,moveNumber,numRows,numCols)
-       pm << [r,c,moves]
+       pm << Move.new(r,c,moves)
     end
   end
 
@@ -72,11 +80,11 @@ def warnsdorf(row,col,moveNumber,numMovesTaken,numRows,numCols)
 
   min = pm[0]
   0.upto(pm.size-1) do |i|
-    if(pm[i][2]<min[2])
+    if(pm[i]<min)
       min = pm[i]
     end
   end
-  warnsdorf(min[0],min[1],moveNumber,numMovesTaken,numRows,numCols)
+  warnsdorf(min.row,min.col,moveNumber,numMovesTaken,numRows,numCols)
 end
 
 def runWarnsdorf(numRows,numCols)
