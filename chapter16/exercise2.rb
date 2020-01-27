@@ -11,12 +11,31 @@ def encipherCols(plaintext,rows,cols,mapping)
   return ciphertext
 end
 
+def createMapping(word)
+  w = word.upcase
+  sorted = w.chars.sort
+  mapping = Array.new(word.size)
+  for i in 0..w.size-1
+    mapping[i] = sorted.index(w[i])
+  end
+  return mapping
+end
+
+def inverseMapping(m)
+  newMapping = Array.new(m.size)
+  for i in 0..m.size-1
+    newMapping[m[i]] = i
+  end
+  return newMapping
+end
+
 ERR = "Error"
 
 PT = "THISISASECRETMESSAGE"
 CT = "ISITHSECSATMEREAGESS"
-MP = [2,3,4,0,1] # col mapping
-IM = [3,4,0,1,2] # inverse col mapping
+key = "SUWAK"
+MP = createMapping(key) # [2,3,4,0,1], col mapping
+IM = inverseMapping(MP)
 
 t = encipherCols(PT,4,5,MP) # encipher
 raise "Error" if t != CT

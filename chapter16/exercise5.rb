@@ -13,8 +13,8 @@ def encipherRows(plaintext,rows,cols,mapping)
 end
 
 
-RMP = [3,2,0,1] # row mapping
-IRMP = [2,3,1,0] # inverse mapping
+RMP = createMapping("WODE") # [3,2,0,1] # row mapping
+IRMP = inverseMapping(RMP)
 
 # encipher
 t = encipherCols(PT,4,5,MP) # ISITH SECSA TMERE AGESS
