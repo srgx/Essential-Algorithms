@@ -1,5 +1,5 @@
 require_relative 'exercise2.rb'
-# Exercise 2
+# Exercise 5
 
 def encipherRows(plaintext,rows,cols,mapping)
   ciphertext = ""
@@ -13,7 +13,7 @@ def encipherRows(plaintext,rows,cols,mapping)
 end
 
 
-RMP = createMapping("WODE") # [3,2,0,1] # row mapping
+RMP = createMapping("WODE") # [3,2,0,1] row mapping
 IRMP = inverseMapping(RMP)
 
 # encipher

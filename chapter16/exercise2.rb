@@ -33,8 +33,8 @@ ERR = "Error"
 
 PT = "THISISASECRETMESSAGE"
 CT = "ISITHSECSATMEREAGESS"
-key = "SUWAK"
-MP = createMapping(key) # [2,3,4,0,1], col mapping
+
+MP = createMapping("SUWAK") # [2,3,4,0,1] col mapping
 IM = inverseMapping(MP)
 
 t = encipherCols(PT,4,5,MP) # encipher
