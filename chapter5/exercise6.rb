@@ -1,5 +1,4 @@
 require_relative 'exercise2.rb'
-require_relative 'exercise3.rb'
 # Exercise 6
 
 def stackSelectionSort(stack)
@@ -27,4 +26,4 @@ end
 stack=Cell.new
 [4,2,1,5,7,3,6].each { |i| push(stack,i) }
 stackSelectionSort(stack)
-1.upto(stackSize(stack)) { |i| raise ERR if(pop(stack)!=i) }
+1.upto(stackSize(stack)) { |i| raise "Error" if(pop(stack)!=i) }

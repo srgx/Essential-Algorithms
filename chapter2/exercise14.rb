@@ -1,5 +1,5 @@
-require_relative 'exercise8'
-require_relative 'exercise13'
+require_relative 'exercise8.rb'
+require_relative 'exercise13.rb'
 # Exercise 14
 # [[561, [3, 11, 17]], [1105, [5, 13, 17]], [1729, [7, 13, 19]],
 # [2465, [5, 17, 29]], [2821, [7, 13, 31]], [6601, [7, 23, 41]], [8911, [7, 19, 67]]]

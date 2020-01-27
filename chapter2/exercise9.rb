@@ -1,4 +1,4 @@
-require_relative 'exercise8'
+require_relative 'exercise8.rb'
 
 # Exercise 9
 # Least common multiple
