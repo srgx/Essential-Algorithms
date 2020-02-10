@@ -38,7 +38,7 @@ def depthfirst(node)
 end
 
 
-root = BinaryNode.new("E")
+ROOT = BinaryNode.new("E")
 a = BinaryNode.new("A")
 b = BinaryNode.new("B")
 c = BinaryNode.new("C")
@@ -51,13 +51,13 @@ j = BinaryNode.new("J")
 
 
 # left side
-root.leftChild = b
+ROOT.leftChild = b
 b.leftChild = a
 b.rightChild = d
 d.leftChild = c
 
 # right side
-root.rightChild = f
+ROOT.rightChild = f
 f.rightChild = i
 i.rightChild = j
 i.leftChild = g
@@ -66,14 +66,14 @@ g.rightChild = h
 
 =begin
 puts "Preorder:"
-preorder(root)
+preorder(ROOT)
 
 puts "Inorder:"
-inorder(root)
+inorder(ROOT)
 
 puts "Postorder:"
-postorder(root)
+postorder(ROOT)
 
 puts "Depthfirst:"
-depthfirst(root)
+depthfirst(ROOT)
 =end
