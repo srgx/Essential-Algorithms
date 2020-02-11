@@ -1,7 +1,6 @@
 # Exercise 23
 
 class Literal
-  attr_accessor :value
   def initialize(val)
     @value = val
   end
@@ -12,7 +11,8 @@ class Literal
 end
 
 class ExpressionNode
-  attr_accessor :operator, :left_operand, :right_operand
+  attr_writer :left_operand, :right_operand
+
   def initialize(op)
     @operator = op
   end
