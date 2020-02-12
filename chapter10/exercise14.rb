@@ -1,3 +1,4 @@
+require_relative 'exercise11.rb'
 # Exercise 14
 
 require 'ruby2d'
@@ -10,15 +11,12 @@ set height: 1080
 set viewport_width: 1920
 set viewport_height: 1080
 
-class Node
+class BinaryNode
   attr_accessor :leftChild, :rightChild, :x, :y
-  def initialize(value)
-    @value = value
-  end
 
   def draw
     te = Text.new(
-      @value,
+      @name,
       size: 25,
       color: 'blue',
       z: 15
@@ -32,11 +30,107 @@ class Node
       color: 'fuchsia',
       z: 10
     )
-    # @leftChild.draw(x,y+150) if !@leftChild.nil?
+    @leftChild.draw if !@leftChild.nil?
+    #@rightChild.draw if !@rightChild.nil?
+  end
+
+  def positionSubtrees(totalWidthPixels)
+    puts "Positioning children of #{@name}"
+
+
+    if(!@leftChild.nil?)
+      leftWidth = @leftChild.treeWidth
+    else
+      leftWidth = 0
+    end
+
+    if(!@rightChild.nil?)
+      rightWidth = @rightChild.treeWidth
+    else
+      rightWidth = 0
+    end
+
+    sumSteps = leftWidth + rightWidth
+
+    if(!@rightChild.nil?&&@leftChild.nil?)
+      @rightChild.y = @y + 100
+      @rightChild.x = @x
+      @rightChild.positionSubtrees(totalWidthPixels)
+      return
+    elsif(@rightChild.nil?&&!@leftChild.nil?)
+      @leftChild.y = @y + 100
+      @leftChild.x = @x
+      @leftChild.positionSubtrees(totalWidthPixels)
+      return
+    elsif(@rightChild.nil?&&@leftChild.nil?)
+      return
+    end
+
+
+    if(@name=="B")
+      puts "DEBUG"
+      puts @leftChild.name
+      puts @rightChild.name
+    end
+
+    if(sumSteps.zero?)
+      if(!@leftChild.nil?)
+        @leftChild.y = @y + 100
+        @leftChild.x = @x
+      end
+
+      if(!@rightChild.nil?)
+        @rightChild.y = @y + 100
+        @rightChild.x = @x
+      end
+
+      return
+    end
+
+    stepSize = totalWidthPixels/sumSteps
+
+    leftPixels = leftWidth*stepSize
+    rightPixels = rightWidth*stepSize
+
+    puts "Positioning #{@leftChild.name}"
+    @leftChild.y = @y + 100
+    @leftChild.x = leftPixels/2
+
+    puts "Positioning #{@rightChild.name}"
+    @rightChild.y = @y + 100
+    @rightChild.x = @leftChild.x + rightPixels/2
+
+    @leftChild.positionSubtrees(leftPixels)
+    @rightChild.positionSubtrees(rightPixels)
+
   end
 
   def treeWidth
-    
+    return self.stepsLeft + self.stepsRight
+  end
+
+  def stepsRight
+    if(!@rightChild.nil?&&!@leftChild.nil?)
+      return 1 + @rightChild.stepsRight
+    elsif(!@rightChild.nil?)
+      return @rightChild.stepsRight
+    elsif(!@leftChild.nil?)
+      return @leftChild.stepsRight
+    else
+      return 0
+    end
+  end
+
+  def stepsLeft
+    if(!@leftChild.nil?&&!@rightChild.nil?)
+      return 1 + @leftChild.stepsLeft
+    elsif(!@leftChild.nil?)
+      return @leftChild.stepsLeft
+    elsif(!@rightChild.nil?)
+      @rightChild.stepsLeft
+    else
+      return 0
+    end
   end
 
 end
@@ -53,14 +147,9 @@ def connectNodes(node1,node2)
 end
 =end
 
-top = Node.new("Top",900,100)
-left = Node.new("Left")
-right = Node.new("Right")
+ROOT.x = 600
+ROOT.y = 100
+ROOT.positionSubtrees(900)
 
-top.leftChild = left
-top.rightChild = right
-
-top.draw
-
-
-show
+#ROOT.draw
+#show
