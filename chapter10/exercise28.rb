@@ -10,17 +10,20 @@ class TrieNode
   end
 
   def addValue(new_key,new_value)
-
+    # if key matches current node(only for leaf nodes)
     if(new_key!=""&&new_key==@key)
       @value = new_value
       return
     end
 
+    # if both keys are empty
     if(new_key==""&&new_key==@key)
       @value = new_value
       return
     end
 
+    # if key is empty and leaf is not empty
+    # make space for new node
     if(new_key==""&&@key!="")
       self.createChildren
       indx = indexOf(@key[0])
@@ -33,16 +36,45 @@ class TrieNode
       return
     end
 
+    # create children and make space
+    # for new node if key wasnt empty
+    if(@children.nil?)
+      self.createChildren
+      if(@key!="")
+        indx = indexOf(@key[0])
+        new_node = TrieNode.new
+        new_node.key = @key[1..]
+        new_node.value = @value
+        @children[indx] = new_node
+        @key = ""
+      end
+    end
+
+    # if node doesnt exist create it
+    # with new value and rest of key
     indx = indexOf(new_key[0])
+    if(@children[indx].nil?)
+      @children[indx] = TrieNode.new
+      @children[indx].key = new_key[1..]
+      @children[indx].value = new_value
+    end
+
+    # continue if node exists
     @children[indx].addValue(new_key[1..],new_value)
   end
 
   def findValue(target_key)
+    # value is found
     if(target_key==@key) then return @value end
+
+    # end of path, return nil
     if(@children==nil) then return nil end
 
+    # node doesnt exist, return nil
     indx = indexOf(target_key[0])
     if(@children[indx]==nil) then return nil end
+
+    # keep searching
     return @children[indx].findValue(target_key[1..])
   end
 
@@ -56,45 +88,27 @@ def indexOf(l)
   return LETTERS.index(l)
 end
 
-# sentinel = TrieNode.new
 
-sentinel = TrieNode.new
-sentinel.createChildren
-w = TrieNode.new
-w.createChildren
-a = TrieNode.new
-a.createChildren
-n = TrieNode.new
-n.createChildren
-e = TrieNode.new
-t = TrieNode.new
-t.createChildren
-d = TrieNode.new
-d.key = "D"
+se = TrieNode.new
 
-sp = TrieNode.new
-sp.key="SP"
-sp.value = 72
+se.addValue("wane",18)
+se.addValue("wanted",15)
+se.addValue("want",33)
 
+se.addValue("apple",10)
+se.addValue("app",20)
+se.addValue("bear",30)
+se.addValue("ant",40)
+se.addValue("bat",50)
+se.addValue("ape",60)
 
-sentinel.children[indexOf("W")] = w
-w.children[indexOf("A")] = a
-w.children[indexOf("I")] = sp
-a.children[indexOf("N")] = n
-n.children[indexOf("E")] = e
-e.value = 29
-n.children[indexOf("T")] = t
-t.value = 36
-t.children[indexOf("E")] = d
+raise "Error" if se.findValue("wane") != 18
+raise "Error" if se.findValue("wanted") != 15
+raise "Error" if se.findValue("want") != 33
 
-sentinel.addValue("WANTED",10)
-sentinel.addValue("WAN",18)
-sentinel.addValue("WI",66)
-sentinel.addValue("WIS",0)
-sentinel.addValue("WANER",99)
-
-puts sentinel.findValue("WANTED")
-puts sentinel.findValue("WAN")
-puts sentinel.findValue("WI")
-puts sentinel.findValue("WISP")
-puts sentinel.findValue("WIS")
+raise "Error" if se.findValue("apple") != 10
+raise "Error" if se.findValue("app") != 20
+raise "Error" if se.findValue("bear") != 30
+raise "Error" if se.findValue("ant") != 40
+raise "Error" if se.findValue("bat") != 50
+raise "Error" if se.findValue("ape") != 60
