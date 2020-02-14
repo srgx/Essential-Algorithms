@@ -31,125 +31,132 @@ class BinaryNode
       z: 10
     )
     @leftChild.draw if !@leftChild.nil?
-    #@rightChild.draw if !@rightChild.nil?
+    @rightChild.draw if !@rightChild.nil?
   end
 
-  def positionSubtrees(totalWidthPixels)
-    puts "Positioning children of #{@name}"
-
-
+  def drawLines
     if(!@leftChild.nil?)
-      leftWidth = @leftChild.treeWidth
-    else
-      leftWidth = 0
+      self.connectTo(@leftChild)
+      @leftChild.drawLines
     end
 
     if(!@rightChild.nil?)
-      rightWidth = @rightChild.treeWidth
-    else
-      rightWidth = 0
+      self.connectTo(@rightChild)
+      @rightChild.drawLines
     end
+  end
 
-    sumSteps = leftWidth + rightWidth
-
-    if(!@rightChild.nil?&&@leftChild.nil?)
-      @rightChild.y = @y + 100
-      @rightChild.x = @x
-      @rightChild.positionSubtrees(totalWidthPixels)
+  def positionSubtree
+    if(@leftChild.nil?&&@rightChild.nil?)
       return
-    elsif(@rightChild.nil?&&!@leftChild.nil?)
-      @leftChild.y = @y + 100
+    elsif(!@leftChild.nil?&&@rightChild.nil?)
       @leftChild.x = @x
-      @leftChild.positionSubtrees(totalWidthPixels)
-      return
-    elsif(@rightChild.nil?&&@leftChild.nil?)
-      return
-    end
+      @leftChild.y = @y + 100
+      @leftChild.positionSubtree
+    elsif(@leftChild.nil?&&!@rightChild.nil?)
+      @rightChild.x = @x
+      @rightChild.y = @y + 100
+      @rightChild.positionSubtree
+    else
+      @leftChild.x = @x-100
+      @leftChild.y = @y+100
+      @leftChild.positionSubtree
 
+      leftMaxX = @leftChild.maxRight
 
-    if(@name=="B")
-      puts "DEBUG"
-      puts @leftChild.name
-      puts @rightChild.name
-    end
-
-    if(sumSteps.zero?)
-      if(!@leftChild.nil?)
-        @leftChild.y = @y + 100
-        @leftChild.x = @x
+      if(leftMaxX>=@x)
+        @leftChild.moveTree(-(leftMaxX-@leftChild.x))
       end
 
-      if(!@rightChild.nil?)
-        @rightChild.y = @y + 100
-        @rightChild.x = @x
+      @rightChild.x = @x + 100
+      @rightChild.y = @y + 100
+      @rightChild.positionSubtree
+
+      rightMinX = @rightChild.maxLeft
+      if(rightMinX<=@x)
+        @rightChild.moveTree(@rightChild.x - rightMinX)
       end
 
-      return
     end
+  end
 
-    stepSize = totalWidthPixels/sumSteps
+  def maxRight
+    if(@rightChild.nil?&&@leftChild.nil?)
+      return @x
+    elsif(!@rightChild.nil?)
+      return @rightChild.maxRight
+    else
+      return @leftChild.maxRight
+    end
+  end
 
-    leftPixels = leftWidth*stepSize
-    rightPixels = rightWidth*stepSize
-
-    puts "Positioning #{@leftChild.name}"
-    @leftChild.y = @y + 100
-    @leftChild.x = leftPixels/2
-
-    puts "Positioning #{@rightChild.name}"
-    @rightChild.y = @y + 100
-    @rightChild.x = @leftChild.x + rightPixels/2
-
-    @leftChild.positionSubtrees(leftPixels)
-    @rightChild.positionSubtrees(rightPixels)
-
+  def maxLeft
+    if(@leftChild.nil?&&@rightChild.nil?)
+      return @x
+    elsif(!@leftChild.nil?)
+      return @leftChild.maxLeft
+    else
+      return @rightChild.maxLeft
+    end
   end
 
   def treeWidth
-    return self.stepsLeft + self.stepsRight
+    return self.maxRight - self.maxLeft
   end
 
-  def stepsRight
-    if(!@rightChild.nil?&&!@leftChild.nil?)
-      return 1 + @rightChild.stepsRight
-    elsif(!@rightChild.nil?)
-      return @rightChild.stepsRight
-    elsif(!@leftChild.nil?)
-      return @leftChild.stepsRight
-    else
-      return 0
-    end
+  def moveTree(x)
+    @x += x
+    if(!@leftChild.nil?) then @leftChild.moveTree(x) end
+    if(!@rightChild.nil?) then @rightChild.moveTree(x) end
   end
 
-  def stepsLeft
-    if(!@leftChild.nil?&&!@rightChild.nil?)
-      return 1 + @leftChild.stepsLeft
-    elsif(!@leftChild.nil?)
-      return @leftChild.stepsLeft
-    elsif(!@rightChild.nil?)
-      @rightChild.stepsLeft
-    else
-      return 0
-    end
+  def connectTo(node)
+    Line.new(
+      x1: @x, y1: @y,
+      x2: node.x, y2: node.y,
+      width: 5,
+      color: 'lime',
+      z: 5
+    )
   end
 
 end
+
+
+root = BinaryNode.new("E")
+a = BinaryNode.new("A")
+b = BinaryNode.new("B")
+c = BinaryNode.new("C")
+d = BinaryNode.new("D")
+f = BinaryNode.new("F")
+g = BinaryNode.new("G")
+h = BinaryNode.new("H")
+i = BinaryNode.new("I")
+j = BinaryNode.new("J")
+
+
+# left side
+root.leftChild = b
+b.leftChild = a
+b.rightChild = d
+d.leftChild = c
+
+# right side
+root.rightChild = f
+f.rightChild = i
+i.rightChild = j
+i.leftChild = g
+g.rightChild = h
+
+# c.leftChild = BinaryNode.new("Z")
+# c.rightChild = BinaryNode.new("R")
+# d.rightChild = BinaryNode.new("U")
 
 =begin
-def connectNodes(node1,node2)
-  Line.new(
-    x1: node1.x, y1: node1.y,
-    x2: node2.x, y2: node2.y,
-    width: 5,
-    color: 'lime',
-    z: 5
-  )
-end
+root.x = 900
+root.y = 100
+root.positionSubtree
+root.draw
+root.drawLines
+show
 =end
-
-ROOT.x = 600
-ROOT.y = 100
-ROOT.positionSubtrees(900)
-
-#ROOT.draw
-#show
