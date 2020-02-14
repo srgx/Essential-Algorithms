@@ -11,6 +11,8 @@ set height: 1080
 set viewport_width: 1920
 set viewport_height: 1080
 
+SPACE = 50
+
 class BinaryNode
   attr_accessor :leftChild, :rightChild, :x, :y
 
@@ -49,37 +51,43 @@ class BinaryNode
   def positionSubtree
     if(@leftChild.nil?&&@rightChild.nil?)
       return
-    elsif(!@leftChild.nil?&&@rightChild.nil?)
+    elsif(!@leftChild.nil?&&@rightChild.nil?) # position 1 node vertically
       @leftChild.x = @x
       @leftChild.y = @y + 100
       @leftChild.positionSubtree
-    elsif(@leftChild.nil?&&!@rightChild.nil?)
+    elsif(@leftChild.nil?&&!@rightChild.nil?) # position 1 node vertically
       @rightChild.x = @x
       @rightChild.y = @y + 100
       @rightChild.positionSubtree
     else
+
+      # position left subtree
       @leftChild.x = @x-100
       @leftChild.y = @y+100
       @leftChild.positionSubtree
 
-      leftMaxX = @leftChild.maxRight
 
+      # move whole subtree to the left part if necessary
+      leftMaxX = @leftChild.maxRight
       if(leftMaxX>=@x)
-        @leftChild.moveTree(-(leftMaxX-@leftChild.x))
+        @leftChild.moveTree(-(leftMaxX-@x+SPACE))
       end
 
+      # position right subtree
       @rightChild.x = @x + 100
       @rightChild.y = @y + 100
       @rightChild.positionSubtree
 
+      # move whole subtree to the right part if necessary
       rightMinX = @rightChild.maxLeft
       if(rightMinX<=@x)
-        @rightChild.moveTree(@rightChild.x - rightMinX)
+        @rightChild.moveTree(@x-rightMinX+SPACE)
       end
 
     end
   end
 
+  # max x value
   def maxRight
     if(@rightChild.nil?&&@leftChild.nil?)
       return @x
@@ -90,6 +98,7 @@ class BinaryNode
     end
   end
 
+  # min x value
   def maxLeft
     if(@leftChild.nil?&&@rightChild.nil?)
       return @x
@@ -98,10 +107,6 @@ class BinaryNode
     else
       return @rightChild.maxLeft
     end
-  end
-
-  def treeWidth
-    return self.maxRight - self.maxLeft
   end
 
   def moveTree(x)
@@ -152,11 +157,10 @@ g.rightChild = h
 # c.rightChild = BinaryNode.new("R")
 # d.rightChild = BinaryNode.new("U")
 
-=begin
-root.x = 900
-root.y = 100
-root.positionSubtree
-root.draw
-root.drawLines
-show
-=end
+
+# root.x = 900
+# root.y = 100
+# root.positionSubtree
+# root.draw
+# root.drawLines
+# show
