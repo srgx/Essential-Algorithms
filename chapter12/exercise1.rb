@@ -52,6 +52,10 @@ class Board
 
 end
 
+def swp(symbol)
+  return symbol=="X"?"O":"X"
+end
+
 def exhaustiveSearch(board,player)
   if(board.win?("X"))
     return Vector[1,0,0]
@@ -65,7 +69,7 @@ def exhaustiveSearch(board,player)
       for j in 0..2
         if(board[i][j].nil?)
           board[i][j] = player
-          result += exhaustiveSearch(board,player=="X"?"O":"X")
+          result += exhaustiveSearch(board,swp(player))
           board[i][j] = nil
         end
       end
