@@ -1,19 +1,17 @@
 require 'matrix'
 # Exercise 1
-# Write a program that exhaustively searches the tic-tac-toe game
-# tree and counts the number of times X wins, O wins, and the game
-# ends in a tie. What are those counts, and what is the total
-# number of games possible? Do the numbers give an advantage to one
-# player or the other?
-
 
 class Board
-  attr_accessor :arr
   def initialize
     @arr = []
     3.times do
       @arr << [nil,nil,nil]
     end
+  end
+
+  def checkRows(symbol)
+    row = Array.new(3,symbol)
+    return @arr[0]==row||@arr[1]==row||@arr[2]==row
   end
 
   def checkCols(symbol)
@@ -26,33 +24,18 @@ class Board
   end
 
   def checkDiagonals(symbol)
-    if(@arr[0][0]==symbol&&@arr[1][1]==symbol&&@arr[2][2]==symbol)
-      return true
-    elsif(@arr[0][2]==symbol&&@arr[1][1]==symbol&&@arr[2][0]==symbol)
-      return true
-    else
-      return false
-    end
+    return @arr[0][0]==symbol&&@arr[1][1]==symbol&&@arr[2][2]==symbol||
+           @arr[0][2]==symbol&&@arr[1][1]==symbol&&@arr[2][0]==symbol
   end
 
   def win?(symbol)
-    row = Array.new(3,symbol)
-    if(@arr[0]==row&&@arr[1]==row&&@arr[2]==row) # rows
-      return true
-    elsif(checkCols(symbol)) # cols
-      return true
-    elsif(checkDiagonals(symbol)) # diagonals
-      return true
-    else
-      return false
-    end
+    return checkRows(symbol)||
+           checkCols(symbol)||
+           checkDiagonals(symbol)
   end
 
-  def draw?
-    return self.allOccupied? && !self.win?("X") && !self.win("O")
-  end
 
-  def allOccupied?
+  def full?
     for i in 0..2
       for j in 0..2
         if(@arr[i][j].nil?)
@@ -62,25 +45,28 @@ class Board
     end
     return true
   end
+
+  def [](indx)
+    return @arr[indx]
+  end
+
 end
 
-def exhaustiveSearch(board,player,xWins,oWins,draws)
+def exhaustiveSearch(board,player)
   if(board.win?("X"))
-    return [xWins+1,oWins,draws]
+    return Vector[1,0,0]
   elsif(board.win?("O"))
-    return [xWins,oWins+1,draws]
-  elsif(board.allOccupied?)
-    return [xWins,oWins,draws+1]
+    return Vector[0,1,0]
+  elsif(board.full?)
+    return Vector[0,0,1]
   else
-    result = [0,0,0]
+    result = Vector[0,0,0]
     for i in 0..2
       for j in 0..2
-        if(board.arr[i][j].nil?)
-          board.arr[i][j] = player
-          player = player=="X" ? "O" : "X"
-          res = exhaustiveSearch(board,player,xWins,oWins,draws)
-          result = result.zip(res).map { |a, b| a + b }
-          board.arr[i][j] = nil
+        if(board[i][j].nil?)
+          board[i][j] = player
+          result += exhaustiveSearch(board,player=="X"?"O":"X")
+          board[i][j] = nil
         end
       end
     end
@@ -88,10 +74,11 @@ def exhaustiveSearch(board,player,xWins,oWins,draws)
   end
 end
 
+=begin
 board = Board.new
-
-result = exhaustiveSearch(board,"X",0,0,0)
+result = exhaustiveSearch(board,"X")
 puts "X: #{result[0]}"
 puts "O: #{result[1]}"
-puts "Draws: #{result[2]}"
+puts "Tie: #{result[2]}"
 puts "Games: #{result.sum}"
+=end
