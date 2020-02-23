@@ -23,6 +23,10 @@ end
 class Move
   attr_accessor :x, :y
   def initialize(x=nil,y=nil)
+    self.set(x,y)
+  end
+
+  def set(x,y)
     @x, @y = x, y
   end
 
@@ -48,59 +52,52 @@ class Board
   end
 end
 
-
 # values: 4 - win, 3 - unknown, 2 - draw, 1 - loss
 def miniMax(board,bestMove,bestValue,player1,player2,depth,maxDepth)
   if(depth>maxDepth)
-    return Value.new(3)
+    bestValue.value = 3
+    return
   end
   lowestValue = Float::INFINITY
-  lowestMove = nil
+  lowestMove = Move.new
   for i in 0..2
     for j in 0..2
       if(board[i][j].nil?)
         board[i][j] = player1
         if(board.win?(player1))
           lowestValue = 1
-          lowestMove = Move.new(i,j)
+          lowestMove.set(i,j)
         elsif(board.win?(player2))
-          lowestValue= 4
-          lowestMove = Move.new(i,j)
+          lowestValue = 4
+          lowestMove.set(i,j)
         elsif(board.full?)
           lowestValue = 2
-          lowestMove = Move.new(i,j)
+          lowestMove.set(i,j)
         else
-          testValue = Float::INFINITY
-          testMove = Move.new
+          testValue = Value.new
+          testMove = Move.new(i,j)
           miniMax(board,testMove,testValue,player2,player1,depth+1,maxDepth)
-          if(testValue<lowestValue)
-            lowestValue = testValue
-            lowestMove = testMove
+          if(testValue.value<lowestValue)
+            lowestValue = testValue.value
+            lowestMove.set(i,j)
           end
         end
         board[i][j] = nil
       end
     end
   end
-  bestMove = lowestMove
+  bestMove.cp(lowestMove)
   if(lowestValue == 4)
-    bestValue = 1
+    bestValue.value = 1
   elsif(lowestValue == 1)
-    bestValue = 4
+    bestValue.value = 4
   else
-    bestValue = lowestValue
+    bestValue.value = lowestValue
   end
 end
 
-board = Board.new
-mov = Move.new
-val = Value.new
-miniMax(board,mov,val,"X","O",0,5)
 
-puts "Ruch #{mov.x}-#{mov.y} ma wartość #{val.value}"
-
-
-def playTurn(symbol,player,board)
+def playTurn(symbol,player,board,level)
   if(player==symbol)
     print "Podaj pozycję #{symbol}(1-9): "
     indx = gets.chomp.to_i
@@ -113,48 +110,67 @@ def playTurn(symbol,player,board)
     place(indx,player,board)
   else
     puts "Ruch komputera #{symbol}"
-    randomMove(board,symbol)
+    if(level==0)
+      randomMove(board,symbol)
+    elsif(level==1)
+      mov, val = Move.new, Value.new
+      miniMax(board,mov,val,symbol,swp(symbol),0,3)
+      board[mov.x][mov.y] = symbol
+    elsif(level==2)
+      mov, val = Move.new, Value.new
+      miniMax(board,mov,val,symbol,swp(symbol),0,9)
+      board[mov.x][mov.y] = symbol
+    else
+      raise "Nieprawidłowy poziom trudności"
+    end
   end
 end
-=begin
-board = Board.new
-winner = nil
 
-print "Wybierz X albo O: "
-player = gets.chomp.upcase
-while(player!="X"&&player!="O")
-  print "Nieprawidłowy wybór. Możliwe opcje (X,O): "
+
+def playGame
+  board = Board.new
+  winner = nil
+
+  print "Wybierz poziom trudności(0, 1, 2): "
+  level = gets.chomp.to_i
+  while(level!=0&&level!=1&&level!=2)
+    print "Nieprawidłowy wybór. Możliwe opcje (0, 1, 2): "
+    level = gets.chomp.to_i
+  end
+
+  print "Wybierz X albo O: "
   player = gets.chomp.upcase
-end
-
-
-loop do
-
-  playTurn("X",player,board)
-  board.show
-
-  if(board.win?("X"))
-    winner = "X"
-    break
-  elsif(board.full?)
-    break
+  while(player!="X"&&player!="O")
+    print "Nieprawidłowy wybór. Możliwe opcje (X,O): "
+    player = gets.chomp.upcase
   end
 
-  playTurn("O",player,board)
-  board.show
+  loop do
 
-  if(board.win?("O"))
-    winner = "O"
-    break
-  elsif(board.full?)
-    break
+    playTurn("X",player,board,level)
+    board.show
+
+    if(board.win?("X"))
+      winner = "X"
+      break
+    elsif(board.full?)
+      break
+    end
+
+    playTurn("O",player,board,level)
+    board.show
+
+    if(board.win?("O"))
+      winner = "O"
+      break
+    elsif(board.full?)
+      break
+    end
+
   end
 
+  puts winner=="X"||winner=="O" ? "Wygrywa gracz #{winner}!" : "Remis!"
+
 end
 
-if(winner=="X"||winner=="O")
-  puts "Wygrywa gracz #{winner}!"
-else
-  puts "Remis!"
-end
-=end
+# playGame
