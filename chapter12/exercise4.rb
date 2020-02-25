@@ -36,8 +36,8 @@ class Solution
   end
 
   def cp(other)
-    @left = Marshal.load(Marshal.dump(other.left))
-    @right = Marshal.load(Marshal.dump(other.right))
+    @left = other.left.clone
+    @right = other.right.clone
     @diff = other.diff
   end
 
@@ -48,39 +48,52 @@ class Solution
   def perfect?
     return @diff.zero?
   end
-end
 
-def exhaustivePartition(items,index,maxIndex,solution,shortC)
-  if(index>maxIndex)
-    return Solution.new(solution) # save as new object
-  else
-    solution.pushLeft(items[index])
-    leftBest = exhaustivePartition(items,index+1,maxIndex,solution,shortC)
-    solution.popLeft
-
-    # short circuit
-    if(shortC)
-      return leftBest if leftBest.perfect?
-    end
-
-    solution.pushRight(items[index])
-    rightBest = exhaustivePartition(items,index+1,maxIndex,solution,shortC)
-    solution.popRight
-
-    return leftBest<rightBest ? leftBest : rightBest
+  def show
+    print "Left side: "
+    p @left
+    print "Right side: "
+    p @right
+    print "Difference: "
+    p @diff
   end
 end
 
-def randomPartition(low,up,size,shortCircuit)
+def startExhaustivePartition(items,circuit)
+  $bestSolution = Solution.new
+  currentSolution = Solution.new
+  $nodesVisited = 0
+  exhaustivePartition(items,0,items.size-1,currentSolution,true)
+  return [$bestSolution,$nodesVisited]
+end
+
+def exhaustivePartition(items,index,maxIndex,solution,circuit)
+  $nodesVisited+=1
+  if(index>maxIndex)
+    if(solution<$bestSolution)
+      $bestSolution.cp(solution)
+    end
+  else
+    solution.pushLeft(items[index])
+    exhaustivePartition(items,index+1,maxIndex,solution,circuit)
+    solution.popLeft
+
+    # short circuit
+    if(circuit)
+      return $bestSolution if $bestSolution.perfect?
+    end
+
+    solution.pushRight(items[index])
+    exhaustivePartition(items,index+1,maxIndex,solution,circuit)
+    solution.popRight
+  end
+end
+
+def randomPartition(low,up,size,circuit)
   items = []
   size.times { items << rand(low..up) }
-  result = exhaustivePartition(items,0,size-1,Solution.new,shortCircuit)
-  print "Left side: "
-  p result.left
-  print "Right side: "
-  p result.right
-  print "Difference: "
-  p result.diff
+  result = startExhaustivePartition(items,circuit)
+  result[0].show
 end
 
 # randomPartition(0,100,5,true)
