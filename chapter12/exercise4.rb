@@ -63,7 +63,7 @@ def startExhaustivePartition(items,circuit)
   $bestSolution = Solution.new
   currentSolution = Solution.new
   $nodesVisited = 0
-  exhaustivePartition(items,0,items.size-1,currentSolution,true)
+  exhaustivePartition(items,0,items.size-1,currentSolution,circuit)
   return [$bestSolution,$nodesVisited]
 end
 
@@ -96,4 +96,4 @@ def randomPartition(low,up,size,circuit)
   result[0].show
 end
 
-# randomPartition(0,100,5,true)
+# randomPartition(0,100,10,true)
