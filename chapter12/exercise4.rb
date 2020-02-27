@@ -35,6 +35,20 @@ class Solution
     self.setDiff
   end
 
+  def moveRight(index)
+    item = @left[index]
+    @left.delete_at(index)
+    @right << item
+    self.setDiff
+  end
+
+  def moveLeft(index)
+    item = @right[index]
+    @right.delete_at(index)
+    @left << item
+    self.setDiff
+  end
+
   def cp(other)
     @left = other.left.clone
     @right = other.right.clone
