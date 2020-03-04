@@ -1,5 +1,4 @@
 # Exercise 10
-
 # If 3 vs 3 eggs weights are equal
 # plated egg is one of 2 remaining items.
 # Find it in second weighing.

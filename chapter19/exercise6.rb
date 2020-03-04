@@ -1,5 +1,4 @@
 # Exercise 6
-
 # me = 3 * br
 # me + 2 = 2 * (br + 2)
 # me + 2 = 2 * br + 4
