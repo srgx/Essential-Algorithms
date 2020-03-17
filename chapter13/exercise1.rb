@@ -33,7 +33,7 @@ class Node
 end
 
 class Link
-  attr_accessor :cost, :capacity, :nodes
+  attr_reader :cost, :capacity, :nodes
   def initialize(startNode,targetNode,cost,capacity)
     @nodes = Array.new(2)
     @nodes[0], @nodes[1] = startNode, targetNode
@@ -46,7 +46,6 @@ class Link
 
     midX = (@image.x1 + @image.x2)/2.0
     midY = (@image.y1 + @image.y2)/2.0
-
     midX = (@image.x1 + midX)/2.0
     midY = (@image.y1 + midY)/2.0
 
@@ -62,44 +61,49 @@ end
 
 
 class TextField
-  attr_reader :text
-  def initialize(text,x,y)
+  attr_reader :text, :symbol, :x, :y
+  def initialize(text,x,y,symbol)
+      @symbol = symbol
       @text, @x, @y = text, x, y
-      Rectangle.new(x: @x, y: @y, width: 200, height: 50, color: 'orange', z: 10)
-      @image = Text.new(@text,x: @x, y: @y, size: 20, color: 'blue', z: 10)
+      @image = Rectangle.new(x: @x, y: @y, width: 200, height: 50, color: 'orange', z: 10)
+      @textImage = Text.new(@text,x: @x, y: @y, size: 20, color: 'blue', z: 10)
   end
 
   def enter(le)
-    @image.text += le
+    @textImage.text += le
     @text += le
   end
 
   def delete
-    @image.text = @image.text.chop
+    @textImage.text = @textImage.text.chop
     @text.chop!
   end
+
+  def click
+    @image.color = 'green'
+    return @symbol
+  end
+
+  def reset
+    @image.color = 'orange'
+  end
+
 end
 
 class Button
-  attr_accessor :x, :y, :text
-  def initialize(text,x,y)
+  attr_accessor :x, :y, :text, :symbol
+  def initialize(text,x,y,symbol)
+      @symbol = symbol
       @text, @x, @y, @color = text, x, y, 'red'
       @image = Rectangle.new(x: @x, y: @y,width: 200, height: 50, color: @color, z: 10)
       Text.new(@text, x: @x, y: @y, size: 20, color: 'blue', z: 10)
   end
 
   def click
-    if(@text=="New Node")
-      @image.color = 'green'
-      return :new
-    elsif(@text=="Load Network")
-      return :load
-    elsif(@text=="Save Network")
-      return :save
-    elsif(@text=="Add One Way Link")
-      @image.color = 'green'
-      return :oneway
+    if([:new,:add,:oneway].include?(@symbol))
+      @image.color='green'
     end
+    return @symbol
   end
 
   def reset
@@ -110,19 +114,29 @@ end
 class State
   attr_accessor :nodes, :mode
   def initialize
-    @numNodes, @nodes, @buttons, @mode = 0, [], [], :normal
-    @buttons << Button.new('New Node',100,50)
-    @buttons << Button.new('Load Network',400,50)
-    @buttons << Button.new('Save Network',700,50)
-    @buttons << Button.new('Add One Way Link',100,150)
-    @input = TextField.new("test.ntw",1200,50)
+    @numNodes, @nodes, @items, @mode = 0, [], [], :normal
+
+    @items << Button.new('New Node',20,20,:new)
+    @items << Button.new('Load Network',240,20,:load)
+    @items << Button.new('Save Network',460,20,:save)
+    @items << Button.new('Add One Way Link',20,100,:oneway)
+
+    @items << TextField.new("test.ntw",1700,20,:filename)
+    @items << TextField.new("X",1700,100,:nodename)
+    @items << TextField.new("0",1700,180,:cost)
+    @items << TextField.new("0",1700,260,:capacity)
+
     @temp = []
+  end
+
+  def getTextField(symbol)
+    return @items.detect { |f| f.symbol == symbol }
   end
 
   def click(x,y)
 
     if(@mode==:new)
-      @nodes << Node.new("X",x,y)
+      @nodes << Node.new(self.getTextField(:nodename).text.upcase,x,y)
       self.resetMode
       return
     elsif(@mode==:oneway)
@@ -137,34 +151,30 @@ class State
         clickedNode.activate
         @temp << clickedNode
         if(@temp.size==2)
-          @temp[0].links << Link.new(@temp[0],@temp[1],1,1)
+          co = self.getTextField(:cost).text.to_i
+          cap = self.getTextField(:capacity).text.to_i
+          @temp[0].links << Link.new(@temp[0],@temp[1],co,cap)
           self.resetMode
         end
       end
       return
     else
       option = nil
-      @buttons.each do |btn|
-        if(x>btn.x&&x<btn.x+200&&y>btn.y&&y<btn.y+50)
-          option = btn.click
+      @items.each do |itm|
+        if(x>itm.x&&x<itm.x+200&&y>itm.y&&y<itm.y+50)
+          @items.each {|itm| itm.reset}
+          option = itm.click
           break
         end
       end
 
       unless(option.nil?)
-        case option
-        when :load
-          puts "Loading file..."
-          self.load
-        when :new
-          @mode = :new
-          puts "Adding new node..."
-        when :save
-          puts "Saving Network..."
+        if([:new,:oneway,:filename,:cost,:capacity,:nodename].include?(option))
+          @mode = option
+        elsif(option==:save)
           self.save
-        when :oneway
-          puts "One Way..."
-          @mode = :oneway
+        elsif(option==:load)
+          self.load
         end
       end
     end
@@ -177,20 +187,23 @@ class State
       content += "#{nd.name} #{nd.x} #{nd.y}"
       unless(nd.links.empty?) then content += " " end
       nd.links.each_with_index do |ln,indx|
+        ln.show
         content += "#{@nodes.index(ln.nodes[1])} #{ln.cost} #{ln.capacity}"
         if(indx!=nd.links.size-1) then content += " " end
       end
       content += "\n"
     end
-    File.write(@input.text, content)
+    File.write(self.getTextField(:filename).text, content)
   end
 
   def key(ke)
-    case ke
-    when "backspace"
-      @input.delete
-    else
-      @input.enter(ke)
+    if([:filename,:cost,:capacity,:nodename].include?(@mode))
+      field = self.getTextField(@mode)
+      if(ke=="backspace")
+        field.delete
+      else
+        field.enter(ke)
+      end
     end
   end
 
@@ -199,7 +212,7 @@ class State
     @nodes, dataSets = [], []
 
     # read data from file to dataSets
-    File.open(@input.text, "r") do |f|
+    File.open(self.getTextField(:filename).text, "r") do |f|
       @numNodes = f.gets.to_i
       f.each_line { |line| dataSets << line.split }
     end
@@ -232,7 +245,7 @@ class State
     @temp.each { |t| t.deactivate }
     @temp = []
     @mode = :normal
-    @buttons.each { | btn | btn.reset }
+    @items.each { | btn | btn.reset }
   end
 
 end
@@ -253,6 +266,5 @@ end
 on :key_down do |event|
   state.key(event.key)
 end
-
 
 show
