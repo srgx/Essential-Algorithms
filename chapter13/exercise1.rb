@@ -11,8 +11,10 @@ set viewport_width: 1920
 set viewport_height: 1080
 
 class Node
-  attr_accessor :name, :x, :y, :links
+  attr_reader :name, :x, :y, :links
+  attr_accessor :visited
   def initialize(name,x,y)
+    @visited = false
     @name, @x, @y, @links = name, x, y, []
     @image = Circle.new(x: @x, y: @y, radius: 40, sectors: 32, color: 'fuchsia', z: 8)
     @text = Text.new(@name, x: @x, y: @y, size: 20, color: 'blue', z: 10)
@@ -29,6 +31,31 @@ class Node
 
   def deactivate
     @image.color = 'fuchsia'
+  end
+
+  def self.cleartrav
+    @@traversal.each { |t| t.remove }
+    @@traversal = []
+  end
+
+  def depthTraverse
+    @@traversal = []
+    count = 1
+    @@traversal << Text.new(count, x: @x, y: @y, size: 80, color: 'lime', z: 30)
+    @visited = true
+    stack = [self]
+
+    while(!stack.empty?)
+      node = stack.pop
+      node.links.each do |ln|
+        if(!ln.nodes[1].visited)
+          count += 1
+          @@traversal << Text.new(count, x: ln.nodes[1].x, y: ln.nodes[1].y, size: 80, color: 'lime', z: 30)
+          ln.nodes[1].visited = true
+          stack << ln.nodes[1]
+        end
+      end
+    end
   end
 end
 
@@ -100,7 +127,7 @@ class Button
   end
 
   def click
-    if([:new,:add,:oneway].include?(@symbol))
+    if([:new,:add,:oneway,:twoway,:depthfirst,:breadthfirst].include?(@symbol))
       @image.color='green'
     end
     return @symbol
@@ -120,8 +147,12 @@ class State
     @items << Button.new('Load Network',240,20,:load)
     @items << Button.new('Save Network',460,20,:save)
     @items << Button.new('Add One Way Link',20,100,:oneway)
+    @items << Button.new('Add Two Way Link',240,100,:twoway)
+    @items << Button.new('Depth First Trav',460,100,:depthfirst)
+    @items << Button.new('Breadth First Trav',680,100,:breadthfirst)
+    @items << Button.new('Clear Trav',900,100,:cleartrav)
 
-    @items << TextField.new("test.ntw",1700,20,:filename)
+    @items << TextField.new("test2.ntw",1700,20,:filename)
     @items << TextField.new("X",1700,100,:nodename)
     @items << TextField.new("0",1700,180,:cost)
     @items << TextField.new("0",1700,260,:capacity)
@@ -139,7 +170,7 @@ class State
       @nodes << Node.new(self.getTextField(:nodename).text.upcase,x,y)
       self.resetMode
       return
-    elsif(@mode==:oneway)
+    elsif(@mode==:oneway||@mode==:twoway)
       clickedNode = nil
       @nodes.each do |nd|
         if((x-nd.x)**2 + (y-nd.y)**2 < 40**2)
@@ -154,10 +185,23 @@ class State
           co = self.getTextField(:cost).text.to_i
           cap = self.getTextField(:capacity).text.to_i
           @temp[0].links << Link.new(@temp[0],@temp[1],co,cap)
+          if(@mode==:twoway)
+            @temp[1].links << Link.new(@temp[1],@temp[0],co,cap)
+          end
           self.resetMode
         end
       end
       return
+    elsif(@mode==:depthfirst)
+      clickedNode = nil
+      @nodes.each do |nd|
+        if((x-nd.x)**2 + (y-nd.y)**2 < 40**2)
+          clickedNode = nd
+          break
+        end
+      end
+      clickedNode.depthTraverse
+      self.resetMode
     else
       option = nil
       @items.each do |itm|
@@ -167,14 +211,15 @@ class State
           break
         end
       end
-
       unless(option.nil?)
-        if([:new,:oneway,:filename,:cost,:capacity,:nodename].include?(option))
+        if([:new,:oneway,:twoway, :filename,:cost,:capacity,:nodename,:depthfirst].include?(option))
           @mode = option
         elsif(option==:save)
           self.save
         elsif(option==:load)
           self.load
+        elsif(option==:cleartrav)
+          Node.cleartrav
         end
       end
     end
@@ -187,7 +232,6 @@ class State
       content += "#{nd.name} #{nd.x} #{nd.y}"
       unless(nd.links.empty?) then content += " " end
       nd.links.each_with_index do |ln,indx|
-        ln.show
         content += "#{@nodes.index(ln.nodes[1])} #{ln.cost} #{ln.capacity}"
         if(indx!=nd.links.size-1) then content += " " end
       end
@@ -246,6 +290,7 @@ class State
     @temp = []
     @mode = :normal
     @items.each { | btn | btn.reset }
+    @nodes.each { |nd| nd.visited = false }
   end
 
 end
