@@ -13,6 +13,7 @@ set viewport_height: 1080
 class Node
   attr_reader :name, :x, :y, :links
   attr_accessor :visited
+  @@traversal = []
   def initialize(name,x,y)
     @visited = false
     @name, @x, @y, @links = name, x, y, []
@@ -33,20 +34,20 @@ class Node
     @image.color = 'fuchsia'
   end
 
-  def self.cleartrav
+  def self.clearTrav
     @@traversal.each { |t| t.remove }
     @@traversal = []
   end
 
-  def depthTraverse
-    @@traversal = []
+  def traverse(type)
+    Node.clearTrav
     count = 1
     @@traversal << Text.new(count, x: @x, y: @y, size: 80, color: 'lime', z: 30)
     @visited = true
     stack = [self]
 
     while(!stack.empty?)
-      node = stack.pop
+      node = type == :depth ? stack.pop : stack.shift
       node.links.each do |ln|
         if(!ln.nodes[1].visited)
           count += 1
@@ -57,6 +58,15 @@ class Node
       end
     end
   end
+
+  def depthTraverse
+    self.traverse(:depth)
+  end
+
+  def breadthTraverse
+    self.traverse(:breadth)
+  end
+
 end
 
 class Link
@@ -142,6 +152,7 @@ class State
   attr_accessor :nodes, :mode
   def initialize
     @numNodes, @nodes, @items, @mode = 0, [], [], :normal
+    @componentsImages = []
 
     @items << Button.new('New Node',20,20,:new)
     @items << Button.new('Load Network',240,20,:load)
@@ -150,7 +161,8 @@ class State
     @items << Button.new('Add Two Way Link',240,100,:twoway)
     @items << Button.new('Depth First Trav',460,100,:depthfirst)
     @items << Button.new('Breadth First Trav',680,100,:breadthfirst)
-    @items << Button.new('Clear Trav',900,100,:cleartrav)
+    @items << Button.new('Clear Trav/Comp',900,100,:cleartrav)
+    @items << Button.new('Components',1120,100,:components)
 
     @items << TextField.new("test2.ntw",1700,20,:filename)
     @items << TextField.new("X",1700,100,:nodename)
@@ -164,10 +176,60 @@ class State
     return @items.detect { |f| f.symbol == symbol }
   end
 
-  def click(x,y)
 
+  def showComponents
+    self.clearComp
+    numVisited = 0
+    components = []
+    if(@numNodes!=@nodes.size)
+      puts "W klasie: #{@numNodes}"
+      puts "Naprawde: #{@nodes.size}"
+      raise "Error"
+    end
+    componentIndex = 1
+    while(numVisited < @numNodes)
+      startNode = nil
+      @nodes.each do |nd|
+        if(!nd.visited)
+          startNode = nd
+          break
+        end
+      end
+      stack = [startNode]
+      @componentsImages << Text.new(componentIndex, x: startNode.x, y: startNode.y, size: 80, color: 'lime', z: 30)
+      startNode.visited = true
+      numVisited += 1
+
+      component = [startNode]
+      components << component
+
+      while(!stack.empty?)
+        node = stack.pop
+        node.links.each do |ln|
+          if(!ln.nodes[1].visited)
+            @componentsImages << Text.new(componentIndex, x: ln.nodes[1].x, y: ln.nodes[1].y, size: 80, color: 'lime', z: 30)
+            ln.nodes[1].visited = true
+            # ln.visited = true
+            numVisited += 1
+            component << ln.nodes[1]
+            stack.push(ln.nodes[1])
+          end
+        end
+      end
+      componentIndex += 1
+    end
+  end
+
+  def clearComp
+    @componentsImages.each { |im| im.remove }
+    @componentsImages = []
+    @nodes.each { |nd| nd.visited = false }
+  end
+
+  def click(x,y)
     if(@mode==:new)
       @nodes << Node.new(self.getTextField(:nodename).text.upcase,x,y)
+      @numNodes+=1
       self.resetMode
       return
     elsif(@mode==:oneway||@mode==:twoway)
@@ -192,7 +254,7 @@ class State
         end
       end
       return
-    elsif(@mode==:depthfirst)
+    elsif([:depthfirst,:breadthfirst].include?(@mode))
       clickedNode = nil
       @nodes.each do |nd|
         if((x-nd.x)**2 + (y-nd.y)**2 < 40**2)
@@ -200,8 +262,14 @@ class State
           break
         end
       end
-      clickedNode.depthTraverse
-      self.resetMode
+      unless(clickedNode.nil?)
+        if(@mode==:depthfirst)
+          clickedNode.depthTraverse
+        elsif(@mode==:breadthfirst)
+          clickedNode.breadthTraverse
+        end
+        self.resetMode
+      end
     else
       option = nil
       @items.each do |itm|
@@ -212,14 +280,17 @@ class State
         end
       end
       unless(option.nil?)
-        if([:new,:oneway,:twoway, :filename,:cost,:capacity,:nodename,:depthfirst].include?(option))
+        if([:new,:oneway,:twoway, :filename,:cost,:capacity,:nodename,:depthfirst,:breadthfirst].include?(option))
           @mode = option
         elsif(option==:save)
           self.save
         elsif(option==:load)
           self.load
+        elsif(option==:components)
+          self.showComponents
         elsif(option==:cleartrav)
-          Node.cleartrav
+          Node.clearTrav
+          self.clearComp
         end
       end
     end
