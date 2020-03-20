@@ -34,16 +34,16 @@ class Node
     @image.color = 'fuchsia'
   end
 
-  def self.clearTrav
+  def self.clearTraversals
     @@traversal.each { |t| t.remove }
     @@traversal = []
   end
 
   def traverse(type)
-    Node.clearTrav
+    Node.clearTraversals
     count = 1
-    @@traversal << Text.new(count, x: @x, y: @y, size: 80, color: 'lime', z: 30)
-    @visited = true
+    @@traversal << Text.new(count, x: @x, y: @y, size: 80, color: 'blue', z: 30)
+    self.visit
     stack = [self]
 
     while(!stack.empty?)
@@ -51,12 +51,23 @@ class Node
       node.links.each do |ln|
         if(!ln.nodes[1].visited)
           count += 1
-          @@traversal << Text.new(count, x: ln.nodes[1].x, y: ln.nodes[1].y, size: 80, color: 'lime', z: 30)
-          ln.nodes[1].visited = true
+          @@traversal << Text.new(count, x: ln.nodes[1].x, y: ln.nodes[1].y, size: 80, color: 'blue', z: 30)
+          ln.nodes[1].visit
           stack << ln.nodes[1]
         end
       end
     end
+  end
+
+  def getLinkTo(node)
+    target = nil
+    @links.each do |ln|
+      if(ln.nodes[1]==node)
+        target = ln
+        break
+      end
+    end
+    return target
   end
 
   def depthTraverse
@@ -65,6 +76,19 @@ class Node
 
   def breadthTraverse
     self.traverse(:breadth)
+  end
+
+  def reset
+    self.unvisit
+    @links.each { |ln| ln.reset }
+  end
+
+  def visit
+    @visited = true
+  end
+
+  def unvisit
+    @visited = false
   end
 
 end
@@ -93,6 +117,20 @@ class Link
   def remove
     @image.remove
     @text.remove
+  end
+
+  def visit
+    @visited = true
+    @image.color = 'black'
+  end
+
+  def unvisit
+    @visited = false
+    @image.color = 'lime'
+  end
+
+  def reset
+    self.unvisit
   end
 end
 
@@ -137,7 +175,7 @@ class Button
   end
 
   def click
-    if([:new,:add,:oneway,:twoway,:depthfirst,:breadthfirst].include?(@symbol))
+    if([:new,:add,:oneway,:twoway,:depthfirst,:breadthfirst,:spanningtree].include?(@symbol))
       @image.color='green'
     end
     return @symbol
@@ -161,8 +199,9 @@ class State
     @items << Button.new('Add Two Way Link',240,100,:twoway)
     @items << Button.new('Depth First Trav',460,100,:depthfirst)
     @items << Button.new('Breadth First Trav',680,100,:breadthfirst)
-    @items << Button.new('Clear Trav/Comp',900,100,:cleartrav)
+    @items << Button.new('Clear All',900,100,:clearall)
     @items << Button.new('Components',1120,100,:components)
+    @items << Button.new('Spanning Tree',1340,100,:spanningtree)
 
     @items << TextField.new("test2.ntw",1700,20,:filename)
     @items << TextField.new("X",1700,100,:nodename)
@@ -176,9 +215,35 @@ class State
     return @items.detect { |f| f.symbol == symbol }
   end
 
+  def showSpanningTree(startNode)
+    puts "Showing Spanning Tree"
+    self.clearAll
+
+    stack = [startNode]
+
+    startNode.visit
+
+    while(!stack.empty?)
+      node = stack.pop
+      node.links.each do |ln|
+        if(!ln.nodes[1].visited)
+          ln.nodes[1].visit
+          ln.visit # visit link A -> B
+          target = ln.nodes[1].getLinkTo(node)
+          if(!target.nil?)
+            target.visit # visit link B -> A
+          end
+          stack.push(ln.nodes[1])
+        end
+      end
+    end
+    return
+  end
+
 
   def showComponents
-    self.clearComp
+    self.clearAll
+
     numVisited = 0
     components = []
     if(@numNodes!=@nodes.size)
@@ -196,8 +261,8 @@ class State
         end
       end
       stack = [startNode]
-      @componentsImages << Text.new(componentIndex, x: startNode.x, y: startNode.y, size: 80, color: 'lime', z: 30)
-      startNode.visited = true
+      @componentsImages << Text.new(componentIndex, x: startNode.x, y: startNode.y, size: 80, color: 'blue', z: 30)
+      startNode.visit
       numVisited += 1
 
       component = [startNode]
@@ -207,9 +272,8 @@ class State
         node = stack.pop
         node.links.each do |ln|
           if(!ln.nodes[1].visited)
-            @componentsImages << Text.new(componentIndex, x: ln.nodes[1].x, y: ln.nodes[1].y, size: 80, color: 'lime', z: 30)
-            ln.nodes[1].visited = true
-            # ln.visited = true
+            @componentsImages << Text.new(componentIndex, x: ln.nodes[1].x, y: ln.nodes[1].y, size: 80, color: 'blue', z: 30)
+            ln.nodes[1].visit
             numVisited += 1
             component << ln.nodes[1]
             stack.push(ln.nodes[1])
@@ -220,10 +284,17 @@ class State
     end
   end
 
-  def clearComp
+  def clearComponents
     @componentsImages.each { |im| im.remove }
     @componentsImages = []
-    @nodes.each { |nd| nd.visited = false }
+  end
+
+  def unvisitNodes
+    @nodes.each { |nd| nd.unvisit }
+  end
+
+  def clearLinks
+    @nodes.each { |nd| nd.links.each { |ln| ln.reset }}
   end
 
   def click(x,y)
@@ -263,11 +334,24 @@ class State
         end
       end
       unless(clickedNode.nil?)
+        self.clearAll
         if(@mode==:depthfirst)
           clickedNode.depthTraverse
         elsif(@mode==:breadthfirst)
           clickedNode.breadthTraverse
         end
+        self.resetMode
+      end
+    elsif(@mode==:spanningtree)
+      clickedNode = nil
+      @nodes.each do |nd|
+        if((x-nd.x)**2 + (y-nd.y)**2 < 40**2)
+          clickedNode = nd
+          break
+        end
+      end
+      unless(clickedNode.nil?)
+        self.showSpanningTree(clickedNode)
         self.resetMode
       end
     else
@@ -280,7 +364,7 @@ class State
         end
       end
       unless(option.nil?)
-        if([:new,:oneway,:twoway, :filename,:cost,:capacity,:nodename,:depthfirst,:breadthfirst].include?(option))
+        if([:new,:oneway,:twoway, :filename,:cost,:capacity,:nodename,:depthfirst,:breadthfirst,:spanningtree].include?(option))
           @mode = option
         elsif(option==:save)
           self.save
@@ -288,9 +372,11 @@ class State
           self.load
         elsif(option==:components)
           self.showComponents
-        elsif(option==:cleartrav)
-          Node.clearTrav
-          self.clearComp
+        elsif(option==:clearall)
+          Node.clearTraversals
+          self.clearComponents
+          self.clearLinks
+          self.unvisitNodes
         end
       end
     end
@@ -361,7 +447,14 @@ class State
     @temp = []
     @mode = :normal
     @items.each { | btn | btn.reset }
-    @nodes.each { |nd| nd.visited = false }
+    @nodes.each { |nd| nd.unvisit }
+  end
+
+  def clearAll
+    Node.clearTraversals
+    self.clearComponents
+    self.unvisitNodes
+    self.clearLinks
   end
 
 end
