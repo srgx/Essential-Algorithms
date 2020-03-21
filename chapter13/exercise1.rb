@@ -175,7 +175,7 @@ class Button
   end
 
   def click
-    if([:new,:add,:oneway,:twoway,:depthfirst,:breadthfirst,:spanningtree].include?(@symbol))
+    if([:new,:add,:oneway,:twoway,:depthfirst,:breadthfirst,:spanningtree,:minspanningtree].include?(@symbol))
       @image.color='green'
     end
     return @symbol
@@ -195,13 +195,15 @@ class State
     @items << Button.new('New Node',20,20,:new)
     @items << Button.new('Load Network',240,20,:load)
     @items << Button.new('Save Network',460,20,:save)
+    @items << Button.new('Clear All',680,20,:clearall)
+    @items << Button.new('Components',900,20,:components)
+    @items << Button.new('Spanning Tree',1120,20,:spanningtree)
+    @items << Button.new('Min Sp Tree',1340,20,:minspanningtree)
+
     @items << Button.new('Add One Way Link',20,100,:oneway)
     @items << Button.new('Add Two Way Link',240,100,:twoway)
     @items << Button.new('Depth First Trav',460,100,:depthfirst)
     @items << Button.new('Breadth First Trav',680,100,:breadthfirst)
-    @items << Button.new('Clear All',900,100,:clearall)
-    @items << Button.new('Components',1120,100,:components)
-    @items << Button.new('Spanning Tree',1340,100,:spanningtree)
 
     @items << TextField.new("test2.ntw",1700,20,:filename)
     @items << TextField.new("X",1700,100,:nodename)
@@ -215,12 +217,55 @@ class State
     return @items.detect { |f| f.symbol == symbol }
   end
 
-  def showSpanningTree(startNode)
-    puts "Showing Spanning Tree"
+  def showMinSpanningTree(startNode)
     self.clearAll
+    startNode.visit
+    candidates = []
+    lastAddedNode = startNode
 
+    lastAddedNode.links.each do |ln|
+      if(!ln.nodes[1].visited) then candidates << ln end
+    end
+
+    while(!candidates.empty?)
+      # find best candidate
+      bestCandidate = candidates[0]
+      for i in 1...candidates.size
+        if(candidates[i].cost < bestCandidate.cost)
+          bestCandidate = candidates[i]
+        end
+      end
+
+      # add new node to spanning tree
+      bestCandidate.visit # visit link
+
+      # visit second link if exists
+      secondLink = bestCandidate.nodes[1].getLinkTo(bestCandidate.nodes[0])
+      if(!secondLink.nil?)
+        secondLink.visit
+      end
+
+      bestCandidate.nodes[1].visit # visit node
+      candidates.delete(bestCandidate)
+      lastAddedNode = bestCandidate.nodes[1]
+
+      # check if old candidates are valid
+      validCandidates = []
+      candidates.each do |cn|
+        if(!cn.nodes[1].visited) then validCandidates << cn end
+      end
+      candidates = validCandidates
+
+      # add links from last node
+      lastAddedNode.links.each do |ln|
+        if(!ln.nodes[1].visited) then candidates << ln end
+      end
+    end
+  end
+
+  def showSpanningTree(startNode)
+    self.clearAll
     stack = [startNode]
-
     startNode.visit
 
     while(!stack.empty?)
@@ -229,9 +274,9 @@ class State
         if(!ln.nodes[1].visited)
           ln.nodes[1].visit
           ln.visit # visit link A -> B
-          target = ln.nodes[1].getLinkTo(node)
-          if(!target.nil?)
-            target.visit # visit link B -> A
+          secondLink = ln.nodes[1].getLinkTo(node)
+          if(!secondLink.nil?)
+            secondLink.visit # visit link B -> A
           end
           stack.push(ln.nodes[1])
         end
@@ -243,7 +288,6 @@ class State
 
   def showComponents
     self.clearAll
-
     numVisited = 0
     components = []
     if(@numNodes!=@nodes.size)
@@ -297,20 +341,34 @@ class State
     @nodes.each { |nd| nd.links.each { |ln| ln.reset }}
   end
 
+  def getNodeAt(x,y)
+    node = nil
+    @nodes.each do |nd|
+      if((x-nd.x)**2 + (y-nd.y)**2 < 40**2)
+        node = nd
+        break
+      end
+    end
+    return node
+  end
+
+  def getItemAt(x,y)
+    item = nil
+    @items.each do |itm|
+      if(x>itm.x&&x<itm.x+200&&y>itm.y&&y<itm.y+50)
+        return itm
+      end
+    end
+  end
+
   def click(x,y)
     if(@mode==:new)
       @nodes << Node.new(self.getTextField(:nodename).text.upcase,x,y)
       @numNodes+=1
+      self.resetItems
       self.resetMode
-      return
     elsif(@mode==:oneway||@mode==:twoway)
-      clickedNode = nil
-      @nodes.each do |nd|
-        if((x-nd.x)**2 + (y-nd.y)**2 < 40**2)
-          clickedNode = nd
-          break
-        end
-      end
+      clickedNode = self.getNodeAt(x,y)
       unless(clickedNode.nil?)
         clickedNode.activate
         @temp << clickedNode
@@ -322,17 +380,13 @@ class State
             @temp[1].links << Link.new(@temp[1],@temp[0],co,cap)
           end
           self.resetMode
+          self.resetItems
+          self.resetPair
         end
       end
       return
     elsif([:depthfirst,:breadthfirst].include?(@mode))
-      clickedNode = nil
-      @nodes.each do |nd|
-        if((x-nd.x)**2 + (y-nd.y)**2 < 40**2)
-          clickedNode = nd
-          break
-        end
-      end
+      clickedNode = self.getNodeAt(x,y)
       unless(clickedNode.nil?)
         self.clearAll
         if(@mode==:depthfirst)
@@ -340,31 +394,28 @@ class State
         elsif(@mode==:breadthfirst)
           clickedNode.breadthTraverse
         end
+        self.resetItems
         self.resetMode
       end
     elsif(@mode==:spanningtree)
-      clickedNode = nil
-      @nodes.each do |nd|
-        if((x-nd.x)**2 + (y-nd.y)**2 < 40**2)
-          clickedNode = nd
-          break
-        end
-      end
+      clickedNode = self.getNodeAt(x,y)
       unless(clickedNode.nil?)
         self.showSpanningTree(clickedNode)
         self.resetMode
+        self.resetItems
+      end
+    elsif(@mode==:minspanningtree)
+      clickedNode = self.getNodeAt(x,y)
+      unless(clickedNode.nil?)
+        self.showMinSpanningTree(clickedNode)
+        self.resetMode
+        self.resetItems
       end
     else
-      option = nil
-      @items.each do |itm|
-        if(x>itm.x&&x<itm.x+200&&y>itm.y&&y<itm.y+50)
-          @items.each {|itm| itm.reset}
-          option = itm.click
-          break
-        end
-      end
+      option = self.getItemAt(x,y).click
+
       unless(option.nil?)
-        if([:new,:oneway,:twoway, :filename,:cost,:capacity,:nodename,:depthfirst,:breadthfirst,:spanningtree].include?(option))
+        if([:new,:oneway,:twoway, :filename,:cost,:capacity,:nodename,:depthfirst,:breadthfirst,:spanningtree,:minspanningtree].include?(option))
           @mode = option
         elsif(option==:save)
           self.save
@@ -373,10 +424,7 @@ class State
         elsif(option==:components)
           self.showComponents
         elsif(option==:clearall)
-          Node.clearTraversals
-          self.clearComponents
-          self.clearLinks
-          self.unvisitNodes
+          self.clearAll
         end
       end
     end
@@ -442,12 +490,18 @@ class State
     end
   end
 
-  def resetMode
-    @temp.each { |t| t.deactivate }
+
+  def resetPair
+    @temp.each { |t| t.deactivate } # 2 selected nodes
     @temp = []
+  end
+
+  def resetMode
     @mode = :normal
-    @items.each { | btn | btn.reset }
-    @nodes.each { |nd| nd.unvisit }
+  end
+
+  def resetItems
+    @items.each { | itm | itm.reset } # buttons and textfields
   end
 
   def clearAll
@@ -469,6 +523,8 @@ on :mouse_down do |event|
     #
   when :right
     state.resetMode
+    state.resetItems
+    state.resetPair
   end
 end
 
