@@ -12,7 +12,7 @@ set viewport_height: 1080
 
 class Node
   attr_reader :name, :x, :y, :links, :fromNode
-  attr_accessor :visited, :color
+  attr_accessor :visited, :color, :distance
   @@traversal = []
   def initialize(name,x,y)
     @visited = false
@@ -181,12 +181,12 @@ class Button
   def initialize(text,x,y,symbol)
       @symbol = symbol
       @text, @x, @y, @color = text, x, y, 'red'
-      @image = Rectangle.new(x: @x, y: @y,width: 200, height: 50, color: @color, z: 10)
+      @image = Rectangle.new(x: @x, y: @y,width: 200, height: 30, color: @color, z: 10)
       Text.new(@text, x: @x, y: @y, size: 20, color: 'blue', z: 10)
   end
 
   def click
-    if([:new,:add,:oneway,:twoway,:depthfirst,:breadthfirst,:spanningtree,:minspanningtree,:path].include?(@symbol))
+    if([:new,:add,:oneway,:twoway,:depthfirst,:breadthfirst,:spanningtree,:minspanningtree,:path,:labsetpath,:labcorpath,:labsettree,:labcortree].include?(@symbol))
       @image.color='green'
     end
     return @symbol
@@ -211,11 +211,16 @@ class State
     @items << Button.new('Spanning Tree',1120,20,:spanningtree)
     @items << Button.new('Min Sp Tree',1340,20,:minspanningtree)
 
-    @items << Button.new('Add One Way Link',20,100,:oneway)
-    @items << Button.new('Add Two Way Link',240,100,:twoway)
-    @items << Button.new('Depth First Trav',460,100,:depthfirst)
-    @items << Button.new('Breadth First Trav',680,100,:breadthfirst)
-    @items << Button.new('Show Path',900,100,:path)
+    @items << Button.new('Add One Way Link',20,60,:oneway)
+    @items << Button.new('Add Two Way Link',240,60,:twoway)
+    @items << Button.new('Depth First Trav',460,60,:depthfirst)
+    @items << Button.new('Breadth First Trav',680,60,:breadthfirst)
+    @items << Button.new('Show Path',900,60,:path)
+    @items << Button.new('LabSet Path',1120,60,:labsetpath)
+    @items << Button.new('LabCor Path',1340,60,:labcorpath)
+
+    @items << Button.new('LabSet Tree',20,100,:labsettree)
+    @items << Button.new('LabCor Tree',240,100,:labcortree)
 
     @items << TextField.new("test2.ntw",1700,20,:filename)
     @items << TextField.new("X",1700,100,:nodename)
@@ -260,12 +265,8 @@ class State
       candidates.delete(bestCandidate)
       lastAddedNode = bestCandidate.nodes[1]
 
-      # check if old candidates are valid
-      validCandidates = []
-      candidates.each do |cn|
-        if(!cn.nodes[1].visited) then validCandidates << cn end
-      end
-      candidates = validCandidates
+      # delete visited candidates
+      candidates.select! { |cn| !cn.nodes[1].visited }
 
       # add links from last node
       lastAddedNode.links.each do |ln|
@@ -288,10 +289,10 @@ class State
       node = stack.pop
       node.links.each do |ln|
         if(!ln.nodes[1].visited)
-          ln.nodes[1].visit
           ln.visit # visit link A -> B
           secondLink = ln.nodes[1].getLinkTo(node)
           secondLink&.visit # visit link B -> A
+          ln.nodes[1].visit
           stack.push(ln.nodes[1])
         end
       end
@@ -319,19 +320,10 @@ class State
     end
 
     # collect links from A to B in reverse order
-    currentNode = toNode
-    pathLinks = []
-    while(currentNode!=fromNode&&!currentNode.fromNode.nil?)
-      pathLinks << currentNode.fromNode.getLinkTo(currentNode)
-      currentNode = currentNode.fromNode
-    end
+    pathLinks = collectLinks(fromNode,toNode)
 
-    # mark collected links in both ways
-    pathLinks.each do |pl|
-      secondLink = pl.nodes[1].getLinkTo(pl.nodes[0])
-      pl.visit
-      secondLink&.visit
-    end
+    # draw collected links
+    self.drawPath(pathLinks)
 
     # mark start and end nodes
     fromNode.setColor('yellow')
@@ -342,16 +334,133 @@ class State
     self.resetItems
   end
 
+  def labSetTree(rootNode)
+    self.clearAll
+    rootNode.visit
+    rootNode.setColor('yellow')
+    rootNode.distance = 0
+    candidates = []
+    lastAddedNode = rootNode
+
+    lastAddedNode.links.each do |ln|
+      if(!ln.nodes[1].visited) then candidates << ln end
+    end
+
+    while(!candidates.empty?)
+      # find best candidate
+      bestCandidate = candidates[0]
+      for i in 1...candidates.size
+        if(candidates[i].nodes[0].distance + candidates[i].cost < bestCandidate.nodes[0].distance + bestCandidate.cost)
+          bestCandidate = candidates[i]
+        end
+      end
+
+      # visit both links
+      bestCandidate.visit
+      secondLink = bestCandidate.nodes[1].getLinkTo(bestCandidate.nodes[0])
+      secondLink&.visit
+
+      # visit node
+      lastAddedNode = self.visitNodeFrom(bestCandidate)
+      candidates.delete(bestCandidate)
+
+      # delete visited candidates
+      candidates.select! { |cn| !cn.nodes[1].visited }
+
+      # add links from last node
+      lastAddedNode.links.each do |ln|
+        if(!ln.nodes[1].visited) then candidates << ln end
+      end
+    end
+
+    # reset mode, buttons, textfields
+    self.resetMode
+    self.resetItems
+  end
+
+
+  def labSetPath(fromNode,toNode)
+    self.clearAll
+    fromNode.visit
+    fromNode.distance = 0
+    candidates = []
+    lastAddedNode = fromNode
+
+    lastAddedNode.links.each do |ln|
+      if(!ln.nodes[1].visited) then candidates << ln end
+    end
+
+    while(!candidates.empty?)
+      # find best candidate
+      bestCandidate = candidates[0]
+      for i in 1...candidates.size
+        if(candidates[i].nodes[0].distance + candidates[i].cost < bestCandidate.nodes[0].distance + bestCandidate.cost)
+          bestCandidate = candidates[i]
+        end
+      end
+
+      # visit node
+      lastAddedNode = self.visitNodeFrom(bestCandidate)
+      candidates.delete(bestCandidate)
+
+      # delete visited candidates
+      candidates.select! { |cn| !cn.nodes[1].visited }
+
+      # add links from last node
+      lastAddedNode.links.each do |ln|
+        if(!ln.nodes[1].visited) then candidates << ln end
+      end
+    end
+
+    # collect links from A to B in reverse order
+    pathLinks = collectLinks(fromNode,toNode)
+
+    # draw collected links
+    self.drawPath(pathLinks)
+
+    # mark start and end nodes
+    fromNode.setColor('yellow')
+    toNode.setColor('yellow')
+
+    # reset mode, buttons, textfields
+    self.resetMode
+    self.resetItems
+  end
+
+  def visitNodeFrom(link)
+    link.nodes[1].visitFrom(link.nodes[0])
+    link.nodes[1].distance = link.nodes[0].distance + link.cost
+    return link.nodes[1]
+  end
+
+  def collectLinks(fromNode,toNode)
+    currentNode = toNode
+    pathLinks = []
+    while(currentNode!=fromNode&&!currentNode.fromNode.nil?)
+      pathLinks << currentNode.fromNode.getLinkTo(currentNode)
+      currentNode = currentNode.fromNode
+    end
+    return pathLinks
+  end
+
+  def drawPath(pathLinks)
+    pathLinks.each do |pl|
+      secondLink = pl.nodes[1].getLinkTo(pl.nodes[0])
+      pl.visit
+      secondLink&.visit
+    end
+  end
+
 
   def showComponents
     self.clearAll
     numVisited = 0
     components = []
-    # if(@numNodes!=@nodes.size)
-    #   puts "W klasie: #{@numNodes}"
-    #   puts "Naprawde: #{@nodes.size}"
-    #   raise "Error"
-    # end
+    if(@numNodes!=@nodes.size)
+      puts "W klasie: #{@numNodes}"
+      puts "Naprawde: #{@nodes.size}"
+      raise "Error"
+    end
     componentIndex = 1
     while(numVisited < @numNodes)
       startNode = nil
@@ -469,10 +578,26 @@ class State
           self.showPath(@temp[0],@temp[1])
         end
       end
+    elsif(@mode==:labsetpath)
+      clickedNode = self.getNodeAt(x,y)
+      unless(clickedNode.nil?)
+        clickedNode.activate
+        @temp << clickedNode
+        if(@temp.size==2)
+          self.labSetPath(@temp[0],@temp[1])
+        end
+      end
+    elsif(@mode==:labcorpath)
+      puts "Labcorrecting"
+    elsif(@mode==:labsettree)
+      clickedNode = self.getNodeAt(x,y)
+      unless(clickedNode.nil?)
+        self.labSetTree(clickedNode)
+      end
     else
       option = self.getItemAt(x,y)&.click
       unless(option.nil?)
-        if([:new,:oneway,:twoway, :filename,:cost,:capacity,:nodename,:depthfirst,:breadthfirst,:spanningtree,:minspanningtree,:path].include?(option))
+        if([:new,:oneway,:twoway, :filename,:cost,:capacity,:nodename,:depthfirst,:breadthfirst,:spanningtree,:minspanningtree,:path,:labsetpath,:labcorpath,:labsettree,:labcortree].include?(option))
           @mode = option
         elsif(option==:save)
           self.save
