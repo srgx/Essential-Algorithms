@@ -11,8 +11,8 @@ set viewport_width: 1920
 set viewport_height: 1080
 
 class Node
-  attr_reader :name, :x, :y, :links
-  attr_accessor :visited
+  attr_reader :name, :x, :y, :links, :fromNode
+  attr_accessor :visited, :color
   @@traversal = []
   def initialize(name,x,y)
     @visited = false
@@ -24,6 +24,10 @@ class Node
   def remove
     [@image,@text].each { |itm| itm.remove }
     @links.each { |lnk| lnk.remove }
+  end
+
+  def setColor(color)
+    @image.color = color
   end
 
   def activate
@@ -80,6 +84,7 @@ class Node
 
   def reset
     self.unvisit
+    self.deactivate
     @links.each { |ln| ln.reset }
   end
 
@@ -87,14 +92,20 @@ class Node
     @visited = true
   end
 
+  def visitFrom(node)
+    self.visit
+    @fromNode = node
+  end
+
   def unvisit
     @visited = false
+    @fromNode = nil
   end
 
 end
 
 class Link
-  attr_reader :cost, :capacity, :nodes
+  attr_reader :cost, :capacity, :nodes, :visited
   def initialize(startNode,targetNode,cost,capacity)
     @nodes = Array.new(2)
     @nodes[0], @nodes[1] = startNode, targetNode
@@ -175,7 +186,7 @@ class Button
   end
 
   def click
-    if([:new,:add,:oneway,:twoway,:depthfirst,:breadthfirst,:spanningtree,:minspanningtree].include?(@symbol))
+    if([:new,:add,:oneway,:twoway,:depthfirst,:breadthfirst,:spanningtree,:minspanningtree,:path].include?(@symbol))
       @image.color='green'
     end
     return @symbol
@@ -204,6 +215,7 @@ class State
     @items << Button.new('Add Two Way Link',240,100,:twoway)
     @items << Button.new('Depth First Trav',460,100,:depthfirst)
     @items << Button.new('Breadth First Trav',680,100,:breadthfirst)
+    @items << Button.new('Show Path',900,100,:path)
 
     @items << TextField.new("test2.ntw",1700,20,:filename)
     @items << TextField.new("X",1700,100,:nodename)
@@ -220,6 +232,7 @@ class State
   def showMinSpanningTree(startNode)
     self.clearAll
     startNode.visit
+    startNode.setColor('yellow')
     candidates = []
     lastAddedNode = startNode
 
@@ -241,9 +254,7 @@ class State
 
       # visit second link if exists
       secondLink = bestCandidate.nodes[1].getLinkTo(bestCandidate.nodes[0])
-      if(!secondLink.nil?)
-        secondLink.visit
-      end
+      secondLink&.visit
 
       bestCandidate.nodes[1].visit # visit node
       candidates.delete(bestCandidate)
@@ -261,12 +272,17 @@ class State
         if(!ln.nodes[1].visited) then candidates << ln end
       end
     end
+
+    # reset mode, buttons, textfields
+    self.resetMode
+    self.resetItems
   end
 
   def showSpanningTree(startNode)
     self.clearAll
     stack = [startNode]
     startNode.visit
+    startNode.setColor('yellow')
 
     while(!stack.empty?)
       node = stack.pop
@@ -275,14 +291,55 @@ class State
           ln.nodes[1].visit
           ln.visit # visit link A -> B
           secondLink = ln.nodes[1].getLinkTo(node)
-          if(!secondLink.nil?)
-            secondLink.visit # visit link B -> A
-          end
+          secondLink&.visit # visit link B -> A
           stack.push(ln.nodes[1])
         end
       end
     end
-    return
+
+    # reset mode, buttons, textfields
+    self.resetMode
+    self.resetItems
+  end
+
+  def showPath(fromNode,toNode)
+    self.clearAll
+    stack = [fromNode]
+    fromNode.visit
+
+    # create spanning tree without marking links(visit only nodes)
+    while(!stack.empty?)
+      node = stack.pop
+      node.links.each do |ln|
+        if(!ln.nodes[1].visited)
+          ln.nodes[1].visitFrom(node)
+          stack.push(ln.nodes[1])
+        end
+      end
+    end
+
+    # collect links from A to B in reverse order
+    currentNode = toNode
+    pathLinks = []
+    while(currentNode!=fromNode&&!currentNode.fromNode.nil?)
+      pathLinks << currentNode.fromNode.getLinkTo(currentNode)
+      currentNode = currentNode.fromNode
+    end
+
+    # mark collected links in both ways
+    pathLinks.each do |pl|
+      secondLink = pl.nodes[1].getLinkTo(pl.nodes[0])
+      pl.visit
+      secondLink&.visit
+    end
+
+    # mark start and end nodes
+    fromNode.setColor('yellow')
+    toNode.setColor('yellow')
+
+    # reset mode, buttons, textfields
+    self.resetMode
+    self.resetItems
   end
 
 
@@ -290,11 +347,11 @@ class State
     self.clearAll
     numVisited = 0
     components = []
-    if(@numNodes!=@nodes.size)
-      puts "W klasie: #{@numNodes}"
-      puts "Naprawde: #{@nodes.size}"
-      raise "Error"
-    end
+    # if(@numNodes!=@nodes.size)
+    #   puts "W klasie: #{@numNodes}"
+    #   puts "Naprawde: #{@nodes.size}"
+    #   raise "Error"
+    # end
     componentIndex = 1
     while(numVisited < @numNodes)
       startNode = nil
@@ -333,14 +390,6 @@ class State
     @componentsImages = []
   end
 
-  def unvisitNodes
-    @nodes.each { |nd| nd.unvisit }
-  end
-
-  def clearLinks
-    @nodes.each { |nd| nd.links.each { |ln| ln.reset }}
-  end
-
   def getNodeAt(x,y)
     node = nil
     @nodes.each do |nd|
@@ -356,9 +405,24 @@ class State
     item = nil
     @items.each do |itm|
       if(x>itm.x&&x<itm.x+200&&y>itm.y&&y<itm.y+50)
-        return itm
+        self.resetItems
+        item = itm
+        break
       end
     end
+    return item
+  end
+
+  def addLink
+    co = self.getTextField(:cost).text.to_i
+    cap = self.getTextField(:capacity).text.to_i
+    @temp[0].links << Link.new(@temp[0],@temp[1],co,cap)
+    if(@mode==:twoway)
+      @temp[1].links << Link.new(@temp[1],@temp[0],co,cap)
+    end
+    self.resetMode
+    self.resetItems
+    self.resetTemp
   end
 
   def click(x,y)
@@ -372,19 +436,8 @@ class State
       unless(clickedNode.nil?)
         clickedNode.activate
         @temp << clickedNode
-        if(@temp.size==2)
-          co = self.getTextField(:cost).text.to_i
-          cap = self.getTextField(:capacity).text.to_i
-          @temp[0].links << Link.new(@temp[0],@temp[1],co,cap)
-          if(@mode==:twoway)
-            @temp[1].links << Link.new(@temp[1],@temp[0],co,cap)
-          end
-          self.resetMode
-          self.resetItems
-          self.resetPair
-        end
+        self.addLink if (@temp.size==2)
       end
-      return
     elsif([:depthfirst,:breadthfirst].include?(@mode))
       clickedNode = self.getNodeAt(x,y)
       unless(clickedNode.nil?)
@@ -394,28 +447,32 @@ class State
         elsif(@mode==:breadthfirst)
           clickedNode.breadthTraverse
         end
-        self.resetItems
         self.resetMode
+        self.resetItems
       end
     elsif(@mode==:spanningtree)
       clickedNode = self.getNodeAt(x,y)
       unless(clickedNode.nil?)
         self.showSpanningTree(clickedNode)
-        self.resetMode
-        self.resetItems
       end
     elsif(@mode==:minspanningtree)
       clickedNode = self.getNodeAt(x,y)
       unless(clickedNode.nil?)
         self.showMinSpanningTree(clickedNode)
-        self.resetMode
-        self.resetItems
+      end
+    elsif(@mode==:path)
+      clickedNode = self.getNodeAt(x,y)
+      unless(clickedNode.nil?)
+        clickedNode.activate
+        @temp << clickedNode
+        if(@temp.size==2)
+          self.showPath(@temp[0],@temp[1])
+        end
       end
     else
-      option = self.getItemAt(x,y).click
-
+      option = self.getItemAt(x,y)&.click
       unless(option.nil?)
-        if([:new,:oneway,:twoway, :filename,:cost,:capacity,:nodename,:depthfirst,:breadthfirst,:spanningtree,:minspanningtree].include?(option))
+        if([:new,:oneway,:twoway, :filename,:cost,:capacity,:nodename,:depthfirst,:breadthfirst,:spanningtree,:minspanningtree,:path].include?(option))
           @mode = option
         elsif(option==:save)
           self.save
@@ -491,7 +548,7 @@ class State
   end
 
 
-  def resetPair
+  def resetTemp
     @temp.each { |t| t.deactivate } # 2 selected nodes
     @temp = []
   end
@@ -504,11 +561,15 @@ class State
     @items.each { | itm | itm.reset } # buttons and textfields
   end
 
+  def resetNetwork
+    @nodes.each { |nd| nd.reset }
+  end
+
   def clearAll
-    Node.clearTraversals
-    self.clearComponents
-    self.unvisitNodes
-    self.clearLinks
+    Node.clearTraversals # remove traversal labels
+    self.clearComponents # remove component labels
+    self.resetNetwork # reset nodes and links
+    self.resetTemp # deactivate and remove nodes from temp array
   end
 
 end
@@ -524,7 +585,7 @@ on :mouse_down do |event|
   when :right
     state.resetMode
     state.resetItems
-    state.resetPair
+    state.resetTemp
   end
 end
 
