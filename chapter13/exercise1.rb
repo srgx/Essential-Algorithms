@@ -11,13 +11,13 @@ set viewport_width: 1920
 set viewport_height: 1080
 
 class Node
-  attr_reader :name, :x, :y, :links, :fromNode
-  attr_accessor :visited, :color, :distance
+  attr_reader :name, :x, :y, :links, :fromNode, :color
+  attr_accessor :visited, :distance, :fromLink
   @@traversal = []
   def initialize(name,x,y)
     @visited = false
     @name, @x, @y, @links = name, x, y, []
-    @image = Circle.new(x: @x, y: @y, radius: 40, sectors: 32, color: 'fuchsia', z: 8)
+    @image = Circle.new(x: @x, y: @y, radius: 30, sectors: 32, color: 'fuchsia', z: 8)
     @text = Text.new(@name, x: @x, y: @y, size: 20, color: 'blue', z: 10)
   end
 
@@ -83,9 +83,10 @@ class Node
   end
 
   def reset
-    self.unvisit
+    @visited = false
+    @fromNode = @fromLink = @distance = nil
     self.deactivate
-    @links.each { |ln| ln.reset }
+    @links.each { |ln| ln.unvisit }
   end
 
   def visit
@@ -96,12 +97,6 @@ class Node
     self.visit
     @fromNode = node
   end
-
-  def unvisit
-    @visited = false
-    @fromNode = nil
-  end
-
 end
 
 class Link
@@ -113,14 +108,13 @@ class Link
     @image = Line.new(
       x1: @nodes[0].x, y1: @nodes[0].y,
       x2: @nodes[1].x, y2: @nodes[1].y,
-      width: 5, color: 'lime', z: 8
+      width: 10, color: 'brown', z: 1
     )
 
     midX = (@image.x1 + @image.x2)/2.0
     midY = (@image.y1 + @image.y2)/2.0
     midX = (@image.x1 + midX)/2.0
     midY = (@image.y1 + midY)/2.0
-
 
     @text = Text.new(@cost, x: midX, y: midY, size: 20, color: 'blue', z: 10)
   end
@@ -132,16 +126,12 @@ class Link
 
   def visit
     @visited = true
-    @image.color = 'black'
+    @image.color = 'lime'
   end
 
   def unvisit
     @visited = false
-    @image.color = 'lime'
-  end
-
-  def reset
-    self.unvisit
+    @image.color = 'black'
   end
 end
 
@@ -237,7 +227,7 @@ class State
   def showMinSpanningTree(startNode)
     self.clearAll
     startNode.visit
-    startNode.setColor('yellow')
+    startNode.setColor('brown')
     candidates = []
     lastAddedNode = startNode
 
@@ -283,7 +273,7 @@ class State
     self.clearAll
     stack = [startNode]
     startNode.visit
-    startNode.setColor('yellow')
+    startNode.setColor('brown')
 
     while(!stack.empty?)
       node = stack.pop
@@ -326,8 +316,60 @@ class State
     self.drawPath(pathLinks)
 
     # mark start and end nodes
-    fromNode.setColor('yellow')
-    toNode.setColor('yellow')
+    fromNode.setColor('brown')
+    toNode.setColor('brown')
+
+    # reset mode, buttons, textfields
+    self.resetMode
+    self.resetItems
+  end
+
+  def labCorTree(rootNode)
+    self.clearAll
+    rootNode.visit
+    rootNode.setColor('brown')
+    rootNode.distance = 0
+    candidates = []
+    lastAddedNode = rootNode
+
+    # add all links from root to candidates
+    lastAddedNode.links.each { |ln| candidates << ln }
+
+    while(!candidates.empty?)
+      cand = candidates[0]
+
+      # calculate first link total distance
+      dist = cand.nodes[0].distance + cand.cost
+
+      # add node if new distance is better than previous or nil
+      if(cand.nodes[1].distance.nil? || dist < cand.nodes[1].distance)
+
+        # unmark old link to B(both ways)
+        oldLink = cand.nodes[1].fromLink # from X to old
+        unless(oldLink.nil?)
+          secondOld = oldLink.nodes[1].getLinkTo(oldLink.nodes[0]) # from old to X
+          secondOld&.unvisit
+          oldLink.unvisit
+        end
+
+        # visit new link(both ways)
+        cand.visit # A -> B
+        secondLink = cand.nodes[1].getLinkTo(cand.nodes[0])
+        secondLink&.visit # B -> A
+
+        lastNode = cand.nodes[1]
+
+        # set target node fromLink
+        lastNode.fromLink = cand
+
+        # set target node new distance
+        lastNode.distance = dist
+
+        # add all links from new node to candidates
+        lastNode.links.each { |ln| candidates << ln}
+      end
+      candidates.delete(cand)
+    end
 
     # reset mode, buttons, textfields
     self.resetMode
@@ -337,13 +379,19 @@ class State
   def labSetTree(rootNode)
     self.clearAll
     rootNode.visit
-    rootNode.setColor('yellow')
+    rootNode.setColor('brown')
     rootNode.distance = 0
     candidates = []
     lastAddedNode = rootNode
 
     lastAddedNode.links.each do |ln|
       if(!ln.nodes[1].visited) then candidates << ln end
+    end
+
+    candidates.each do |cn|
+      unless(cn.nodes[1].distance.nil?)
+        raise "Serena"
+      end
     end
 
     while(!candidates.empty?)
@@ -372,6 +420,7 @@ class State
         if(!ln.nodes[1].visited) then candidates << ln end
       end
     end
+
 
     # reset mode, buttons, textfields
     self.resetMode
@@ -419,8 +468,8 @@ class State
     self.drawPath(pathLinks)
 
     # mark start and end nodes
-    fromNode.setColor('yellow')
-    toNode.setColor('yellow')
+    fromNode.setColor('brown')
+    toNode.setColor('brown')
 
     # reset mode, buttons, textfields
     self.resetMode
@@ -588,11 +637,16 @@ class State
         end
       end
     elsif(@mode==:labcorpath)
-      puts "Labcorrecting"
+      puts "LabCor Path"
     elsif(@mode==:labsettree)
       clickedNode = self.getNodeAt(x,y)
       unless(clickedNode.nil?)
         self.labSetTree(clickedNode)
+      end
+    elsif(@mode==:labcortree)
+      clickedNode = self.getNodeAt(x,y)
+      unless(clickedNode.nil?)
+        self.labCorTree(clickedNode)
       end
     else
       option = self.getItemAt(x,y)&.click
