@@ -212,7 +212,7 @@ class State
     @items << Button.new('LabSet Tree',20,100,:labsettree)
     @items << Button.new('LabCor Tree',240,100,:labcortree)
 
-    @items << TextField.new("test2.ntw",1700,20,:filename)
+    @items << TextField.new("test3.ntw",1700,20,:filename)
     @items << TextField.new("X",1700,100,:nodename)
     @items << TextField.new("0",1700,180,:cost)
     @items << TextField.new("0",1700,260,:capacity)
@@ -228,14 +228,11 @@ class State
     self.clearAll
     startNode.visit
     startNode.setColor('brown')
-    candidates = []
-    lastAddedNode = startNode
-
-    lastAddedNode.links.each do |ln|
-      if(!ln.nodes[1].visited) then candidates << ln end
-    end
+    candidates, lastAddedNode = [], startNode
+    lastAddedNode.links.each { |ln| candidates << ln}
 
     while(!candidates.empty?)
+
       # find best candidate
       bestCandidate = candidates[0]
       for i in 1...candidates.size
@@ -324,51 +321,88 @@ class State
     self.resetItems
   end
 
+  def labCorPath(fromNode,toNode)
+    self.clearAll
+    fromNode.distance = 0
+    candidates, lastAddedNode = [], fromNode
+    lastAddedNode.links.each { |ln| candidates << ln }
+
+    while(!candidates.empty?)
+
+      # select first candidate
+      cand = candidates.shift
+
+      # calculate first link total distance
+      dist = cand.nodes[0].distance + cand.cost
+
+      # add node if new distance is better than previous or if previous is nil
+      newNode = cand.nodes[1]
+      if(newNode.distance.nil? || dist < newNode.distance)
+        newNode.fromLink, newNode.distance = cand, dist
+        newNode.links.each { |ln| candidates << ln}
+      end
+    end
+
+    # collect path links
+    currentNode, pathLinks = toNode, []
+    while(currentNode!=fromNode&&!currentNode.fromLink.nil?)
+      pathLinks << currentNode.fromLink
+      currentNode = currentNode.fromLink.nodes[0]
+    end
+
+    # draw path from collected links
+    self.drawPath(pathLinks)
+
+    # mark start and end nodes
+    fromNode.setColor('brown')
+    toNode.setColor('brown')
+
+    # reset mode, buttons, textfields
+    self.resetMode
+    self.resetItems
+  end
+
   def labCorTree(rootNode)
     self.clearAll
-    rootNode.visit
     rootNode.setColor('brown')
     rootNode.distance = 0
-    candidates = []
-    lastAddedNode = rootNode
+    candidates, lastAddedNode = [], rootNode
 
     # add all links from root to candidates
     lastAddedNode.links.each { |ln| candidates << ln }
 
     while(!candidates.empty?)
-      cand = candidates[0]
+      cand = candidates.shift
 
       # calculate first link total distance
       dist = cand.nodes[0].distance + cand.cost
 
       # add node if new distance is better than previous or nil
-      if(cand.nodes[1].distance.nil? || dist < cand.nodes[1].distance)
+      newNode = cand.nodes[1]
+      if(newNode.distance.nil? || dist < newNode.distance)
 
         # unmark old link to B(both ways)
-        oldLink = cand.nodes[1].fromLink # from X to old
+        oldLink = newNode.fromLink # from X to B
         unless(oldLink.nil?)
-          secondOld = oldLink.nodes[1].getLinkTo(oldLink.nodes[0]) # from old to X
+          secondOld = newNode.getLinkTo(oldLink.nodes[0]) # from B to X
           secondOld&.unvisit
           oldLink.unvisit
         end
 
         # visit new link(both ways)
         cand.visit # A -> B
-        secondLink = cand.nodes[1].getLinkTo(cand.nodes[0])
+        secondLink = newNode.getLinkTo(cand.nodes[0])
         secondLink&.visit # B -> A
 
-        lastNode = cand.nodes[1]
-
         # set target node fromLink
-        lastNode.fromLink = cand
+        newNode.fromLink = cand
 
         # set target node new distance
-        lastNode.distance = dist
+        newNode.distance = dist
 
         # add all links from new node to candidates
-        lastNode.links.each { |ln| candidates << ln}
+        newNode.links.each { |ln| candidates << ln}
       end
-      candidates.delete(cand)
     end
 
     # reset mode, buttons, textfields
@@ -381,18 +415,9 @@ class State
     rootNode.visit
     rootNode.setColor('brown')
     rootNode.distance = 0
-    candidates = []
-    lastAddedNode = rootNode
+    candidates, lastAddedNode = [], rootNode
 
-    lastAddedNode.links.each do |ln|
-      if(!ln.nodes[1].visited) then candidates << ln end
-    end
-
-    candidates.each do |cn|
-      unless(cn.nodes[1].distance.nil?)
-        raise "Serena"
-      end
-    end
+    lastAddedNode.links.each { |ln| candidates << ln }
 
     while(!candidates.empty?)
       # find best candidate
@@ -421,7 +446,6 @@ class State
       end
     end
 
-
     # reset mode, buttons, textfields
     self.resetMode
     self.resetItems
@@ -432,12 +456,9 @@ class State
     self.clearAll
     fromNode.visit
     fromNode.distance = 0
-    candidates = []
-    lastAddedNode = fromNode
+    candidates, lastAddedNode = [], fromNode
 
-    lastAddedNode.links.each do |ln|
-      if(!ln.nodes[1].visited) then candidates << ln end
-    end
+    lastAddedNode.links.each { |ln| candidates << ln }
 
     while(!candidates.empty?)
       # find best candidate
@@ -503,14 +524,7 @@ class State
 
   def showComponents
     self.clearAll
-    numVisited = 0
-    components = []
-    if(@numNodes!=@nodes.size)
-      puts "W klasie: #{@numNodes}"
-      puts "Naprawde: #{@nodes.size}"
-      raise "Error"
-    end
-    componentIndex = 1
+    numVisited, components, componentIndex = 0, [], 1
     while(numVisited < @numNodes)
       startNode = nil
       @nodes.each do |nd|
@@ -637,7 +651,14 @@ class State
         end
       end
     elsif(@mode==:labcorpath)
-      puts "LabCor Path"
+      clickedNode = self.getNodeAt(x,y)
+      unless(clickedNode.nil?)
+        clickedNode.activate
+        @temp << clickedNode
+        if(@temp.size==2)
+          self.labCorPath(@temp[0],@temp[1])
+        end
+      end
     elsif(@mode==:labsettree)
       clickedNode = self.getNodeAt(x,y)
       unless(clickedNode.nil?)
