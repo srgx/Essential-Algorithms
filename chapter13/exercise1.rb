@@ -176,7 +176,7 @@ class Button
   end
 
   def click
-    if([:new,:add,:oneway,:twoway,:depthfirst,:breadthfirst,:spanningtree,:minspanningtree,:path,:labsetpath,:labcorpath,:labsettree,:labcortree].include?(@symbol))
+    if([:new,:oneway,:twoway,:depthfirst,:breadthfirst,:spanningtree,:minspanningtree,:path,:labsetpath,:labcorpath,:labsettree,:labcortree].include?(@symbol))
       @image.color='green'
     end
     return @symbol
@@ -211,8 +211,9 @@ class State
 
     @items << Button.new('LabSet Tree',20,100,:labsettree)
     @items << Button.new('LabCor Tree',240,100,:labcortree)
+    @items << Button.new('All Paths',460,100,:allpaths)
 
-    @items << TextField.new("test3.ntw",1700,20,:filename)
+    @items << TextField.new("test4.ntw",1700,20,:filename)
     @items << TextField.new("X",1700,100,:nodename)
     @items << TextField.new("0",1700,180,:cost)
     @items << TextField.new("0",1700,260,:capacity)
@@ -222,6 +223,63 @@ class State
 
   def getTextField(symbol)
     return @items.detect { |f| f.symbol == symbol }
+  end
+
+  def allPaths
+    puts 'Showing All Paths...'
+    distances = []
+
+    # fill diagonal
+    for i in 0...@numNodes
+      row = []
+      for j in 0...@numNodes
+        row << (i==j ? 0 : Float::INFINITY)
+      end
+      distances << row
+    end
+
+    # fill distances to closest vertices
+    for i in 0...@numNodes
+      @nodes[i].links.each do |ln|
+        index = @nodes.index(ln.nodes[1])
+        distances[i][index] = ln.cost
+      end
+    end
+
+    via = []
+
+    # obvious best via vertices
+    for i in 0...@numNodes
+      row = []
+      for j in 0...@numNodes
+        row << (distances[i][j] < Float::INFINITY ? j : -1)
+      end
+      via << row
+    end
+
+    distances.each { |r| p r }
+    puts "-------------------------"
+    via.each { |v| p v}
+
+
+    # find improvements
+    for viaNode in 0...@numNodes
+      for fromNode in 0...@numNodes
+        for toNode in 0...@numNodes
+          newDist = distances[fromNode][viaNode] + distances[viaNode][toNode]
+          if(newDist < distances[fromNode][toNode])
+            distances[fromNode][toNode] = newDist
+            via[fromNode][toNode] = viaNode
+          end
+        end
+      end
+    end
+
+
+    puts "-------------------------"
+    distances.each { |r| p r }
+    puts "-------------------------"
+    via.each { |v| p v}
   end
 
   def showMinSpanningTree(startNode)
@@ -680,6 +738,8 @@ class State
           self.load
         elsif(option==:components)
           self.showComponents
+        elsif(option==:allpaths)
+          self.allPaths
         elsif(option==:clearall)
           self.clearAll
         end
