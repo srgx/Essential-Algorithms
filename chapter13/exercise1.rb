@@ -257,11 +257,6 @@ class State
       via << row
     end
 
-    distances.each { |r| p r }
-    puts "-------------------------"
-    via.each { |v| p v}
-
-
     # find improvements
     for viaNode in 0...@numNodes
       for fromNode in 0...@numNodes
@@ -275,11 +270,53 @@ class State
       end
     end
 
+    # log nodes and via distance arrays
+    fileContent = "Nodes\n"
+    for i in 0...@numNodes
+      fileContent += @nodes[i].name + " #{i}\n"
+    end
+    fileContent += "\nDistances\n"
+    distances.each do |row|
+      for i in 0...@numNodes
+        fileContent += row[i].to_s
+        unless(i==@numNodes-1)
+          fileContent += " "
+        end
+      end
+      fileContent += "\n"
+    end
+    fileContent += "\nVia\n"
+    via.each do |row|
+      for i in 0...row.size
+        fileContent += row[i].to_s
+        unless(i==row.size-1)
+          fileContent += " "
+        end
+      end
+      fileContent += "\n"
+    end
+    File.write('ViaDistances',fileContent)
 
-    puts "-------------------------"
-    distances.each { |r| p r }
-    puts "-------------------------"
-    via.each { |v| p v}
+    # find final path
+    finalPath = self.findPath(@nodes[2],@nodes[0],via,distances)
+    finalPath.each do |nd|
+      puts nd.name
+    end
+  end
+
+  def findPath(startNode,endNode,via,distances)
+    if(distances[@nodes.index(startNode)][@nodes.index(endNode)]==Float::INFINITY)
+      return []
+    end
+
+    viaNode = @nodes[via[@nodes.index(startNode)][@nodes.index(endNode)]]
+
+    if(viaNode==endNode)
+      return [endNode]
+    else
+      return findPath(startNode,viaNode,via,distances) +
+             findPath(viaNode,endNode,via,distances)
+    end
   end
 
   def showMinSpanningTree(startNode)
