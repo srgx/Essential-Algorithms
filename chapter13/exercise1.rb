@@ -211,7 +211,7 @@ class State
 
     @items << Button.new('LabSet Tree',20,100,:labsettree)
     @items << Button.new('LabCor Tree',240,100,:labcortree)
-    @items << Button.new('All Paths',460,100,:allpaths)
+    @items << Button.new('Log All Paths',460,100,:allpaths)
 
     @items << TextField.new("test4.ntw",1700,20,:filename)
     @items << TextField.new("X",1700,100,:nodename)
@@ -226,7 +226,6 @@ class State
   end
 
   def allPaths
-    puts 'Showing All Paths...'
     distances = []
 
     # fill diagonal
@@ -270,11 +269,14 @@ class State
       end
     end
 
-    # log nodes and via distance arrays
+    # log nodes
     fileContent = "Nodes\n"
     for i in 0...@numNodes
       fileContent += @nodes[i].name + " #{i}\n"
     end
+
+
+    # log distances array
     fileContent += "\nDistances\n"
     distances.each do |row|
       for i in 0...@numNodes
@@ -285,6 +287,8 @@ class State
       end
       fileContent += "\n"
     end
+
+    # log via array
     fileContent += "\nVia\n"
     via.each do |row|
       for i in 0...row.size
@@ -295,13 +299,27 @@ class State
       end
       fileContent += "\n"
     end
-    File.write('ViaDistances',fileContent)
 
-    # find final path
-    finalPath = self.findPath(@nodes[2],@nodes[0],via,distances)
-    finalPath.each do |nd|
-      puts nd.name
+    # log all shortest paths
+    fileContent += "\nAll Shortest Paths\n"
+    for i in 0...@numNodes
+      for j in 0...@numNodes
+        if(j!=i&&distances[i][j]!=Float::INFINITY)
+          s, f = @nodes[i], @nodes[j]
+          path = self.findPath(s,f,via,distances)
+          fileContent += "#{s.name} -> #{f.name}: #{s.name} "
+          for k in 0...path.size
+            fileContent += "#{path[k].name}"
+            if(k!=path.size-1)
+              fileContent += " "
+            end
+          end
+          fileContent += "\n"
+        end
+      end
     end
+
+    File.write('ViaDistances',fileContent)
   end
 
   def findPath(startNode,endNode,via,distances)
