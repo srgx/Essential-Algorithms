@@ -4,12 +4,17 @@
 # - literal
 # - (exp)
 # - exp op exp
+# - fun(exp)
 
 # op is one of
 # - '+'
 # - '-'
 # - '*'
 # - '/'
+
+# fun is one of
+# - 'sin'
+# - 'cos'
 
 
 class Literal
@@ -90,13 +95,8 @@ def parse(str)
     end
   end
 
-  # look for expression or literal
-  if(str[0]=='(')
-    return parse(str[1..-2]) # parse (expr) without parentheses
-  else
-    return Literal.new(str.to_f) # return literal
-  end
-
+  # look for (expression) or literal
+  return (str[0]=='(') ? parse(str[1..-2]) : Literal.new(str.to_f)
 end
 
 ER = "Error"
