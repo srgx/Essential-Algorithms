@@ -18,8 +18,7 @@ require_relative 'exercise2.rb'
 class Unary
   def evaluate
     ev = @exp.evaluate
-    case @op
-    when '-'
+    if(@op=='-')
       return (ev=='T') ? 'F' : 'T'
     end
   end
@@ -42,11 +41,6 @@ OPS = ['&','|']
 
 def parseBool(str)
 
-  # unary negation operator
-  if(str.start_with?('-'))
-    return Unary.new(str[0],parseBool(str[1..]))
-  end
-
   # look for binary expression
   counter = 0
   for i in 0...str.size
@@ -61,8 +55,15 @@ def parseBool(str)
     end
   end
 
-  # parse bool expression or return literal
-  return (str[0]=='(') ? parseBool(str[1..-2]) : Literal.new(str[0])
+  # parse bool expression, unary expression or return literal
+  if(str[0]=='(')
+    parseBool(str[1..-2])
+  elsif(str.start_with?('-'))
+    return Unary.new(str[0],parseBool(str[1..]))
+  else
+    return Literal.new(str[0])
+  end
+
 end
 
 
