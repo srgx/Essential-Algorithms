@@ -27,7 +27,7 @@ end
 
 # fromDirection is one of [:top, :left, :diag]
 class Node
-  attr_reader :fromNode, :fromDirection, :distance, :diag
+  attr_reader :fromDirection, :distance, :diag
   def initialize
     @diag = false
   end
@@ -36,8 +36,7 @@ class Node
     @distance = dist
   end
 
-  def setFrom(node,from)
-    @fromNode = node
+  def isFrom(from)
     @fromDirection = from
   end
 
@@ -67,27 +66,34 @@ width = first.size + 1
 for i in 0...height
   row = []
   for j in 0...width
+
     row << Node.new
 
     # set source nodes and distances for top row and left column
     if(i.zero?)
-      row[j].setDistance(j) # top row
 
-      # set left node
-      if(j>0)
-        row[j].setFrom(row[j-1],:left)
-      end
+      # top row
+      row[j].setDistance(j)
+
+      # from left node
+      if(j>0) then row[j].isFrom(:left) end
 
     elsif(j.zero?)
-      row[j].setDistance(i) # left column
 
-      # set top node
-      row[j].setFrom(nodes.dig(i-1,j),:top)
+      # left column
+      row[j].setDistance(i)
+
+      # from top node
+      row[j].isFrom(:top)
 
     end
 
+
     # add diagonal links
     if(second[i]==first[j]&&i<height-1&&j<width-1)
+
+      # there is diagonal link from
+      # row[i][j] to row[i+1][j+1]
       row[j].setDiag
     end
 
@@ -118,11 +124,11 @@ for i in 1..second.size
 
     # set source node
     if(best==fromLeft)
-      currentNode.setFrom(leftNode,:left)
+      currentNode.isFrom(:left)
     elsif(best==fromTop)
-      currentNode.setFrom(topNode,:top)
+      currentNode.isFrom(:top)
     else
-      currentNode.setFrom(diagNode,:diag)
+      currentNode.isFrom(:diag)
     end
 
   end
@@ -137,24 +143,26 @@ end
 def getChanges(nodes,first,second)
 
   current, changes = nodes.last.last, []
-  wordPosition = [second.size-1,first.size-1]
+
+  # position in array, lower right corner
+  position = [second.size,first.size]
 
   # read changes from end to start
-  while(!current.fromNode.nil?)
+  while(!current.fromDirection.nil?)
     case current.fromDirection
     when :top
-      changes << Change.new(second[wordPosition[0]],:add)
-      wordPosition[0] -= 1
+      changes << Change.new(second[position[0]-1],:add)
+      position[0] -= 1
     when :left
-      changes << Change.new(first[wordPosition[1]],:remove)
-      wordPosition[1] -= 1
+      changes << Change.new(first[position[1]-1],:remove)
+      position[1] -= 1
     when :diag
-      changes << Change.new(second[wordPosition[0]],:nochange)
-      wordPosition[0] -= 1
-      wordPosition[1] -= 1
+      changes << Change.new(second[position[0]-1],:nochange)
+      position[0] -= 1
+      position[1] -= 1
     end
 
-    current = current.fromNode
+    current = nodes[position[0]][position[1]]
   end
 
   return changes.reverse
