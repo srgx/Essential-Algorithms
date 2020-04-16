@@ -45,102 +45,80 @@ class Node
   end
 end
 
+# create nodes, set top row and left column distances and links,
+# set diagonal links
+def createNodes(first,second)
+  height, width, nodes = second.size + 1, first.size + 1, []
 
-# first = "assent"
-# second = "descent"
-# first = "precipitation"
-# second = "participation"
+  for i in 0...height
+    row = []
+    for j in 0...width
+      row << Node.new
+      if(i.zero?)
+        # top row
+        row[j].setDistance(j)
+        if(j>0) then row[j].isFrom(:left) end
+      elsif(j.zero?)
+        # left column
+        row[j].setDistance(i)
+        row[j].isFrom(:top)
+      end
 
-print "Enter string 1: "
-first = gets.chomp
-print "Enter string 2: "
-second = gets.chomp
-
-
-nodes = []
-
-height = second.size + 1
-width = first.size + 1
-
-# create nodes, set initial distances, add diagonal links
-for i in 0...height
-  row = []
-  for j in 0...width
-
-    row << Node.new
-
-    # set source nodes and distances for top row and left column
-    if(i.zero?)
-
-      # top row
-      row[j].setDistance(j)
-
-      # from left node
-      if(j>0) then row[j].isFrom(:left) end
-
-    elsif(j.zero?)
-
-      # left column
-      row[j].setDistance(i)
-
-      # from top node
-      row[j].isFrom(:top)
+      # diagonal
+      if(second[i]==first[j]&&i<height-1&&j<width-1)
+        # there is diagonal link from
+        # row[i][j] to row[i+1][j+1]
+        row[j].setDiag
+      end
 
     end
-
-
-    # add diagonal links
-    if(second[i]==first[j]&&i<height-1&&j<width-1)
-
-      # there is diagonal link from
-      # row[i][j] to row[i+1][j+1]
-      row[j].setDiag
-    end
-
+    nodes << row
   end
-  nodes << row
+
+  return nodes
 end
 
+# set best distances for all remaining nodes
+def setDistances(first,second,nodes)
+  for i in 1..second.size
+    for j in 1..first.size
 
-# set all remaining distances
-for i in 1..second.size
-  for j in 1..first.size
+      currentNode = nodes[i][j]
+      topNode = nodes[i-1][j]
+      leftNode = nodes[i][j-1]
+      diagNode = nodes[i-1][j-1]
 
-    currentNode = nodes[i][j]
-    topNode = nodes[i-1][j]
-    leftNode = nodes[i][j-1]
-    diagNode = nodes[i-1][j-1]
+      # read all possible distances
+      fromLeft = leftNode.distance + 1
+      fromTop = topNode.distance + 1
+      fromDiag = diagNode.diag ? diagNode.distance : Float::INFINITY
 
-    # read all possible distances
-    fromLeft = leftNode.distance + 1
-    fromTop = topNode.distance + 1
-    fromDiag = diagNode.diag ? diagNode.distance : Float::INFINITY
+      # find best distance
+      best = [fromLeft,fromTop,fromDiag].min
 
-    # find best distance
-    best = [fromLeft,fromTop,fromDiag].min
+      # set best distance(left, top, diagonal)
+      currentNode.setDistance(best)
 
-    # set best distance(left, top, diagonal)
-    currentNode.setDistance(best)
+      # set source node
+      if(best==fromLeft)
+        currentNode.isFrom(:left)
+      elsif(best==fromTop)
+        currentNode.isFrom(:top)
+      else
+        currentNode.isFrom(:diag)
+      end
 
-    # set source node
-    if(best==fromLeft)
-      currentNode.isFrom(:left)
-    elsif(best==fromTop)
-      currentNode.isFrom(:top)
-    else
-      currentNode.isFrom(:diag)
     end
-
   end
 end
 
 
-def getDistance(nodes)
+def getTotalDistance(nodes)
   return nodes.last.last.distance
 end
 
 
-def getChanges(nodes,first,second)
+def getChanges(first,second,nodes)
 
   current, changes = nodes.last.last, []
 
@@ -168,48 +146,66 @@ def getChanges(nodes,first,second)
   return changes.reverse
 end
 
+def displayEdits(changes,fontSize,space)
+  currentX = 100
 
-# get list of changes
-changes = getChanges(nodes,first,second)
+  changes.each do |chng|
 
-content = "Edit distance of (#{first} -> #{second}) is #{getDistance(nodes)}."
+    case chng.type
+    when :add
+      clr = 'green'
+    when :remove
+      clr = 'red'
+    when :nochange
+      clr = 'black'
+    end
 
-Text.new(
-  content,
-  x: 100, y: 100,
-  font: 'CamingoCode-Regular.ttf',
-  size: 40,
-  color: 'black',
-  z: 10
-)
+    Text.new(
+      chng.letter,
+      x: currentX, y: 250,
+      font: 'CamingoCode-Regular.ttf',
+      size: fontSize,
+      color: clr,
+      underline: true,
+      z: 10
+    )
 
-
-currentX = 100
-
-changes.each do |chng|
-
-  case chng.type
-  when :add
-    clr = 'green'
-  when :remove
-    clr = 'red'
-  when :nochange
-    clr = 'black'
+    currentX += space
   end
+end
+
+def displayMessage(first,second,nodes,fontSize)
+  content = "Edit distance of (#{first} -> #{second}) is #{getTotalDistance(nodes)}."
 
   Text.new(
-    chng.letter,
-    x: currentX, y: 250,
+    content,
+    x: 100, y: 100,
     font: 'CamingoCode-Regular.ttf',
-    size: 80,
-    color: clr,
-    underline: true,
+    size: fontSize,
+    color: 'black',
     z: 10
   )
+end
 
-  currentX += 50
+def main
+  print "Enter string 1: "
+  first = gets.chomp
+  print "Enter string 2: "
+  second = gets.chomp
+
+  nodes = createNodes(first,second)
+  setDistances(first,second,nodes)
+  changes = getChanges(first,second,nodes)
+
+
+  displayMessage(first,second,nodes,40)
+  displayEdits(changes,80,50)
+
+  show
 end
 
 
+# "assent" -> "descent"
+# "precipitation" -> "participation"
 
-show
+# main

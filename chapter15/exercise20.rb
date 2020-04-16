@@ -1,20 +1,25 @@
+require_relative 'exercise17.rb'
 # Exercise 20
 
-# print "File1: "
-# file1 = gets.chomp
-#
-# print "File2: "
-# file2 = gets.chomp
 
-file1 = "file1.txt"
-file2 = "file2.txt"
+def main
+  file1, file2 = "file1.txt", "file2.txt"
+  first, second = File.read(file1), File.read(file2)
 
-puts "File1: #{file1}"
-puts "File2: #{file2}"
+  # replace newlines with '|'
+  first.gsub!("\n",'|')
+  second.gsub!("\n",'|')
 
 
-string1 = File.read(file1)
-string2 = File.read(file2)
+  nodes = createNodes(first,second)
+  setDistances(first,second,nodes)
+  changes = getChanges(first,second,nodes)
 
-puts "String1: #{string1}"
-puts "String2: #{string2}"
+
+  displayMessage(first,second,nodes,25)
+  displayEdits(changes,30,20)
+
+  show
+end
+
+# main
