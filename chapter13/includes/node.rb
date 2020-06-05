@@ -1,9 +1,9 @@
 class Node
-  attr_reader :name, :x, :y, :links, :fromNode, :color
-  attr_accessor :visited, :distance, :fromLink
+  attr_reader :name, :x, :y, :links, :fromNode, :fromNodes, :color
+  attr_accessor :visited, :distance, :fromLink, :numBeforeMe
   @@traversal = []
   def initialize(name,x,y)
-    @visited = false
+    @visited = false, @fromNodes = []
     @name, @x, @y, @links = name, x, y, []
     @image = Circle.new(x: @x, y: @y, radius: 30, sectors: 32, color: 'fuchsia', z: 8)
     @text = Text.new(@name, x: @x, y: @y, size: 20, color: 'blue', z: 10)
@@ -73,6 +73,8 @@ class Node
   def reset
     @visited = false
     @fromNode = @fromLink = @distance = nil
+    @fromNodes = []
+    @numBeforeMe = 0
     self.deactivate
     @links.each { |ln| ln.unvisit }
   end
@@ -84,5 +86,9 @@ class Node
   def visitFrom(node)
     self.visit
     @fromNode = node
+  end
+
+  def initNumBefore
+    @numBeforeMe = @links.size
   end
 end

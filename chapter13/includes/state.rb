@@ -23,6 +23,7 @@ class State
     @items << Button.new('LabSet Tree',20,100,:labsettree)
     @items << Button.new('LabCor Tree',240,100,:labcortree)
     @items << Button.new('Log All Paths',460,100,:allpaths)
+    @items << Button.new('Log Top Sort',680,100,:toposort)
 
     @items << TextField.new("test4.ntw",1700,20,:filename)
     @items << TextField.new("X",1700,100,:nodename)
@@ -521,6 +522,61 @@ class State
     self.resetTemp
   end
 
+  def toposort
+    ordering, ready = [], []
+
+    # set number of prerequisities for each node
+    @nodes.each { |nd| nd.initNumBefore }
+
+    # set from nodes for each node
+    @nodes.each do |nd|
+      nd.links.each do |ln|
+        ln.nodes[1].fromNodes << ln.nodes[0]
+      end
+    end
+
+    # add nodes with no prerequisities to ready array
+    @nodes.each do |nd|
+      if(nd.numBeforeMe.zero?)
+        ready << nd
+      end
+    end
+
+
+    while(!ready.empty?)
+
+      # move ready node to ordering
+      ready_node = ready.shift
+      ordering << ready_node.name
+
+      # decrease number of prerequisities for fromnodes
+      ready_node.fromNodes.each do | fn |
+        fn.numBeforeMe = fn.numBeforeMe - 1
+
+        # add to ready array if number of prerequisities is zero
+        if(fn.numBeforeMe.zero?)
+          ready << fn
+        end
+      end
+    end
+
+
+    if(@nodes.any?{ |nd| nd.numBeforeMe > 0 })
+      return nil
+    else
+      fileContent = "Topological Sorting\n\n"
+      ordering.each_with_index do |task,index|
+        i = index + 1
+        fileContent += i.to_s + ". " + task + "\n"
+      end
+
+      File.write('TopoOrder',fileContent)
+
+      return ordering
+    end
+
+  end
+
   def click(x,y)
     if(@mode==:new)
       @nodes << Node.new(self.getTextField(:nodename).text.upcase,x,y)
@@ -606,6 +662,8 @@ class State
           self.showComponents
         elsif(option==:allpaths)
           self.allPaths
+        elsif(option==:toposort)
+          self.toposort
         elsif(option==:clearall)
           self.clearAll
         end
