@@ -16,14 +16,16 @@ class Node
 
   def setColor(color)
     @image.color = color
+    @color = color
   end
 
+
   def activate
-    @image.color = 'green'
+    self.setColor('green')
   end
 
   def deactivate
-    @image.color = 'fuchsia'
+    self.setColor('fuchsia')
   end
 
   def self.clearTraversals

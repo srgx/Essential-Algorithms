@@ -24,8 +24,9 @@ class State
     @items << Button.new('LabCor Tree',240,100,:labcortree)
     @items << Button.new('Log All Paths',460,100,:allpaths)
     @items << Button.new('Log Top Sort',680,100,:toposort)
+    @items << Button.new('Two Color',900,100,:twocolor)
 
-    @items << TextField.new("test4.ntw",1700,20,:filename)
+    @items << TextField.new("twocolor.ntw",1700,20,:filename)
     @items << TextField.new("X",1700,100,:nodename)
     @items << TextField.new("0",1700,180,:cost)
     @items << TextField.new("0",1700,260,:capacity)
@@ -577,6 +578,33 @@ class State
 
   end
 
+  def twocolor
+    color1, color2 = 'purple','lime'
+    colored = []
+    first_node = @nodes.first
+    first_node.setColor(color1)
+    colored << first_node
+
+    while(!colored.empty?)
+
+      node = colored.shift
+      neighbor_color = (node.color == color1) ? color2 : color1
+
+      node.links.each do |ln|
+        neighbor = ln.nodes[1]
+        if(neighbor.color == node.color)
+          raise "The map cannot be two-colored"
+        elsif(neighbor.color == neighbor_color)
+          # do nothing
+        else
+          neighbor.setColor(neighbor_color)
+          colored << neighbor
+        end
+      end
+
+    end
+  end
+
   def click(x,y)
     if(@mode==:new)
       @nodes << Node.new(self.getTextField(:nodename).text.upcase,x,y)
@@ -664,6 +692,8 @@ class State
           self.allPaths
         elsif(option==:toposort)
           self.toposort
+        elsif(option==:twocolor)
+          self.twocolor
         elsif(option==:clearall)
           self.clearAll
         end
