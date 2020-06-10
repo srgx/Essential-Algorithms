@@ -25,6 +25,7 @@ class State
     @items << Button.new('Log All Paths',460,100,:allpaths)
     @items << Button.new('Log Top Sort',680,100,:toposort)
     @items << Button.new('Two Color',900,100,:twocolor)
+    @items << Button.new('Hill Color',1120,100,:hillcolor)
 
     @items << TextField.new("twocolor.ntw",1700,20,:filename)
     @items << TextField.new("X",1700,100,:nodename)
@@ -605,6 +606,21 @@ class State
     end
   end
 
+  def hillcolor
+    colors = ['blue','red','green','purple','lime','brown','silver','olive','aqua','teal']
+
+    @nodes.each do |nd|
+      neighbor_colors = []
+      nd.links.each { |ln| neighbor_colors << ln.nodes[1].color }
+      index = 0
+      while(neighbor_colors.include?(colors[index]))
+        index += 1
+      end
+      nd.setColor(colors[index])
+    end
+
+  end
+
   def click(x,y)
     if(@mode==:new)
       @nodes << Node.new(self.getTextField(:nodename).text.upcase,x,y)
@@ -694,6 +710,8 @@ class State
           self.toposort
         elsif(option==:twocolor)
           self.twocolor
+        elsif(option==:hillcolor)
+          self.hillcolor
         elsif(option==:clearall)
           self.clearAll
         end
@@ -759,6 +777,8 @@ class State
         index += 3 # move to next link
       end
     end
+
+    self.resetMode
   end
 
 
