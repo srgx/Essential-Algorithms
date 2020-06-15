@@ -582,22 +582,25 @@ class State
 
   def twocolor
 
-    clearAll
+    color1, color2, colored = 'purple', 'lime', []
 
-    color1, color2 = 'purple','lime'
-    colored = []
+    # color first node
     first_node = @nodes.first
     first_node.setColor(color1)
+
+    # add first colored node to queue
     colored << first_node
 
     while(!colored.empty?)
+
+      # choose neighbor color for node from queue
       node = colored.shift
       neighbor_color = (node.color == color1) ? color2 : color1
 
+      # color neighbors and add them to queue
       node.links.each do |ln|
         neighbor = ln.nodes[1]
         if(neighbor.color == node.color)
-          # clearAll
           return false
         elsif(neighbor.color == neighbor_color)
           # do nothing
@@ -613,26 +616,47 @@ class State
   end
 
   def hillcolor
-    colors = ['blue','red','green','purple','lime','brown','silver','olive','aqua','teal']
+
+    colors = ['blue','red','green','purple',
+              'lime','brown','silver','olive',
+              'aqua','teal']
 
     @nodes.each do |nd|
+
+      # find all adjacent colors
       neighbor_colors = []
       nd.links.each { |ln| neighbor_colors << ln.nodes[1].color }
+
+      # find first correct node color
       index = 0
       while(neighbor_colors.include?(colors[index]))
         index += 1
       end
       nd.setColor(colors[index])
+
     end
 
   end
 
 
+  # find node with degree less than n
   def findLess(n)
     @nodes.each do |nd|
-      if(nd.links.size<n&&!nd.tempRemoved)
-        return nd
+
+      unless(nd.tempRemoved)
+        numNeighbors = 0
+
+        # count nonremoved neighbors
+        nd.links.each do |ln|
+          neighbor = ln.nodes[1]
+          unless(neighbor.tempRemoved)
+            numNeighbors += 1
+          end
+        end
+
+        return nd if(numNeighbors<n)
       end
+
     end
     return nil
   end
@@ -640,90 +664,89 @@ class State
 
   # index of nonremoved node
   def threeTrav(index)
-    # red green blue
+    # colors - red, green, blue
 
-    if(index==@nodes.size) then return true end
+    # check if solution is correct
+    if(index==@nodes.size)
+      allcorrect = @nodes.all? { |nd| nd.correct }
+      allcolors = @nodes.any? { |nd| nd.color == 'red'} &&
+                  @nodes.any? { |nd| nd.color == 'green'} &&
+                  @nodes.any? { |nd| nd.color == 'blue'}
+      return allcorrect && allcolors
+    end
 
+
+    # find index of next nonremoved node
     nextIndex = index + 1
     while(nextIndex<@nodes.size&&@nodes[nextIndex].tempRemoved)
       nextIndex += 1
     end
 
+
+    # generate  and check solutions
+
     @nodes[index].setColor('red')
 
-    if(@nodes[index].correct)
-      if(threeTrav(nextIndex))
-        return true
-      end
-    end
+    return true if(threeTrav(nextIndex))
 
     @nodes[index].setColor('green')
 
-    if(@nodes[index].correct)
-      if(threeTrav(nextIndex))
-        return true
-      end
-    end
+    return true if(threeTrav(nextIndex))
 
     @nodes[index].setColor('blue')
 
-    if(@nodes[index].correct)
-      if(threeTrav(nextIndex))
-        return true
-      end
-    end
+    return true if(threeTrav(nextIndex))
 
     return false
+
   end
 
-  # index of nonremoved node
   def fourTrav(index)
-    # red green blue purple
+    # colors - red, green, blue, purple
 
-    if(index==@nodes.size) then return true end
+    # check if solution is correct
+    if(index==@nodes.size)
+      allcorrect = @nodes.all? { |nd| nd.correct }
+      allcolors = @nodes.any? { |nd| nd.color == 'red'} &&
+                  @nodes.any? { |nd| nd.color == 'green'} &&
+                  @nodes.any? { |nd| nd.color == 'blue'} &&
+                  @nodes.any? { |nd| nd.color == 'purple'}
+      return allcorrect && allcolors
+    end
 
+    # find index of next nonremoved node
     nextIndex = index + 1
-    # while(nextIndex<@nodes.size&&@nodes[nextIndex].tempRemoved)
-    #   nextIndex += 1
-    # end
+    while(nextIndex<@nodes.size&&@nodes[nextIndex].tempRemoved)
+      nextIndex += 1
+    end
+
+
+    # generate  and check solutions
 
     @nodes[index].setColor('red')
 
-    if(@nodes[index].correct)
-      if(fourTrav(nextIndex))
-        return true
-      end
-    end
+    return true if(fourTrav(nextIndex))
 
     @nodes[index].setColor('green')
 
-    if(@nodes[index].correct)
-      if(fourTrav(nextIndex))
-        return true
-      end
-    end
+    return true if(fourTrav(nextIndex))
 
     @nodes[index].setColor('blue')
 
-    if(@nodes[index].correct)
-      if(fourTrav(nextIndex))
-        return true
-      end
-    end
+    return true if(fourTrav(nextIndex))
 
     @nodes[index].setColor('purple')
 
-    if(@nodes[index].correct)
-      if(fourTrav(nextIndex))
-        return true
-      end
-    end
+    return true if(fourTrav(nextIndex))
 
     return false
   end
 
   def threecolor
-    self.clearAll
+
+    clearAll
+
+    # mark nodes with degree les than 3 as removed
     stackTempRemoved = []
     while(!(node=findLess(3)).nil?)
       node.tempRemove
@@ -733,18 +756,13 @@ class State
     # find index of first nonremoved node
     firstIndex = @nodes.index { |z| !z.tempRemoved }
 
-    unless(firstIndex.nil?)
-      unless(threeTrav(firstIndex))
-        return false
-      end
-    end
-
-    unless(threeTrav(firstIndex))
-      return false
-    end
+    # if there is no solution for smaller network
+    # there is no solution for whole network
+    return false if(!firstIndex.nil?&&!threeTrav(firstIndex))
 
     colors = ['red','green','blue']
 
+    # restore and color removed nodes
     stackTempRemoved.reverse_each do |nd|
       colorIndex = 0
       nd.restore
@@ -756,10 +774,8 @@ class State
         nd.setColor(colors[colorIndex])
       end
 
-      if(colorIndex>=colors.size)
-        puts "Impossible"
-        return false
-      end
+      # cant find color
+      return false if(colorIndex>=colors.size)
 
     end
 
@@ -767,24 +783,27 @@ class State
   end
 
   def fourcolor
-    self.clearAll
+
+    clearAll
+
+    # mark nodes with degree les than 4 as removed
     stackTempRemoved = []
     while(!(node=findLess(4)).nil?)
       node.tempRemove
       stackTempRemoved << node
     end
 
+
     # find index of first nonremoved node
     firstIndex = @nodes.index { |z| !z.tempRemoved }
 
-    unless(firstIndex.nil?)
-      unless(fourTrav(firstIndex))
-        return false
-      end
-    end
+    # if there is no solution for smaller network
+    # there is no solution for whole network
+    return false if(!firstIndex.nil?&&!fourTrav(firstIndex))
 
     colors = ['red','green','blue','purple']
 
+    # restore and color removed nodes
     stackTempRemoved.reverse_each do |nd|
       colorIndex = 0
       nd.restore
@@ -796,33 +815,30 @@ class State
         nd.setColor(colors[colorIndex])
       end
 
-      if(colorIndex>=colors.size)
-        puts "Impossible"
-        return false
-      end
+      # cant find color
+      return false if(colorIndex>=colors.size)
 
     end
 
-    puts "Koniec"
     return true
   end
 
   def excolor
 
-    # if(twocolor)
-    #   puts "Na Dwa"
-    # elsif(threecolor)
-    #   puts "Na Trzy"
-    # elsif(fourcolor)
-    #   puts "Na Cztery"
-    # else
-    #   puts "Nonplanar Network"
-    # end
+    # twocolor.ntw - 2 colors
+    # hill2.ntw - 3 colors
+    # hill1.ntw - 4 colors
 
+    if(twocolor)
+      puts "Two Colors"
+    elsif(threecolor)
+      puts "Three Colors"
+    elsif(fourcolor)
+      puts "Four Colors"
+    else
+      puts "Impossible"
+    end
 
-    # fourcolor
-
-    fourTrav(0)
   end
 
   def click(x,y)

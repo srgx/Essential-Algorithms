@@ -99,6 +99,7 @@ class Node
     self.deactivate
     @links.each { |ln| ln.unvisit }
     setColor('fuchsia')
+    restore
   end
 
   def visit
