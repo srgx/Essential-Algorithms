@@ -1,12 +1,14 @@
 class Node
-  attr_reader :name, :x, :y, :links, :fromNode, :fromNodes, :color
+  attr_reader :name, :x, :y, :links, :fromNode, :fromNodes, :color, :tempRemoved
   attr_accessor :visited, :distance, :fromLink, :numBeforeMe
   @@traversal = []
   def initialize(name,x,y)
+    @tempRemoved = false
     @visited = false, @fromNodes = []
     @name, @x, @y, @links = name, x, y, []
     @image = Circle.new(x: @x, y: @y, radius: 30, sectors: 32, color: 'fuchsia', z: 8)
     @text = Text.new(@name, x: @x, y: @y, size: 20, color: 'blue', z: 10)
+    setColor('fuchsia')
   end
 
   def remove
@@ -14,9 +16,26 @@ class Node
     @links.each { |lnk| lnk.remove }
   end
 
+  def tempRemove
+    @tempRemoved = true
+  end
+
+  def restore
+    @tempRemoved = false
+  end
+
   def setColor(color)
     @image.color = color
     @color = color
+  end
+
+  def correct
+    neighbors = []
+    @links.each do |ln|
+      neighbors << ln.nodes[1]
+    end
+
+    return neighbors.all? { |nb| nb.color != color }
   end
 
 
@@ -79,10 +98,15 @@ class Node
     @numBeforeMe = 0
     self.deactivate
     @links.each { |ln| ln.unvisit }
+    setColor('fuchsia')
   end
 
   def visit
     @visited = true
+  end
+
+  def unvisit
+    @visited = false
   end
 
   def visitFrom(node)
