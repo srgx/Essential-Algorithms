@@ -28,7 +28,9 @@ class State
     @items << Button.new('Hill Color',1120,100,:hillcolor)
     @items << Button.new('Ex Color',1340,100,:excolor)
 
-    @items << TextField.new("hill1.ntw",1700,20,:filename)
+    @items << Button.new('Max Flow',20,140,:maxflow)
+
+    @items << TextField.new("maxflow.ntw",1700,20,:filename)
     @items << TextField.new("X",1700,100,:nodename)
     @items << TextField.new("0",1700,180,:cost)
     @items << TextField.new("0",1700,260,:capacity)
@@ -841,6 +843,10 @@ class State
 
   end
 
+  def maxflow
+    puts "Maxflowing..."
+  end
+
   def click(x,y)
     if(@mode==:new)
       @nodes << Node.new(self.getTextField(:nodename).text.upcase,x,y)
@@ -934,6 +940,8 @@ class State
           self.hillcolor
         elsif(option==:excolor)
           self.excolor
+        elsif(option==:maxflow)
+          self.maxflow
         elsif(option==:clearall)
           self.clearAll
         end
