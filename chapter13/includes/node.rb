@@ -1,14 +1,18 @@
 class Node
   attr_reader :name, :x, :y, :links, :fromNode, :fromNodes, :color, :tempRemoved
-  attr_accessor :visited, :distance, :fromLink, :numBeforeMe
+  attr_accessor :visited, :distance, :fromLink, :numBeforeMe, :backlinks
   @@traversal = []
   def initialize(name,x,y)
     @tempRemoved = false
-    @visited = false, @fromNodes = []
+    @visited, @fromNodes, @backlinks = false, [], []
     @name, @x, @y, @links = name, x, y, []
     @image = Circle.new(x: @x, y: @y, radius: 30, sectors: 32, color: 'fuchsia', z: 8)
     @text = Text.new(@name, x: @x, y: @y, size: 20, color: 'blue', z: 10)
     setColor('fuchsia')
+  end
+
+  def addBacklink(link)
+    @backlinks << link
   end
 
   def remove
@@ -99,6 +103,7 @@ class Node
     self.deactivate
     @links.each { |ln| ln.unvisit }
     setColor('fuchsia')
+    @backlinks = []
     restore
   end
 

@@ -843,7 +843,133 @@ class State
 
   end
 
+  def findAuPath(source)
+    currentNode = source
+    collectedLinks = []
+
+    currentNode.visit
+
+    while(currentNode.name!='SNK')
+
+      # find forward link with positive residual capacity
+      indx = currentNode.links.index { |ln| ln.capacity-ln.cost > 0 && !ln.nodes[1].visited }
+
+      # if forward link exists follow it
+      # else look for backlinks
+      unless(indx.nil?)
+        link = currentNode.links[indx]
+        collectedLinks << link
+        currentNode = link.nodes[1]
+        currentNode.visit
+      else
+
+        backlinks = currentNode.backlinks
+
+        # find backlinks from unvisited nodes
+        # backlinks must have positive flow/cost
+        backlinks = backlinks.select { |ln| !ln.nodes[0].visited && ln.cost > 0}
+
+
+        if(backlinks.empty?)
+          # cant find augmenting path
+          collectedLinks = nil
+          break
+        else
+          # follow backlink
+          link = backlinks.first
+          collectedLinks << link
+          currentNode = link.nodes[0]
+          currentNode.visit
+        end
+
+      end
+
+    end
+
+    # unvisit nodes
+    @nodes.each { |nd| nd.unvisit }
+
+    return collectedLinks
+
+  end
+
   def maxflow
+
+    clearAll
+
+    sourceIndex = @nodes.index { |n| n.name == 'SRC' }
+    sinkIndex = @nodes.index { |n| n.name == 'SNK' }
+
+    source = @nodes[sourceIndex]
+    sink = @nodes[sinkIndex]
+
+    # set backlinks
+    @nodes.each do |nd|
+      nd.links.each do |ln|
+        targetNode = ln.nodes[1]
+        targetNode.addBacklink(ln)
+      end
+    end
+
+    counter = 0
+
+    while(!(collectedLinks=findAuPath(source)).nil?)
+
+      counter += 1
+
+      puts counter
+
+      # Find minimal flow amount
+
+      minFlow = collectedLinks[0].cost
+      lastNode = collectedLinks[0].nodes[1]
+
+      for i in 1...collectedLinks.size
+
+        # normal link
+        if(collectedLinks[i].nodes[0] == lastNode)
+          currentFlow = collectedLinks[i].capacity - collectedLinks[i].cost
+          lastNode = collectedLinks[i].nodes[1]
+
+        # backlink
+        elsif(collectedLinks[i].nodes[1] == lastNode)
+          currentFlow = collectedLinks[i].capacity
+          lastNode = collectedLinks[i].nodes[0]
+
+        # error
+        else
+          raise "Wrong link sequence"
+        end
+
+        if(currentFlow<minFlow)
+          minFlow = currentFlow
+        end
+
+      end
+
+      # Update path with minimal flow amount
+
+      lastNode = source
+
+      for i in 0...collectedLinks.size
+
+        # add to normal link
+        if(collectedLinks[i].nodes[0] == lastNode)
+          collectedLinks[i].increaseFlowBy(minFlow)
+          lastNode = collectedLinks[i].nodes[1]
+
+        # subtract from backlink
+        elsif(collectedLinks[i].nodes[1] == lastNode)
+          collectedLinks[i].decreaseFlowBy(minFlow)
+          lastNode = collectedLinks[i].nodes[0]
+
+        else
+          raise "Wrong link sequence"
+        end
+      end
+
+    end
+
     puts "Maxflowing..."
   end
 

@@ -7,7 +7,7 @@ class Link
     @image = Line.new(
       x1: @nodes[0].x, y1: @nodes[0].y,
       x2: @nodes[1].x, y2: @nodes[1].y,
-      width: 10, color: 'brown', z: 1
+      width: 10, color: 'black', z: 1
     )
 
     midX = (@image.x1 + @image.x2)/2.0
@@ -15,7 +15,9 @@ class Link
     midX = (@image.x1 + midX)/2.0
     midY = (@image.y1 + midY)/2.0
 
-    @text = Text.new(@cost, x: midX, y: midY, size: 20, color: 'blue', z: 10)
+    @text = Text.new(@cost, x: midX+10, y: midY, size: 30, color: 'fuchsia', z: 10)
+
+
   end
 
   def remove
@@ -31,5 +33,15 @@ class Link
   def unvisit
     @visited = false
     @image.color = 'black'
+  end
+
+  def increaseFlowBy(n)
+    @cost += n
+    @text.text = @cost
+  end
+
+  def decreaseFlowBy(n)
+    @cost -= n
+    @text.text = @cost
   end
 end
