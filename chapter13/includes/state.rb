@@ -30,7 +30,7 @@ class State
 
     @items << Button.new('Max Flow',20,140,:maxflow)
 
-    @items << TextField.new("maxflow.ntw",1700,20,:filename)
+    @items << TextField.new("assign.ntw",1700,20,:filename)
     @items << TextField.new("X",1700,100,:nodename)
     @items << TextField.new("0",1700,180,:cost)
     @items << TextField.new("0",1700,260,:capacity)
@@ -843,45 +843,48 @@ class State
 
   end
 
-  def findAuPath(source)
-    currentNode = source
-    collectedLinks = []
+  def findAuPath(currentNode,collectedLinks)
+
+    if(currentNode.name=='SNK')
+      @nodes.each { |nd| nd.unvisit }
+      return collectedLinks
+    end
 
     currentNode.visit
 
-    while(currentNode.name!='SNK')
+    # find links with positive residual capacity
+    forwardLinks = currentNode.links.select { |ln| ln.capacity-ln.cost > 0 && !ln.nodes[1].visited }
+    backlinks = currentNode.backlinks.select { |ln|  ln.cost > 0 && !ln.nodes[0].visited }
+    candidates = forwardLinks + backlinks
 
-      # find forward link with positive residual capacity
-      indx = currentNode.links.index { |ln| ln.capacity-ln.cost > 0 && !ln.nodes[1].visited }
+    # search for path
+    candidates.each do |link|
 
-      # if forward link exists follow it
-      # else look for backlinks
-      unless(indx.nil?)
-        link = currentNode.links[indx]
-        collectedLinks << link
-        currentNode = link.nodes[1]
-        currentNode.visit
-      else
-
-        backlinks = currentNode.backlinks
-
-        # find backlinks from unvisited nodes
-        # backlinks must have positive flow/cost
-        backlinks = backlinks.select { |ln| !ln.nodes[0].visited && ln.cost > 0}
+      collectedLinks << link
 
 
-        if(backlinks.empty?)
-          # cant find augmenting path
-          collectedLinks = nil
-          break
+      # candidate is forward link
+      if(link.nodes[0]==currentNode)
+
+        if(findAuPath(link.nodes[1],collectedLinks))
+          return collectedLinks
         else
-          # follow backlink
-          link = backlinks.first
-          collectedLinks << link
-          currentNode = link.nodes[0]
-          currentNode.visit
+          link.nodes[1].unvisit
+          collectedLinks.pop
         end
 
+      # candidate is backlink
+      elsif(link.nodes[1]==currentNode)
+
+        if(findAuPath(link.nodes[0],collectedLinks))
+          return collectedLinks
+        else
+          link.nodes[0].unvisit
+          collectedLinks.pop
+        end
+
+      else
+        raise "Error..."
       end
 
     end
@@ -889,7 +892,8 @@ class State
     # unvisit nodes
     @nodes.each { |nd| nd.unvisit }
 
-    return collectedLinks
+    # cant find path
+    return false
 
   end
 
@@ -900,8 +904,7 @@ class State
     sourceIndex = @nodes.index { |n| n.name == 'SRC' }
     sinkIndex = @nodes.index { |n| n.name == 'SNK' }
 
-    source = @nodes[sourceIndex]
-    sink = @nodes[sinkIndex]
+    source, sink = @nodes[sourceIndex], @nodes[sinkIndex]
 
     # set backlinks
     @nodes.each do |nd|
@@ -911,17 +914,12 @@ class State
       end
     end
 
-    counter = 0
+    collectedLinks = []
 
-    while(!(collectedLinks=findAuPath(source)).nil?)
+    while(findAuPath(source,collectedLinks))
 
-      counter += 1
-
-      puts counter
-
-      # Find minimal flow amount
-
-      minFlow = collectedLinks[0].cost
+      # find minimal flow amount
+      minFlow = collectedLinks[0].capacity - collectedLinks[0].cost
       lastNode = collectedLinks[0].nodes[1]
 
       for i in 1...collectedLinks.size
@@ -941,36 +939,33 @@ class State
           raise "Wrong link sequence"
         end
 
-        if(currentFlow<minFlow)
-          minFlow = currentFlow
-        end
+        minFlow = currentFlow if(currentFlow<minFlow)
 
       end
 
+
       # Update path with minimal flow amount
-
       lastNode = source
-
       for i in 0...collectedLinks.size
 
         # add to normal link
         if(collectedLinks[i].nodes[0] == lastNode)
           collectedLinks[i].increaseFlowBy(minFlow)
           lastNode = collectedLinks[i].nodes[1]
-
         # subtract from backlink
         elsif(collectedLinks[i].nodes[1] == lastNode)
           collectedLinks[i].decreaseFlowBy(minFlow)
           lastNode = collectedLinks[i].nodes[0]
-
         else
           raise "Wrong link sequence"
         end
       end
 
+      # reset collected links before calling findAuPath again
+      collectedLinks = []
+
     end
 
-    puts "Maxflowing..."
   end
 
   def click(x,y)
