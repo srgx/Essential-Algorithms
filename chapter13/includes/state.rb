@@ -29,8 +29,9 @@ class State
     @items << Button.new('Ex Color',1340,100,:excolor)
 
     @items << Button.new('Max Flow',20,140,:maxflow)
+    @items << Button.new('Min Cut',240,140,:mincut)
 
-    @items << TextField.new("assign.ntw",1700,20,:filename)
+    @items << TextField.new("maxflow.ntw",1700,20,:filename)
     @items << TextField.new("X",1700,100,:nodename)
     @items << TextField.new("0",1700,180,:cost)
     @items << TextField.new("0",1700,260,:capacity)
@@ -968,6 +969,55 @@ class State
 
   end
 
+  def minVisit(node)
+
+    node.visit
+
+    forwardLinks = node.links.select { |ln| ln.capacity-ln.cost > 0 && !ln.nodes[1].visited }
+    backlinks = node.backlinks.select { |ln|  ln.cost > 0 && !ln.nodes[0].visited }
+    links = forwardLinks + backlinks
+
+
+    links.each do |ln|
+
+      # forward link
+      if(ln.nodes[0]==node)
+        minVisit(ln.nodes[1])
+
+      # backlink
+      elsif(ln.nodes[1]==node)
+        minVisit(ln.nodes[0])
+
+      else
+        raise "Error..."
+      end
+
+    end
+  end
+
+  def mincut
+    maxflow
+
+    sinkIndex = @nodes.index { |n| n.name == 'SRC' }
+    sink = @nodes[sinkIndex]
+
+    minVisit(sink)
+
+    @nodes.each do |nd|
+      if(nd.visited)
+        links = nd.links
+        links.each do |ln|
+          unless(ln.nodes[1].visited)
+            ln.markRemoved
+          end
+        end
+      end
+    end
+
+    @nodes.each { |n| n.unvisit }
+
+  end
+
   def click(x,y)
     if(@mode==:new)
       @nodes << Node.new(self.getTextField(:nodename).text.upcase,x,y)
@@ -1063,6 +1113,8 @@ class State
           self.excolor
         elsif(option==:maxflow)
           self.maxflow
+        elsif(option==:mincut)
+          self.mincut
         elsif(option==:clearall)
           self.clearAll
         end

@@ -25,6 +25,10 @@ class Link
     @text.remove
   end
 
+  def markRemoved
+    @image.color = 'red'
+  end
+
   def visit
     @visited = true
     @image.color = 'lime'
