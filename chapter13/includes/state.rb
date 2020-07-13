@@ -1024,103 +1024,57 @@ class State
       @numNodes+=1
       self.resetItems
       self.resetMode
-    elsif(@mode==:oneway||@mode==:twoway)
-      clickedNode = self.getNodeAt(x,y)
-      unless(clickedNode.nil?)
-        clickedNode.activate
-        @temp << clickedNode
-        self.addLink if (@temp.size==2)
-      end
-    elsif([:depthfirst,:breadthfirst].include?(@mode))
-      clickedNode = self.getNodeAt(x,y)
-      unless(clickedNode.nil?)
-        self.clearAll
-        if(@mode==:depthfirst)
-          clickedNode.depthTraverse
-        elsif(@mode==:breadthfirst)
-          clickedNode.breadthTraverse
-        end
-        self.resetMode
-        self.resetItems
-      end
-    elsif(@mode==:spanningtree)
-      clickedNode = self.getNodeAt(x,y)
-      unless(clickedNode.nil?)
-        self.showSpanningTree(clickedNode)
-      end
-    elsif(@mode==:minspanningtree)
-      clickedNode = self.getNodeAt(x,y)
-      unless(clickedNode.nil?)
-        self.showMinSpanningTree(clickedNode)
-      end
-    elsif(@mode==:path)
-      clickedNode = self.getNodeAt(x,y)
-      unless(clickedNode.nil?)
-        clickedNode.activate
-        @temp << clickedNode
-        if(@temp.size==2)
-          self.showPath(@temp[0],@temp[1])
-        end
-      end
-    elsif(@mode==:labsetpath)
-      clickedNode = self.getNodeAt(x,y)
-      unless(clickedNode.nil?)
-        clickedNode.activate
-        @temp << clickedNode
-        if(@temp.size==2)
-          self.labSetPath(@temp[0],@temp[1])
-        end
-      end
-    elsif(@mode==:labcorpath)
-      clickedNode = self.getNodeAt(x,y)
-      unless(clickedNode.nil?)
-        clickedNode.activate
-        @temp << clickedNode
-        if(@temp.size==2)
-          self.labCorPath(@temp[0],@temp[1])
-        end
-      end
-    elsif(@mode==:labsettree)
-      clickedNode = self.getNodeAt(x,y)
-      unless(clickedNode.nil?)
-        self.labSetTree(clickedNode)
-      end
-    elsif(@mode==:labcortree)
-      clickedNode = self.getNodeAt(x,y)
-      unless(clickedNode.nil?)
-        self.labCorTree(clickedNode)
-      end
     else
-      option = self.getItemAt(x,y)&.click
-      unless(option.nil?)
-        if([:new,:oneway,:twoway, :filename,:cost,:capacity,:nodename,:depthfirst,:breadthfirst,:spanningtree,:minspanningtree,:path,:labsetpath,:labcorpath,:labsettree,:labcortree].include?(option))
-          @mode = option
-        elsif(option==:save)
-          self.save
-        elsif(option==:load)
-          self.load
-        elsif(option==:components)
-          self.showComponents
-        elsif(option==:allpaths)
-          self.allPaths
-        elsif(option==:toposort)
-          self.toposort
-        elsif(option==:twocolor)
-          self.twocolor
-        elsif(option==:hillcolor)
-          self.hillcolor
-        elsif(option==:excolor)
-          self.excolor
-        elsif(option==:maxflow)
-          self.maxflow
-        elsif(option==:mincut)
-          self.mincut
-        elsif(option==:clearall)
-          self.clearAll
+      clickedNode = self.getNodeAt(x,y)
+
+      if([:oneway,:twoway,:depthfirst,:breadthfirst,:spanningtree,
+          :minspanningtree,:path,:labsetpath,:labcorpath,:labsettree,
+          :labcortree].include?(@mode))
+        unless(clickedNode.nil?)
+          if([:oneway,:twoway].include?(@mode))
+            clickedNode.activate
+            @temp << clickedNode
+            self.addLink if (@temp.size==2)
+          elsif([:depthfirst,:breadthfirst].include?(@mode))
+            self.clearAll
+            opts = { depthfirst: :depthTraverse, breadthfirst: :breadthTraverse }
+            clickedNode.send(opts[@mode])
+            self.resetMode
+            self.resetItems
+          elsif([:spanningtree,:minspanningtree].include?(@mode))
+            opts = { spanningtree: :showSpanningTree, minspanningtree: :showMinSpanningTree }
+            send(opts[@mode],clickedNode)
+          elsif([:path,:labsetpath,:labcorpath].include?(@mode))
+            clickedNode.activate
+            @temp << clickedNode
+            if(@temp.size==2)
+              opts = {path: :showPath, labsetpath: :labSetPath, labcorpath: :labCorPath }
+              send(opts[@mode],@temp[0],@temp[1])
+            end
+          elsif([:labsettree,:labcortree].include?(@mode))
+            opts = { labsettree: :labSetTree, labcortree: :labCorTree }
+            send(opts[@mode],clickedNode)
+          end
+        end
+      else
+        option = self.getItemAt(x,y)&.click
+        unless(option.nil?)
+          if([ :new, :oneway, :twoway, :filename, :cost,
+               :capacity, :nodename, :depthfirst,:breadthfirst,
+               :spanningtree,:minspanningtree,:path,:labsetpath,
+               :labcorpath,:labsettree,:labcortree].include?(option))
+            @mode = option
+          else
+            opts = { save: :save, load: :load, components: :showComponents,
+                     allpaths: :allPaths, toposort: :toposort, twocolor: :twocolor,
+                     hillcolor: :hillcolor, excolor: :excolor, maxflow: :maxflow,
+                     mincut: :mincut, clearall: :clearAll }
+
+            send(opts[option])
+          end
         end
       end
     end
-
   end
 
   def save
