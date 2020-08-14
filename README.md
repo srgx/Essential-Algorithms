@@ -1,5 +1,5 @@
 # Essential Algorithms
-Essential Algorithms - Exercises
+Essential Algorithms, First Edition - Exercises
 
 ## Table of Contents
 
