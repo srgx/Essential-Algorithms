@@ -3,22 +3,22 @@ Essential Algorithms, First Edition - Exercises
 
 ## Table of Contents
 
-1. Algorithm Basics
-2. Numerical Algorithms
-3. Linked Lists
-4. Arrays
-5. Stacks and Queues
-6. Sorting
-7. Searching
-8. Hash Tables
-9. Recursion
-10. Trees
-11. Balanced Trees
-12. Decision Trees
-13. Basic Network Algorithms
-14. More Network Algorithms
-15. String Algorithms
-16. Cryptography
-17. Complexity Theory
-18. Distributed Algorithms
-19. Interview Puzzles
+1. [Algorithm Basics](chapter1)
+2. [Numerical Algorithms](chapter2)
+3. [Linked Lists](chapter3)
+4. [Arrays](chapter4)
+5. [Stacks and Queues](chapter5)
+6. [Sorting](chapter6)
+7. [Searching](chapter7)
+8. [Hash Tables](chapter8)
+9. [Recursion](chapter9)
+10. [Trees](chapter10)
+11. [Balanced Trees](chapter11)
+12. [Decision Trees](chapter12)
+13. [Basic Network Algorithms](chapter13)
+14. [More Network Algorithms](chapter14)
+15. [String Algorithms](chapter15)
+16. [Cryptography](chapter16)
+17. [Complexity Theory](chapter17)
+18. [Distributed Algorithms](chapter18)
+19. [Interview Puzzles](chapter19)
