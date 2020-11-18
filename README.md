@@ -1,15 +1,26 @@
 # Essential Algorithms
 1) Network simulator
+
 ![Network](https://i.imgur.com/lZ6BUya.png)
+
 2) Draw trees
+
 ![Graph](https://i.imgur.com/i0bI9Gf.png)
+
 3) Graph functions
+
 ![Sin](https://i.imgur.com/CaE67ib.png)
+
 4) Calculate edit distance
+
 ![Distance](https://i.imgur.com/WS1ypVh.png)
+
 5) Tower of Hanoi
+
 ![Hanoi](https://i.imgur.com/34ja7cf.png)
+
 6) Quadtree
+
 ![Dots](https://i.imgur.com/hcNImw6.png)
 
 Essential Algorithms, First Edition - Exercises
