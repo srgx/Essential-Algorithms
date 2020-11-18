@@ -2,6 +2,7 @@
 ![Network](https://i.imgur.com/lZ6BUya.png)
 ![Graph](https://i.imgur.com/i0bI9Gf.png)
 ![Sin](https://i.imgur.com/CaE67ib.png)
+![Distance](https://i.imgur.com/WS1ypVh.png)
 ![Dots](https://i.imgur.com/hcNImw6.png)
 
 Essential Algorithms, First Edition - Exercises
