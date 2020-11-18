@@ -1,4 +1,7 @@
 # Essential Algorithms
+
+Solutions to exercises from book "Essential Algorithms: A Practical Approach to Computer Algorithms", 1st Edition
+
 * Network Simulator
 
 ![Network](https://i.imgur.com/8gp482U.png)
@@ -28,8 +31,6 @@
 ![Snowflake](https://i.imgur.com/fOV5cW0.png)
 
 ![Stars](https://i.imgur.com/KoITFz1.png)
-
-Essential Algorithms, First Edition - Exercises
 
 ## Table of Contents
 
