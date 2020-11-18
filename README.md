@@ -1,6 +1,6 @@
 # Essential Algorithms
 ![Network](https://i.imgur.com/lZ6BUya.png)
-![Graph](https://i.imgur.com/Od7cpie.png)
+![Graph](https://i.imgur.com/i0bI9Gf.png)
 ![Sin](https://i.imgur.com/CaE67ib.png)
 ![Dots](https://i.imgur.com/hcNImw6.png)
 
