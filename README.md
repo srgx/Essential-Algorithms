@@ -5,7 +5,7 @@
 
 * Trees
 
-![Graph](https://i.imgur.com/GTghlVL.png)
+![Graph](https://i.imgur.com/vi1Tj0K.png)
 
 * Function graphs
 
