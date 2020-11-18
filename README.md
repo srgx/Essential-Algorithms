@@ -1,33 +1,33 @@
 # Essential Algorithms
 * Network Simulator
 
-![Network](https://i.imgur.com/lZ6BUya.png)
+![Network](https://i.imgur.com/8gp482U.png)
 
 * Trees
 
-![Graph](https://i.imgur.com/i0bI9Gf.png)
+![Graph](https://i.imgur.com/GTghlVL.png)
 
 * Function graphs
 
-![Sin](https://i.imgur.com/CaE67ib.png)
+![Sin](https://i.imgur.com/BY9fqQ8.png)
 
 * Edit distance
 
-![Distance](https://i.imgur.com/WS1ypVh.png)
+![Distance](https://i.imgur.com/pej2OZa.png)
 
 * Tower of Hanoi
 
-![Hanoi](https://i.imgur.com/34ja7cf.png)
+![Hanoi](https://i.imgur.com/zASSzF2.png)
 
 * Quadtree
 
-![Dots](https://i.imgur.com/hcNImw6.png)
+![Dots](https://i.imgur.com/mTRCnJP.png)
 
 * Fractals
 
-![Snowflake](https://i.imgur.com/TYOrNMe.png)
+![Snowflake](https://i.imgur.com/fOV5cW0.png)
 
-![Stars](https://i.imgur.com/TxSI1Qx.png)
+![Stars](https://i.imgur.com/KoITFz1.png)
 
 Essential Algorithms, First Edition - Exercises
 
