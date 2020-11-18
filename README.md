@@ -3,6 +3,7 @@
 ![Graph](https://i.imgur.com/i0bI9Gf.png)
 ![Sin](https://i.imgur.com/CaE67ib.png)
 ![Distance](https://i.imgur.com/WS1ypVh.png)
+![Hanoi](https://i.imgur.com/34ja7cf.png)
 ![Dots](https://i.imgur.com/hcNImw6.png)
 
 Essential Algorithms, First Edition - Exercises
