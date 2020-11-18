@@ -1,17 +1,17 @@
 # Essential Algorithms
-1) Network simulator
+* Network simulator
 
 ![Network](https://i.imgur.com/lZ6BUya.png)
 
-2) Draw trees
+* Draw trees
 
 ![Graph](https://i.imgur.com/i0bI9Gf.png)
 
-3) Graph functions
+* Graph functions
 
 ![Sin](https://i.imgur.com/CaE67ib.png)
 
-4) Calculate edit distance
+* Calculate edit distance
 
 ![Distance](https://i.imgur.com/WS1ypVh.png)
 
