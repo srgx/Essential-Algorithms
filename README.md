@@ -2,7 +2,7 @@
 
 Solutions to exercises from book "Essential Algorithms: A Practical Approach to Computer Algorithms", 1st Edition
 
-* Network Simulator
+* Network
 
 ![Network](https://i.imgur.com/8gp482U.png)
 
