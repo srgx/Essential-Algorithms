@@ -4,27 +4,27 @@ Solutions to exercises from book "Essential Algorithms: A Practical Approach to 
 
 * Network
 
-![Network](https://i.imgur.com/8gp482U.png)
+![Network](https://i.imgur.com/Hlynvfh.png)
 
-* Trees
+* Tree
 
-![Graph](https://i.imgur.com/vi1Tj0K.png)
+![Graph](https://i.imgur.com/t33SCmO.png)
 
-* Function graphs
+* Function graph
 
 ![Sin](https://i.imgur.com/BY9fqQ8.png)
 
 * Edit distance
 
-![Distance](https://i.imgur.com/pej2OZa.png)
+![Distance](https://i.imgur.com/sRlmy6n.png)
 
 * Tower of Hanoi
 
-![Hanoi](https://i.imgur.com/zASSzF2.png)
+![Hanoi](https://i.imgur.com/d8FxAFa.png)
 
 * Quadtree
 
-![Dots](https://i.imgur.com/mTRCnJP.png)
+![Dots](https://i.imgur.com/FU9LZXa.png)
 
 * Fractals
 
