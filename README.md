@@ -30,7 +30,7 @@ Solutions to exercises from book "Essential Algorithms: A Practical Approach to 
 
 ![Snowflake](https://i.imgur.com/fOV5cW0.png)
 
-![Stars](https://i.imgur.com/KoITFz1.png)
+![Stars](https://i.imgur.com/YBtVuNW.png)
 
 ## Table of Contents
 
