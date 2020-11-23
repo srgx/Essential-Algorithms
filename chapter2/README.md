@@ -1,7 +1,5 @@
 # Chapter 2: Numerical Algorithms
 
-## Table of Contents
-
 * [Calculate GCD for random pairs](exercise12.rb)
 * [Carmichael numbers](exercise14.rb)
 * [Deal cards](exercise6.rb)

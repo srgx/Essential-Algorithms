@@ -1,7 +1,5 @@
 # Chapter 16: Cryptography
 
-## Table of Contents
-
 * [Caesar cipher](exercise6.rb)
 * [Column transposition cipher v1](exercise2.rb)
 * [Column transposition cipher v2](exercise5.rb)

@@ -3,6 +3,7 @@ require_relative 'exercise6.rb'
 # After finding index move left until different value is found
 # Worst case run time is O(N)
 
+# Return first occurence of target item
 def interpolationFirst(array,value)
   index=interpolationSearch(array,value)
   loop do
