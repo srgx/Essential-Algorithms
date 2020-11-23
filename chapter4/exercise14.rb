@@ -20,11 +20,16 @@ end
 
 # normal matrices
 def multiplyMatrices(a,b)
-  result = [[0,0,0],[0,0,0],[0,0,0]]
-  for i in 0..a.size-1
-    for j in 0..a[0].size-1
+  result = Array.new(a.size)
+
+  for i in 0...result.size
+    result[i] = Array.new(b.size)
+  end
+
+  for i in 0...a.size
+    for j in 0...a[0].size
       result[i][j]=0
-      for k in 0..a[0].size-1
+      for k in 0...a[0].size
         result[i][j]+=(a[i][k]*b[k][j])
       end
     end
@@ -32,6 +37,8 @@ def multiplyMatrices(a,b)
   return result
 end
 
+
+# Functions for sparse matrices
 
 def showRows(sentinel)
   while(sentinel.next_row!=nil)
@@ -230,7 +237,6 @@ res = multiplyMatrices(matrix1,matrix2)
 raise ERR if(res!=[[46, 28, 81],
                    [118, 73, 213],
                    [355, 396, 248]])
-
 
 
 
