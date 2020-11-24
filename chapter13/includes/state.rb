@@ -252,6 +252,7 @@ class State
     self.resetItems
   end
 
+  # Label-correcting path
   def labCorPath(fromNode,toNode)
     self.clearAll
     fromNode.distance = 0
@@ -293,6 +294,7 @@ class State
     self.resetItems
   end
 
+  # Label-correcting tree
   def labCorTree(rootNode)
     self.clearAll
     rootNode.setColor('brown')
@@ -341,6 +343,7 @@ class State
     self.resetItems
   end
 
+  # Label-setting tree
   def labSetTree(rootNode)
     self.clearAll
     rootNode.visit
@@ -382,7 +385,7 @@ class State
     self.resetItems
   end
 
-
+  # Label-setting path
   def labSetPath(fromNode,toNode)
     self.clearAll
     fromNode.visit
@@ -528,6 +531,7 @@ class State
     self.resetTemp
   end
 
+  # Topological sorting
   def toposort
     ordering, ready = [], []
 
@@ -583,6 +587,7 @@ class State
 
   end
 
+  # Two-color network
   def twocolor
 
     color1, color2, colored = 'purple', 'lime', []
@@ -618,6 +623,7 @@ class State
     return true
   end
 
+  # Color network(hill climbing heuristic)
   def hillcolor
 
     colors = ['blue','red','green','purple',
@@ -745,6 +751,7 @@ class State
     return false
   end
 
+  # Three-color network
   def threecolor
 
     clearAll
@@ -785,6 +792,7 @@ class State
     return true
   end
 
+  # Four-color network
   def fourcolor
 
     clearAll
@@ -826,6 +834,7 @@ class State
     return true
   end
 
+  # Color network using fewest possible colors(exhaustive search)
   def excolor
 
     # twocolor.ntw - 2 colors
@@ -844,6 +853,7 @@ class State
 
   end
 
+  # Find augmenting path
   def findAuPath(currentNode,collectedLinks)
 
     if(currentNode.name=='SNK')
@@ -898,6 +908,7 @@ class State
 
   end
 
+  # Maximal flow
   def maxflow
 
     clearAll
@@ -995,6 +1006,7 @@ class State
     end
   end
 
+  # Minimal flow cut
   def mincut
     maxflow
 
