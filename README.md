@@ -54,7 +54,7 @@ Solutions to exercises from book "Essential Algorithms: A Practical Approach to 
 18. [Distributed Algorithms](chapter18)
 19. [Interview Puzzles](chapter19)
 
-## Table of Contents
+## List of Algorithms
 
 ### Chapter 1: Algorithm Basics
 
@@ -225,6 +225,12 @@ Solutions to exercises from book "Essential Algorithms: A Practical Approach to 
   * Color network(hill climbing heuristic)
   * Color network using fewest possible colors(exhaustive search)
   * Connected components
+  * Label-correcting shortest path
+  * Label-correcting shortest path tree
+  * Label-setting shortest path
+  * Label-setting shortest path tree
+  * Log all shortest paths
+  * Log Distance and Via arrays
   * Maximal flow
   * Minimal flow cut
   * Minimal spanning tree
@@ -233,12 +239,7 @@ Solutions to exercises from book "Essential Algorithms: A Practical Approach to 
   * Spanning tree
   * Topological sorting
   * Two-color network
-  * Label-correcting shortest path
-  * Label-correcting shortest path tree
-  * Label-setting shortest path
-  * Label-setting shortest path tree
-  * Log all shortest paths
-  * Log Distance and Via arrays
+
 
 ### Chapter 14: More Network Algorithms
 
