@@ -28,7 +28,7 @@ Solutions to exercises from book "Essential Algorithms: A Practical Approach to 
 
 * Fractals
 
-![Fractals](https://i.imgur.com/VQmeycb.png)
+![Fractals](https://i.imgur.com/WWj4yoS.png)
 
 ![Stars](https://i.imgur.com/YBtVuNW.png)
 
