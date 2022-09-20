@@ -1,4 +1,4 @@
-# Essential Algorithms
+# ![Logo](https://i.imgur.com/6AlfJG7.png)
 
 Solutions to exercises from book "Essential Algorithms: A Practical Approach to Computer Algorithms", 1st Edition
 
